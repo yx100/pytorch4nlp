@@ -35,14 +35,14 @@ if usecuda:
 def eval_epoch(data):
     n_correct, n_total = 0, 0
     for batch in data.next_batch(batch_size):
-        model.eval(); opt.zero_grad()
+        model.eval()
 
         pred = model(batch)
 
         n_correct += (torch.max(pred, 1)[1].view(batch.label.size()).data == batch.label.data).sum()
         n_total += batch.batch_size
 
-        opt.step()
+
     return 100. * n_correct/n_total
 
 
@@ -61,9 +61,10 @@ def train_epoch(epoch_index):
         loss = criterion(pred, batch.label)
 
         # backpropagate and update optimizer learning rate
-        loss.backward(); opt.step()
+        loss.backward()
 
         opt.step()
+
     return 100. * n_correct/n_total
 
 
