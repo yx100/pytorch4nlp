@@ -74,6 +74,11 @@ for name, param in model.named_parameters():
 wo_word_opt = getattr(torch.optim, args.optimizer)(param_wo_embedding, lr=args.lr, weight_decay=10e-4)
 word_opt = getattr(torch.optim, args.word_optimizer)(param_embedding, lr=args.word_lr, weight_decay=10e-4)
 
+for name, param in wo_word_opt.named_parameters():
+    print("%s(%s)\t%s with %s" % (name, param.size(), args.optimizer, args.lr))
+for name, param in word_opt.named_parameters():
+    print("%s(%s)\t%s with %s" % (name, param.size(), args.word_optimizer, args.word_lr))
+
 if args.device >= 0:
     model.cuda()
 
