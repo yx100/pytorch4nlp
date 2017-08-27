@@ -20,7 +20,7 @@ class SSTCorpus():
         self.volatile = volatile
         self.cuda = cuda
         self.data = self.load_data_file(data_path=data_path, dictionary=self.dictionary)
-        self.batch_size = 64
+        self.batch_size = batch_size
         self.sort()
 
     @staticmethod
