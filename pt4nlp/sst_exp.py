@@ -65,10 +65,10 @@ param_embedding = []
 
 for name, param in model.named_parameters():
     if "emb_luts" in name:
-        print("%s\t%s with %s" % (name, args.word_optimizer, args.word_lr))
+        print("%s(%s)\t%s with %s" % (name, param.size(), args.word_optimizer, args.word_lr))
         param_embedding.append(param)
     else:
-        print("%s\t%s with %s" % (name, args.optimizer, args.lr))
+        print("%s(%s)\t%s with %s" % (name, param.size(), args.optimizer, args.lr))
         param_wo_embedding.append(param)
 
 wo_word_opt = getattr(torch.optim, args.optimizer)(param_wo_embedding, lr=args.lr, weight_decay=10e-4)
