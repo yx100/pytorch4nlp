@@ -3,6 +3,7 @@
 # Created by Roger on 2017/8/27
 # Mostly from https://github.com/OpenNMT/OpenNMT-py
 # Most Code in load/save word2vec format refer to Gensim
+from __future__ import absolute_import
 import torch
 import torch.nn as nn
 from . import Constants

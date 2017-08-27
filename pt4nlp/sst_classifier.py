@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # Created by Roger on 2017/8/26
+from __future__ import absolute_import
 import torch.nn as nn
 from .rnn_encoder import RNNEncoder
 from .embedding import Embeddings
