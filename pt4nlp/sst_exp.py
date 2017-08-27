@@ -30,6 +30,8 @@ parser.add_argument('-rnn-type', type=str, dest='rnn_type', default='LSTM')
 # Optimizer Option
 parser.add_argument('-optimizer', type=str, dest="optimizer", default="Adadelta")
 parser.add_argument('-lr', type=float, dest="lr", default=1)
+parser.add_argument('-word-optimizer', type=str, dest="word_optimizer", default="sgd")
+parser.add_argument('-word-lr', type=float, dest="word_lr", default=0.1)
 
 args = parser.parse_args()
 
@@ -52,7 +54,21 @@ test_data = SSTCorpus("en_emotion_data/sst2_test.csv", dictionary, cuda=usecuda,
 model = SSTClassifier(dictionary, opt=args, label_num=label_dictionary.size())
 model.embedding.load_pretrained_vectors(args.word_vectors)
 criterion = nn.CrossEntropyLoss()
-opt = getattr(torch.optim, args.optimizer)(model.parameters(), lr=args.lr)
+
+
+param_wo_embedding = []
+param_embedding = []
+
+for name, param in model.named_parameters():
+    if "emb_luts" in name:
+        print("%s\t%s with %s" % (name, args.word_optimizer, args.word_lr))
+        param_embedding.append(param)
+    else:
+        print("%s\t%s with %s" % (name, args.optimizer, args.lr))
+        param_wo_embedding.append(param)
+
+opt = getattr(torch.optim, args.optimizer)(param_wo_embedding, lr=args.lr)
+word_opt = getattr(torch.optim, args.word_optimizer)(param_embedding, lr=args.word_lr)
 
 if args.device >= 0:
     model.cuda()
@@ -88,6 +104,7 @@ def train_epoch(epoch_index):
         loss.backward()
 
         opt.step()
+        word_opt.step()
 
     return 100. * n_correct/n_total
 
