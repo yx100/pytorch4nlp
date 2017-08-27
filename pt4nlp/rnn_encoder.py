@@ -37,7 +37,8 @@ class RNNEncoder(nn.Module):
 
     def init_model(self):
         for weight in self.rnn.parameters():
-            nn.init.xavier_normal(weight)
+            if weight.ndim() == 2:
+                nn.init.xavier_normal(weight)
 
     def forward(self, inputs):
         batch_size = inputs.size()[0]
