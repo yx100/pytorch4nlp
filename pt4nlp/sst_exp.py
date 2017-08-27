@@ -29,7 +29,7 @@ parser.add_argument('-rnn-type', type=str, dest='rnn_type', default='LSTM')
 
 # Optimizer Option
 parser.add_argument('-optimizer', type=str, dest="optimizer", default="Adadelta")
-parser.add_argument('-lr', type=float, dest="lr", default=1)
+parser.add_argument('-lr', type=float, dest="lr", default=1.0)
 parser.add_argument('-word-optimizer', type=str, dest="word_optimizer", default="SGD")
 parser.add_argument('-word-lr', type=float, dest="word_lr", default=0.1)
 
@@ -67,7 +67,7 @@ for name, param in model.named_parameters():
         print("%s\t%s with %s" % (name, args.optimizer, args.lr))
         param_wo_embedding.append(param)
 
-opt = getattr(torch.optim, args.optimizer)(param_wo_embedding, lr=args.lr)
+wo_word_opt = getattr(torch.optim, args.optimizer)(param_wo_embedding, lr=args.lr)
 word_opt = getattr(torch.optim, args.word_optimizer)(param_embedding, lr=args.word_lr)
 
 if args.device >= 0:
@@ -90,7 +90,7 @@ def train_epoch(epoch_index):
     n_correct, n_total = 0, 0
 
     for batch in train_data.next_batch(batch_size):
-        model.train(); opt.zero_grad()
+        model.train(); wo_word_opt.zero_grad(); word_opt.zero_grad()
 
         pred = model(batch)
 
@@ -103,7 +103,7 @@ def train_epoch(epoch_index):
         # backpropagate and update optimizer learning rate
         loss.backward()
 
-        opt.step()
+        wo_word_opt.step()
         word_opt.step()
 
     return 100. * n_correct/n_total
