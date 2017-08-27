@@ -112,7 +112,7 @@ def train_epoch(epoch_index):
         if args.clip > 0:
             nn.utils.clip_grad_norm(model.parameters(), args.clip)
 
-        opt.close()
+        opt.step()
         '''wo_word_opt.step()
         word_opt.step()'''
 

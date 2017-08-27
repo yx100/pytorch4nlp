@@ -51,7 +51,7 @@ def load_word2vec_format(filename, word_idx, binary=False, normalize=False,
     :param unicode_errors: errors can be 'strict', 'replace' or 'ignore' and defaults to 'strict'.
     """
     vocab = set()
-    print("loading word embedding from %s", filename)
+    print("loading word embedding from %s" % filename)
     with open(filename, 'rb') as fin:
         header = to_unicode(fin.readline(), encoding=encoding)
         vocab_size, vector_size = map(int, header.split())  # throws for invalid file format
