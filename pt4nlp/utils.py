@@ -75,7 +75,7 @@ def load_word2vec_format(filename, word_idx, binary=False, normalize=False,
                     if ch != b'\n':  # ignore newlines in front of words (some binary files have)
                         word.append(ch)
                 word = to_unicode(b''.join(word), encoding=encoding, errors=unicode_errors)
-                weights = np.fromstring(fin.read(binary_len), dtype=REAL)
+                weights = torch.from_numpy(np.fromstring(fin.read(binary_len), dtype=REAL))
                 add_word(word, weights)
         else:
             for line_no, line in enumerate(fin):

@@ -37,7 +37,7 @@ class RNNEncoder(nn.Module):
 
     def init_model(self):
         for weight in self.rnn.parameters():
-            if weight.ndim() == 2:
+            if weight.data.dim() == 2:
                 nn.init.xavier_normal(weight)
 
     def forward(self, inputs):
