@@ -22,7 +22,7 @@ parser.add_argument('-seed', type=int, dest="seed", default=1993)
 
 # Model Option
 parser.add_argument('-word-vec-size', type=int, dest="word_vec_size", default=300)
-parser.add_argument('-hidden-size', type=int, dest="hidden_size",default=168)
+parser.add_argument('-hidden-size', type=int, dest="hidden_size", default=168)
 parser.add_argument('-num-layers', type=int, dest='num_layers', default=1)
 parser.add_argument('-dropout', type=float, dest='dropout', default=0.5)
 parser.add_argument('-no-bidirection', action='store_false', dest='brnn')
@@ -59,7 +59,6 @@ model = SSTClassifier(dictionary, opt=args, label_num=label_dictionary.size())
 model.embedding.load_pretrained_vectors(args.word_vectors)
 criterion = nn.CrossEntropyLoss()
 
-'''
 param_wo_embedding = []
 param_embedding = []
 
@@ -73,15 +72,15 @@ for name, param in model.named_parameters():
 
 wo_word_opt = getattr(torch.optim, args.optimizer)(param_wo_embedding, lr=args.lr, weight_decay=10e-4)
 word_opt = getattr(torch.optim, args.word_optimizer)(param_embedding, lr=args.word_lr, weight_decay=10e-4)
-'''
-opt = getattr(torch.optim, args.optimizer)(model.parameters(), lr=args.lr, weight_decay=10e-4)
-
 
 if args.device >= 0:
     model.cuda()
 
+
 def eval_epoch(data):
+
     n_correct, n_total = 0, 0
+
     for batch in data.next_batch(batch_size):
         model.eval()
 
@@ -94,10 +93,11 @@ def eval_epoch(data):
 
 
 def train_epoch(epoch_index):
+
     n_correct, n_total = 0, 0
 
     for batch in train_data.next_batch(batch_size):
-        model.train(); opt.zero_grad()
+        model.train(); wo_word_opt.zero_grad(); word_opt.zero_grad()
 
         pred = model(batch)
         n_correct += (torch.max(pred, 1)[1].view(batch.label.size()).data == batch.label.data).sum()
@@ -112,9 +112,8 @@ def train_epoch(epoch_index):
         if args.clip > 0:
             nn.utils.clip_grad_norm(model.parameters(), args.clip)
 
-        opt.step()
-        '''wo_word_opt.step()
-        word_opt.step()'''
+        wo_word_opt.step()
+        word_opt.step()
 
     return 100. * n_correct/n_total
 
