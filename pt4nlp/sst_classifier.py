@@ -14,7 +14,13 @@ class SSTClassifier(nn.Module):
                                     dicts=dicts)
         self.encoder = RNNEncoder(input_size=self.embedding.output_size)
         self.out = nn.Sequential(nn.ReLU(),
-                                 nn.Linear(self.encoder.output_size, 5))
+                                 nn.Linear(self.encoder.output_size, 5),)
+        self.init_model()
+
+    def init_model(self):
+        for weight in self.out.parameters():
+            if weight.data.dim() == 2:
+                nn.init.xavier_normal(weight)
 
     def forward(self, batch):
         words_embeddings = self.embedding(batch.text)

@@ -10,11 +10,34 @@ from sst_classifier import SSTClassifier
 from dictionary import Dictionary
 import Constants
 from sst_corpus import SSTCorpus
+from argparse import ArgumentParser
 
 
-usecuda = True
-device = 0
-batch_size = 64
+parser = ArgumentParser(description='SST Text Classifier')
+# Train Option
+parser.add_argument('-epoch', type=int, dest="epoch", default=50)
+parser.add_argument('-batch', type=int, dest="batch", default=128)
+parser.add_argument('-device', type=int, dest="device", default=0)
+
+# Model Option
+parser.add_argument('-word-vec-size', type=int, dest="word_vec_size", default=300)
+parser.add_argument('-hidden-size', type=int, dest="hidden_size",default=168)
+parser.add_argument('-no-bidirection', action='store_false', dest='brnn')
+parser.add_argument('-word-vectors', type=str, default='glove.42B')
+parser.add_argument('-rnn-type', type=str, dest='rnn_type', default='LSTM')
+parser.add_argument('-dropout', type=float, dest='dropout', default=0.2)
+
+# Optimizer Option
+parser.add_argument('-optimizer', type=str, dest="optimizer", default="Adadelta")
+parser.add_argument('-lr', type=float, dest="lr", default=1)
+
+args = parser.parse_args()
+
+usecuda = False
+batch_size = args.batch
+
+if args.device > 0:
+    usecuda = True
 
 dictionary = Dictionary()
 dictionary.add_specials([Constants.PAD_WORD, Constants.UNK_WORD, Constants.BOS_WORD, Constants.EOS_WORD],
@@ -27,10 +50,10 @@ test_data = SSTCorpus("en_emotion_data/sst5_test.csv", dictionary, cuda=usecuda,
 model = SSTClassifier(dictionary)
 model.embedding.load_pretrained_vectors("en.emotion.glove.emb.bin")
 criterion = nn.CrossEntropyLoss()
-opt = O.Adam(model.parameters(), lr=0.001)
-if usecuda:
-    model.cuda()
+opt = getattr(torch.optim, args.optimizer)(model.parameters, lr=args.lr)
 
+if args.device > 0:
+    model.cuda()
 
 def eval_epoch(data):
     n_correct, n_total = 0, 0
@@ -41,7 +64,6 @@ def eval_epoch(data):
 
         n_correct += (torch.max(pred, 1)[1].view(batch.label.size()).data == batch.label.data).sum()
         n_total += batch.batch_size
-
 
     return 100. * n_correct/n_total
 
