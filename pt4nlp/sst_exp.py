@@ -71,7 +71,7 @@ for name, param in model.named_parameters():
         print("%s(%s)\t%s with %s" % (name, param.size(), args.optimizer, args.lr))
         param_wo_embedding.append(param)
 
-wo_word_opt = getattr(torch.optim, args.optimizer)(model.parameters(), lr=args.lr, weight_decay=10e-4)
+wo_word_opt = getattr(torch.optim, args.optimizer)(param_wo_embedding, lr=args.lr, weight_decay=10e-4)
 word_opt = getattr(torch.optim, args.word_optimizer)(param_embedding, lr=args.word_lr, weight_decay=10e-4)
 
 
@@ -98,7 +98,6 @@ def train_epoch(epoch_index):
         model.train(); model.zero_grad(); wo_word_opt.zero_grad(); word_opt.zero_grad()
 
         pred = model(batch)
-
         n_correct += (torch.max(pred, 1)[1].view(batch.label.size()).data == batch.label.data).sum()
         n_total += batch.batch_size
 
@@ -110,10 +109,9 @@ def train_epoch(epoch_index):
 
         if args.clip > 0:
             nn.utils.clip_grad_norm(model.parameters(), args.clip)
-        for p in model.parameters():
-            p.data.add_(-0.1, p.grad.data)
-        # wo_word_opt.step()
-        # word_opt.step()
+
+        wo_word_opt.step()
+        word_opt.step()
 
     return 100. * n_correct/n_total
 
