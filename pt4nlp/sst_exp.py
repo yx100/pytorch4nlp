@@ -72,7 +72,7 @@ for name, param in model.named_parameters():
         param_wo_embedding.append(param)
 
 wo_word_opt = getattr(torch.optim, args.optimizer)(model.parameters(), lr=args.lr, weight_decay=10e-4)
-# word_opt = getattr(torch.optim, args.word_optimizer)(param_embedding, lr=args.word_lr, weight_decay=10e-4)
+word_opt = getattr(torch.optim, args.word_optimizer)(param_embedding, lr=args.word_lr, weight_decay=10e-4)
 
 
 if args.device >= 0:
@@ -95,7 +95,7 @@ def train_epoch(epoch_index):
     n_correct, n_total = 0, 0
 
     for batch in train_data.next_batch(batch_size):
-        model.train(); wo_word_opt.zero_grad()
+        model.train(); wo_word_opt.zero_grad(); word_opt.zero_grad()
 
         pred = model(batch)
 
@@ -112,6 +112,7 @@ def train_epoch(epoch_index):
             nn.utils.clip_grad_norm(model.parameters(), args.clip)
 
         wo_word_opt.step()
+        word_opt.step()
 
     return 100. * n_correct/n_total
 
