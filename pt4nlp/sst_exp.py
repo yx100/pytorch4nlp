@@ -18,6 +18,7 @@ parser = ArgumentParser(description='SST Text Classifier')
 parser.add_argument('-epoch', type=int, dest="epoch", default=50)
 parser.add_argument('-batch', type=int, dest="batch", default=128)
 parser.add_argument('-device', type=int, dest="device", default=0)
+parser.add_argument('-seed', type=int, dest="seed", default=1993)
 
 # Model Option
 parser.add_argument('-word-vec-size', type=int, dest="word_vec_size", default=300)
@@ -35,6 +36,7 @@ parser.add_argument('-word-optimizer', type=str, dest="word_optimizer", default=
 parser.add_argument('-word-lr', type=float, dest="word_lr", default=0.1)
 
 args = parser.parse_args()
+torch.manual_seed(args.seed)
 
 usecuda = False
 batch_size = args.batch
