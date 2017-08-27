@@ -31,7 +31,7 @@ parser.add_argument('-rnn-type', type=str, dest='rnn_type', default='LSTM')
 
 # Optimizer Option
 parser.add_argument('-optimizer', type=str, dest="optimizer", default="Adadelta")
-parser.add_argument('-lr', type=float, dest="lr", default=1.0)
+parser.add_argument('-lr', type=float, dest="lr", default=0.05)
 parser.add_argument('-word-optimizer', type=str, dest="word_optimizer", default="SGD")
 parser.add_argument('-word-lr', type=float, dest="word_lr", default=0.1)
 parser.add_argument('-clip', type=float, default=9.0, dest="clip", help='clip grad by norm')
@@ -49,14 +49,14 @@ label_dictionary = Dictionary()
 dictionary = Dictionary()
 dictionary.add_specials([Constants.PAD_WORD, Constants.UNK_WORD, Constants.BOS_WORD, Constants.EOS_WORD],
                         [Constants.PAD, Constants.UNK, Constants.BOS, Constants.EOS])
-SSTCorpus.add_word_to_dictionary("en_emotion_data/sst5_train_sentences.csv", dictionary,
+SSTCorpus.add_word_to_dictionary("en_emotion_data/sst5_train_phrases.csv", dictionary,
                                  label_dictionary=label_dictionary)
-train_data = SSTCorpus("en_emotion_data/sst5_train_sentences.csv", dictionary, cuda=usecuda, batch_size=batch_size)
+train_data = SSTCorpus("en_emotion_data/sst5_train_phrases.csv", dictionary, cuda=usecuda, batch_size=batch_size)
 dev_data = SSTCorpus("en_emotion_data/sst5_dev.csv", dictionary, cuda=usecuda, volatile=True, batch_size=batch_size)
 test_data = SSTCorpus("en_emotion_data/sst5_test.csv", dictionary, cuda=usecuda, volatile=True, batch_size=batch_size)
 
 model = SSTClassifier(dictionary, opt=args, label_num=label_dictionary.size())
-# model.embedding.load_pretrained_vectors(args.word_vectors)
+model.embedding.load_pretrained_vectors(args.word_vectors)
 criterion = nn.CrossEntropyLoss()
 
 param_wo_embedding = []
