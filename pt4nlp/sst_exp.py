@@ -36,7 +36,7 @@ args = parser.parse_args()
 usecuda = False
 batch_size = args.batch
 
-if args.device > 0:
+if args.device >= 0:
     usecuda = True
 
 label_dictionary = Dictionary()
@@ -52,9 +52,9 @@ test_data = SSTCorpus("en_emotion_data/sst5_test.csv", dictionary, cuda=usecuda,
 model = SSTClassifier(dictionary, opt=args, label_num=label_dictionary.size())
 model.embedding.load_pretrained_vectors("en.emotion.glove.emb.bin")
 criterion = nn.CrossEntropyLoss()
-opt = getattr(torch.optim, args.optimizer)(model.parameters, lr=args.lr)
+opt = getattr(torch.optim, args.optimizer)(model.parameters(), lr=args.lr)
 
-if args.device > 0:
+if args.device >= 0:
     model.cuda()
 
 def eval_epoch(data):
