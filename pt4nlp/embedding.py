@@ -97,7 +97,7 @@ class Embeddings(nn.Module):
                     nn.init.uniform(pretrained[self.word_dict.lookup(word)],
                                     random_range[0], random_range[1])
 
-            self.word_lut.weight.data.copy_(pretrained)
+            self.word_lookup_table.weight.data.copy_(pretrained)
 
     def merge(self, features):
         if self.feat_merge == 'concat':
