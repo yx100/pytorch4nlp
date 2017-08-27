@@ -8,13 +8,18 @@ from embedding import Embeddings
 
 
 class SSTClassifier(nn.Module):
-    def __init__(self, dicts, word_vec_dim=300):
+    def __init__(self, dicts, opt, label_num):
         super(SSTClassifier, self).__init__()
-        self.embedding = Embeddings(word_vec_size=word_vec_dim,
+        self.embedding = Embeddings(word_vec_size=opt.word_vec_size,
                                     dicts=dicts)
-        self.encoder = RNNEncoder(input_size=self.embedding.output_size)
+        self.encoder = RNNEncoder(input_size=self.embedding.output_size,
+                                  hidden_size=opt.hidden_size,
+                                  num_layers=opt.num_layers,
+                                  dropout=opt.dropout,
+                                  brnn=opt.brnn,
+                                  rnn_type=opt.rnn_type)
         self.out = nn.Sequential(nn.ReLU(),
-                                 nn.Linear(self.encoder.output_size, 5),)
+                                 nn.Linear(self.encoder.output_size, label_num),)
         self.init_model()
 
     def init_model(self):

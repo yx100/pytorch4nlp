@@ -3,7 +3,6 @@
 # Created by Roger on 2017/8/26
 from __future__ import absolute_import
 import torch
-import torch.optim as O
 import torch.nn as nn
 from builtins import range
 from sst_classifier import SSTClassifier
@@ -22,10 +21,11 @@ parser.add_argument('-device', type=int, dest="device", default=0)
 # Model Option
 parser.add_argument('-word-vec-size', type=int, dest="word_vec_size", default=300)
 parser.add_argument('-hidden-size', type=int, dest="hidden_size",default=168)
+parser.add_argument('-num-layers', type=int, dest='num_layers', default=1)
+parser.add_argument('-dropout', type=float, dest='dropout', default=0.2)
 parser.add_argument('-no-bidirection', action='store_false', dest='brnn')
 parser.add_argument('-word-vectors', type=str, default='glove.42B')
 parser.add_argument('-rnn-type', type=str, dest='rnn_type', default='LSTM')
-parser.add_argument('-dropout', type=float, dest='dropout', default=0.2)
 
 # Optimizer Option
 parser.add_argument('-optimizer', type=str, dest="optimizer", default="Adadelta")
@@ -39,15 +39,17 @@ batch_size = args.batch
 if args.device > 0:
     usecuda = True
 
+label_dictionary = Dictionary()
 dictionary = Dictionary()
 dictionary.add_specials([Constants.PAD_WORD, Constants.UNK_WORD, Constants.BOS_WORD, Constants.EOS_WORD],
                         [Constants.PAD, Constants.UNK, Constants.BOS, Constants.EOS])
-SSTCorpus.add_word_to_dictionary("en_emotion_data/sst5_train_phrases.csv", dictionary)
+SSTCorpus.add_word_to_dictionary("en_emotion_data/sst5_train_phrases.csv", dictionary,
+                                 label_dictionary=label_dictionary)
 train_data = SSTCorpus("en_emotion_data/sst5_train_phrases.csv", dictionary, cuda=usecuda)
 dev_data = SSTCorpus("en_emotion_data/sst5_dev.csv", dictionary, cuda=usecuda, volatile=True)
 test_data = SSTCorpus("en_emotion_data/sst5_test.csv", dictionary, cuda=usecuda, volatile=True)
 
-model = SSTClassifier(dictionary)
+model = SSTClassifier(dictionary, opt=args, label_num=label_dictionary.size())
 model.embedding.load_pretrained_vectors("en.emotion.glove.emb.bin")
 criterion = nn.CrossEntropyLoss()
 opt = getattr(torch.optim, args.optimizer)(model.parameters, lr=args.lr)

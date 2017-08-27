@@ -32,10 +32,12 @@ class SSTCorpus():
         return data
 
     @staticmethod
-    def add_word_to_dictionary(data_path, dictionary, split_symbol='\t'):
+    def add_word_to_dictionary(data_path, dictionary, split_symbol='\t', label_dictionary=None):
         with codecs.open(data_path, 'r', 'utf8') as fin:
             for line in fin:
-                _, _, text = line.strip().partition(split_symbol)
+                label, _, text = line.strip().partition(split_symbol)
+                if label_dictionary is not None:
+                    label_dictionary.add(label)
                 for word in text.split():
                     dictionary.add(word)
 
