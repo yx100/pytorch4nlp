@@ -30,7 +30,7 @@ parser.add_argument('-rnn-type', type=str, dest='rnn_type', default='LSTM')
 # Optimizer Option
 parser.add_argument('-optimizer', type=str, dest="optimizer", default="Adadelta")
 parser.add_argument('-lr', type=float, dest="lr", default=1)
-parser.add_argument('-word-optimizer', type=str, dest="word_optimizer", default="sgd")
+parser.add_argument('-word-optimizer', type=str, dest="word_optimizer", default="SGD")
 parser.add_argument('-word-lr', type=float, dest="word_lr", default=0.1)
 
 args = parser.parse_args()
