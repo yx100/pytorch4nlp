@@ -7,21 +7,21 @@ import torch.nn as nn
 from builtins import range
 from sst_classifier import SSTClassifier
 from dictionary import Dictionary
-import Constants 
+import Constants
 from sst_corpus import SSTCorpus
 
 
-usecuda = False
-device = -1
+usecuda = True
+device = 0
 batch_size = 64
 
 dictionary = Dictionary()
 dictionary.add_specials([Constants.PAD_WORD, Constants.UNK_WORD, Constants.BOS_WORD, Constants.EOS_WORD],
                         [Constants.PAD, Constants.UNK, Constants.BOS, Constants.EOS])
 SSTCorpus.add_word_to_dictionary("en_emotion_data/sst5_train_phrases.csv", dictionary)
-train_data = SSTCorpus("en_emotion_data/sst5_train_phrases.csv", dictionary)
-dev_data = SSTCorpus("en_emotion_data/sst5_dev.csv", dictionary, volatile=True)
-test_data = SSTCorpus("en_emotion_data/sst5_test.csv", dictionary, volatile=True)
+train_data = SSTCorpus("en_emotion_data/sst5_train_phrases.csv", dictionary, cuda=usecuda)
+dev_data = SSTCorpus("en_emotion_data/sst5_dev.csv", dictionary, cuda=usecuda, volatile=True)
+test_data = SSTCorpus("en_emotion_data/sst5_test.csv", dictionary, cuda=usecuda, volatile=True)
 
 model = SSTClassifier(len(dictionary))
 criterion = nn.CrossEntropyLoss()
@@ -62,11 +62,11 @@ def train_epoch(epoch_index):
         loss.backward(); opt.step()
 
         opt.step()
-    print(100. * n_correct/n_total)
-
-
-
+    return 100. * n_correct/n_total
 
 
 for i in range(50):
-    train_epoch(i)
+    train_acc = train_epoch(i)
+    dev_acc = eval_epoch(dev_data)
+    test_acc = eval_epoch(test_data)
+    print("iter %2d|%6.2f|%6.2f|%6.2f|" % (i, train_acc, dev_acc, test_acc))
