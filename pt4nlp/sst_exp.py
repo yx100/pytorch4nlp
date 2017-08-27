@@ -5,10 +5,10 @@ import torch
 import torch.optim as O
 import torch.nn as nn
 from builtins import range
-from sst_classifier import SSTClassifier
-from dictionary import Dictionary
-import Constants
-from sst_corpus import SSTCorpus
+from .sst_classifier import SSTClassifier
+from .dictionary import Dictionary
+from . import Constants
+from .sst_corpus import SSTCorpus
 
 
 usecuda = True
@@ -24,6 +24,7 @@ dev_data = SSTCorpus("en_emotion_data/sst5_dev.csv", dictionary, cuda=usecuda, v
 test_data = SSTCorpus("en_emotion_data/sst5_test.csv", dictionary, cuda=usecuda, volatile=True)
 
 model = SSTClassifier(len(dictionary))
+model.embedding.load_pretrained_vectors("en.emotion.glove.emb.bin")
 criterion = nn.CrossEntropyLoss()
 opt = O.Adam(model.parameters(), lr=0.001)
 if usecuda:
@@ -69,4 +70,4 @@ for i in range(50):
     train_acc = train_epoch(i)
     dev_acc = eval_epoch(dev_data)
     test_acc = eval_epoch(test_data)
-    print("iter %2d|%6.2f|%6.2f|%6.2f|" % (i, train_acc, dev_acc, test_acc))
+    print("iter %2d | %6.2f | %6.2f | %6.2f |" % (i, train_acc, dev_acc, test_acc))
