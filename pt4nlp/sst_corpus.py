@@ -14,11 +14,13 @@ class SSTCorpus():
                  data_path,
                  dictionary,
                  volatile=False,
+                 batch_size=64,
                  cuda=False):
         self.dictionary = dictionary
         self.volatile = volatile
         self.cuda = cuda
         self.data = self.load_data_file(data_path=data_path, dictionary=self.dictionary)
+        self.batch_size = 64
         self.sort()
 
     @staticmethod
@@ -66,12 +68,12 @@ class SSTCorpus():
 
         return torch.stack(text, 0), label
 
-    def next_batch(self, batch_size):
-        num_batch = int(math.ceil(len(self.data) / float(batch_size)))
+    def next_batch(self):
+        num_batch = int(math.ceil(len(self.data) / float(self.batch_size)))
         random_index = torch.randperm(num_batch)
         for index, i in enumerate(random_index):
-            start, end = i * batch_size, (i + 1) * batch_size
-            batch_size = len(self.data[start:end])
+            start, end = i * self.batch_size, (i + 1) * self.batch_size
+            _batch_size = len(self.data[start:end])
             text, label = self._batchify(self.data[start:end])
 
             if self.cuda:
@@ -81,7 +83,7 @@ class SSTCorpus():
             text = Variable(text, volatile=self.volatile)
             label = Variable(label, volatile=self.volatile)
 
-            yield Batch(text, label, batch_size)
+            yield Batch(text, label, _batch_size)
 
 
 class Batch(object):

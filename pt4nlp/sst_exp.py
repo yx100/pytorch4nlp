@@ -51,12 +51,12 @@ dictionary.add_specials([Constants.PAD_WORD, Constants.UNK_WORD, Constants.BOS_W
                         [Constants.PAD, Constants.UNK, Constants.BOS, Constants.EOS])
 SSTCorpus.add_word_to_dictionary("en_emotion_data/sst5_train_sentences.csv", dictionary,
                                  label_dictionary=label_dictionary)
-train_data = SSTCorpus("en_emotion_data/sst5_train_sentences.csv", dictionary, cuda=usecuda)
-dev_data = SSTCorpus("en_emotion_data/sst5_dev.csv", dictionary, cuda=usecuda, volatile=True)
-test_data = SSTCorpus("en_emotion_data/sst5_test.csv", dictionary, cuda=usecuda, volatile=True)
+train_data = SSTCorpus("en_emotion_data/sst5_train_sentences.csv", dictionary, cuda=usecuda, batch_size=batch_size)
+dev_data = SSTCorpus("en_emotion_data/sst5_dev.csv", dictionary, cuda=usecuda, volatile=True, batch_size=batch_size)
+test_data = SSTCorpus("en_emotion_data/sst5_test.csv", dictionary, cuda=usecuda, volatile=True, batch_size=batch_size)
 
 model = SSTClassifier(dictionary, opt=args, label_num=label_dictionary.size())
-model.embedding.load_pretrained_vectors(args.word_vectors)
+# model.embedding.load_pretrained_vectors(args.word_vectors)
 criterion = nn.CrossEntropyLoss()
 
 param_wo_embedding = []
@@ -81,7 +81,7 @@ def eval_epoch(data):
 
     n_correct, n_total = 0, 0
 
-    for batch in data.next_batch(batch_size):
+    for batch in data.next_batch():
         model.eval()
 
         pred = model(batch)
@@ -96,7 +96,7 @@ def train_epoch(epoch_index):
 
     n_correct, n_total = 0, 0
 
-    for batch in train_data.next_batch(batch_size):
+    for batch in train_data.next_batch():
         model.train(); wo_word_opt.zero_grad(); word_opt.zero_grad()
 
         pred = model(batch)
