@@ -117,7 +117,7 @@ class Embeddings(nn.Module):
         """
         if inp.dim() == 2:
             # batch x len
-            emb = self.word_lookup_table
+            emb = self.word_lookup_table(inp)
             return emb
 
         in_batch, in_length, nfeat = inp.size()
