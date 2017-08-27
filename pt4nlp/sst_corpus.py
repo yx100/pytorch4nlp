@@ -57,8 +57,8 @@ class SSTCorpus():
 
     @staticmethod
     def _batchify(data):
-        text, label, length = zip(*data)
-        max_length = max(length)
+        text, label, lengths = zip(*data)
+        max_length = max(lengths)
         text = data[0][0].new(len(data), max_length).fill_(Constants.PAD)
         label = torch.LongTensor(label)
 
@@ -66,7 +66,7 @@ class SSTCorpus():
             length = data[i][0].size(0)
             text[i].narrow(0, 0, length).copy_(data[i][0])
 
-        return torch.stack(text, 0), label
+        return torch.stack(text, 0), label, torch.LongTensor(lengths)
 
     def next_batch(self):
         num_batch = int(math.ceil(len(self.data) / float(self.batch_size)))
@@ -74,20 +74,23 @@ class SSTCorpus():
         for index, i in enumerate(random_index):
             start, end = i * self.batch_size, (i + 1) * self.batch_size
             _batch_size = len(self.data[start:end])
-            text, label = self._batchify(self.data[start:end])
+            text, label, lengths = self._batchify(self.data[start:end])
 
             if self.cuda:
                 text = text.cuda()
                 label = label.cuda()
+                lengths = lengths.cuda()
 
             text = Variable(text, volatile=self.volatile)
             label = Variable(label, volatile=self.volatile)
+            lengths = Variable(lengths, volatile=self.volatile)
 
-            yield Batch(text, label, _batch_size)
+            yield Batch(text, label, _batch_size, lengths)
 
 
 class Batch(object):
-    def __init__(self, text, label, batch_size):
+    def __init__(self, text, label, batch_size, lengths):
         self.text = text
         self.label = label
         self.batch_size = batch_size
+        self.lengths = lengths
