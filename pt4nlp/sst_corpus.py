@@ -6,7 +6,7 @@ import codecs
 import math
 import torch
 from torch.autograd import Variable
-from . import Constants
+import Constants
 
 
 class SSTCorpus():

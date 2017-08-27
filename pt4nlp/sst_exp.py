@@ -6,10 +6,10 @@ import torch
 import torch.optim as O
 import torch.nn as nn
 from builtins import range
-from .sst_classifier import SSTClassifier
-from .dictionary import Dictionary
-from . import Constants
-from .sst_corpus import SSTCorpus
+from sst_classifier import SSTClassifier
+from dictionary import Dictionary
+import Constants
+from sst_corpus import SSTCorpus
 
 
 usecuda = True
