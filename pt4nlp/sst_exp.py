@@ -49,9 +49,9 @@ label_dictionary = Dictionary()
 dictionary = Dictionary()
 dictionary.add_specials([Constants.PAD_WORD, Constants.UNK_WORD, Constants.BOS_WORD, Constants.EOS_WORD],
                         [Constants.PAD, Constants.UNK, Constants.BOS, Constants.EOS])
-SSTCorpus.add_word_to_dictionary("en_emotion_data/sst2_train_phrases.csv", dictionary,
+SSTCorpus.add_word_to_dictionary("en_emotion_data/sst2_train_sentence.csv", dictionary,
                                  label_dictionary=label_dictionary)
-train_data = SSTCorpus("en_emotion_data/sst2_train_phrases.csv", dictionary, cuda=usecuda)
+train_data = SSTCorpus("en_emotion_data/sst2_train_sentence.csv", dictionary, cuda=usecuda)
 dev_data = SSTCorpus("en_emotion_data/sst2_dev.csv", dictionary, cuda=usecuda, volatile=True)
 test_data = SSTCorpus("en_emotion_data/sst2_test.csv", dictionary, cuda=usecuda, volatile=True)
 
