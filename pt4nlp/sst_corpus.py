@@ -27,7 +27,7 @@ class SSTCorpus():
         with codecs.open(data_path, 'r', 'utf8') as fin:
             for line in fin:
                 label, _, text = line.strip().partition(split_symbol)
-                text = dictionary.convert_to_index(text, unk_word=Constants.UNK_WORD)
+                text = dictionary.convert_to_index(text.split(), unk_word=Constants.UNK_WORD)
                 data.append((torch.LongTensor(text), int(label), len(text)))
         return data
 
