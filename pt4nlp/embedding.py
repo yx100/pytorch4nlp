@@ -32,22 +32,21 @@ class Embeddings(nn.Module):
 
         self.word_dict = dicts
         self.word_vec_size = word_vec_size
+        self.feat_exp = feat_vec_exponent
+        self.feat_merge = feat_merge
+
         # vocab_sizes: sequence of vocab sizes for words and each feature
-        vocab_sizes = [dicts.size()]
+        vocab_sizes = [self.word_dict.size()]
 
         # emb_sizes
-        emb_sizes = [word_vec_size]
-
-        self.feat_exp = feat_vec_exponent
-
-        self.feat_merge = "sum"
+        emb_sizes = [self.word_vec_size]
         if feature_dicts:
             vocab_sizes.extend(feat_dict.size() for feat_dict in feature_dicts)
-            if feat_merge == 'concat':
+            if self.feat_merge == 'concat':
                 # Derive embedding sizes from each feature's vocab size
                 emb_sizes.extend([int(feat_dict.size() ** self.feat_exp)
                                   for feat_dict in feature_dicts])
-            elif feat_merge == 'sum':
+            elif self.feat_merge == 'sum':
                 # All embeddings to be summed must be the same size
                 emb_sizes.extend([self.word_vec_size] * len(feature_dicts))
             else:

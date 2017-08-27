@@ -24,7 +24,7 @@ train_data = SSTCorpus("en_emotion_data/sst5_train_phrases.csv", dictionary, cud
 dev_data = SSTCorpus("en_emotion_data/sst5_dev.csv", dictionary, cuda=usecuda, volatile=True)
 test_data = SSTCorpus("en_emotion_data/sst5_test.csv", dictionary, cuda=usecuda, volatile=True)
 
-model = SSTClassifier(len(dictionary))
+model = SSTClassifier(dictionary)
 model.embedding.load_pretrained_vectors("en.emotion.glove.emb.bin")
 criterion = nn.CrossEntropyLoss()
 opt = O.Adam(model.parameters(), lr=0.001)
