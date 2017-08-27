@@ -67,8 +67,8 @@ for name, param in model.named_parameters():
         print("%s\t%s with %s" % (name, args.optimizer, args.lr))
         param_wo_embedding.append(param)
 
-wo_word_opt = getattr(torch.optim, args.optimizer)(param_wo_embedding, lr=args.lr)
-word_opt = getattr(torch.optim, args.word_optimizer)(param_embedding, lr=args.word_lr)
+wo_word_opt = getattr(torch.optim, args.optimizer)(param_wo_embedding, lr=args.lr, weight_decay=10e-4)
+word_opt = getattr(torch.optim, args.word_optimizer)(param_embedding, lr=args.word_lr, weight_decay=10e-4)
 
 if args.device >= 0:
     model.cuda()
@@ -97,6 +97,7 @@ def train_epoch(epoch_index):
         n_correct += (torch.max(pred, 1)[1].view(batch.label.size()).data == batch.label.data).sum()
         n_total += batch.batch_size
 
+        l2_loss = torch.sum([])
         # calculate loss of the network output with respect to training labels
         loss = criterion(pred, batch.label)
 
