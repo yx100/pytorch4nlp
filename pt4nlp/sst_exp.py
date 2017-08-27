@@ -59,6 +59,9 @@ model = SSTClassifier(dictionary, opt=args, label_num=label_dictionary.size())
 model.embedding.load_pretrained_vectors(args.word_vectors)
 criterion = nn.CrossEntropyLoss()
 
+if args.device >= 0:
+    model.cuda()
+
 param_wo_embedding = []
 param_embedding = []
 
@@ -72,9 +75,6 @@ for name, param in model.named_parameters():
 
 wo_word_opt = getattr(torch.optim, args.optimizer)(param_wo_embedding, lr=args.lr, weight_decay=10e-4)
 word_opt = getattr(torch.optim, args.word_optimizer)(param_embedding, lr=args.word_lr, weight_decay=10e-4)
-
-if args.device >= 0:
-    model.cuda()
 
 
 def eval_epoch(data):
