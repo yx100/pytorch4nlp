@@ -110,7 +110,9 @@ def train_epoch(epoch_index):
 
 
 for i in range(50):
+    start = time.time()
     train_acc = train_epoch(i)
+    end = time.time()
     dev_acc = eval_epoch(dev_data)
     test_acc = eval_epoch(test_data)
-    print("iter %2d | %6.2f | %6.2f | %6.2f |" % (i, train_acc, dev_acc, test_acc))
+    print("iter %2d | %6.2f | %6.2f | %6.2f | %6.2f |" % (i, end - start, train_acc, dev_acc, test_acc))
