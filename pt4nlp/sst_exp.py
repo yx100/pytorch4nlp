@@ -97,7 +97,6 @@ def train_epoch(epoch_index):
         n_correct += (torch.max(pred, 1)[1].view(batch.label.size()).data == batch.label.data).sum()
         n_total += batch.batch_size
 
-        l2_loss = torch.sum([])
         # calculate loss of the network output with respect to training labels
         loss = criterion(pred, batch.label)
 
