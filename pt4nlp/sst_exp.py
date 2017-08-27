@@ -34,6 +34,7 @@ parser.add_argument('-optimizer', type=str, dest="optimizer", default="Adadelta"
 parser.add_argument('-lr', type=float, dest="lr", default=1.0)
 parser.add_argument('-word-optimizer', type=str, dest="word_optimizer", default="SGD")
 parser.add_argument('-word-lr', type=float, dest="word_lr", default=0.1)
+parser.add_argument('-clip', type=float, default=9.0, dest="clip", help='clip grad by norm')
 
 args = parser.parse_args()
 torch.manual_seed(args.seed)
@@ -105,6 +106,9 @@ def train_epoch(epoch_index):
 
         # backpropagate and update optimizer learning rate
         loss.backward()
+
+        if args.clip > 0:
+            nn.utils.clip_grad_norm(model.parameters(), args.clip)
 
         wo_word_opt.step()
         word_opt.step()
