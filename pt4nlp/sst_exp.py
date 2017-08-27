@@ -59,7 +59,7 @@ model = SSTClassifier(dictionary, opt=args, label_num=label_dictionary.size())
 model.embedding.load_pretrained_vectors(args.word_vectors)
 criterion = nn.CrossEntropyLoss()
 
-
+'''
 param_wo_embedding = []
 param_embedding = []
 
@@ -73,6 +73,8 @@ for name, param in model.named_parameters():
 
 wo_word_opt = getattr(torch.optim, args.optimizer)(param_wo_embedding, lr=args.lr, weight_decay=10e-4)
 word_opt = getattr(torch.optim, args.word_optimizer)(param_embedding, lr=args.word_lr, weight_decay=10e-4)
+'''
+opt = getattr(torch.optim, args.optimizer)(model.parameters(), lr=args.lr, weight_decay=10e-4)
 
 
 if args.device >= 0:
@@ -95,7 +97,7 @@ def train_epoch(epoch_index):
     n_correct, n_total = 0, 0
 
     for batch in train_data.next_batch(batch_size):
-        model.train(); model.zero_grad(); wo_word_opt.zero_grad(); word_opt.zero_grad()
+        model.train(); opt.zero_grad()
 
         pred = model(batch)
         n_correct += (torch.max(pred, 1)[1].view(batch.label.size()).data == batch.label.data).sum()
@@ -110,8 +112,9 @@ def train_epoch(epoch_index):
         if args.clip > 0:
             nn.utils.clip_grad_norm(model.parameters(), args.clip)
 
-        wo_word_opt.step()
-        word_opt.step()
+        opt.close()
+        '''wo_word_opt.step()
+        word_opt.step()'''
 
     return 100. * n_correct/n_total
 

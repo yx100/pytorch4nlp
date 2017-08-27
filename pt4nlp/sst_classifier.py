@@ -19,7 +19,7 @@ class SSTClassifier(nn.Module):
                                   brnn=opt.brnn,
                                   rnn_type=opt.rnn_type)
         self.out = nn.Sequential(nn.Dropout(opt.dropout),
-                                 nn.ReLU(),
+                                 # nn.ReLU(),
                                  nn.Linear(self.encoder.output_size, label_num),)
         self.init_model()
 
