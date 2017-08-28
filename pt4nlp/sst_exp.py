@@ -19,8 +19,11 @@ parser.add_argument('-epoch', type=int, dest="epoch", default=50)
 parser.add_argument('-batch', type=int, dest="batch", default=128)
 parser.add_argument('-device', type=int, dest="device", default=0)
 parser.add_argument('-seed', type=int, dest="seed", default=1993)
+parser.add_argument('-label', type=int, dest="label", default=2, choices=[2, 5])
+parser.add_argument('-subtree', action='store_true', dest="subtree")
 
 # Model Option
+parser.add_argument('-encoder', type=str, dest="encoder", default="rnn", choices=["rnn", "cbow"])
 parser.add_argument('-word-vec-size', type=int, dest="word_vec_size", default=300)
 parser.add_argument('-hidden-size', type=int, dest="hidden_size", default=168)
 parser.add_argument('-num-layers', type=int, dest='num_layers', default=1)
@@ -39,6 +42,23 @@ parser.add_argument('-clip', type=float, default=9.0, dest="clip", help='clip gr
 args = parser.parse_args()
 torch.manual_seed(args.seed)
 
+if args.label == 2:
+    dev_file = "en_emotion_data/sst2_dev.csv"
+    test_file = "en_emotion_data/sst2_test.csv"
+    if args.subtree:
+        train_file = "en_emotion_data/sst2_train_phrases.csv"
+    else:
+        train_file = "en_emotion_data/sst2_train_sentence.csv"
+elif args.label == 5:
+    dev_file = "en_emotion_data/sst5_dev.csv"
+    test_file = "en_emotion_data/sst5_test.csv"
+    if args.subtree:
+        train_file = "en_emotion_data/sst5_train_phrases.csv"
+    else:
+        train_file = "en_emotion_data/sst5_train_sentences.csv"
+else:
+    raise NotImplementedError
+
 usecuda = False
 batch_size = args.batch
 
@@ -49,14 +69,14 @@ label_dictionary = Dictionary()
 dictionary = Dictionary()
 dictionary.add_specials([Constants.PAD_WORD, Constants.UNK_WORD, Constants.BOS_WORD, Constants.EOS_WORD],
                         [Constants.PAD, Constants.UNK, Constants.BOS, Constants.EOS])
-SSTCorpus.add_word_to_dictionary("en_emotion_data/sst2_train_phrases.csv", dictionary,
+SSTCorpus.add_word_to_dictionary(train_file, dictionary,
                                  label_dictionary=label_dictionary)
-train_data = SSTCorpus("en_emotion_data/sst2_train_phrases.csv", dictionary, cuda=usecuda, batch_size=batch_size)
-dev_data = SSTCorpus("en_emotion_data/sst2_dev.csv", dictionary, cuda=usecuda, volatile=True, batch_size=batch_size)
-test_data = SSTCorpus("en_emotion_data/sst2_test.csv", dictionary, cuda=usecuda, volatile=True, batch_size=batch_size)
+train_data = SSTCorpus(train_file, dictionary, cuda=usecuda, batch_size=batch_size)
+dev_data = SSTCorpus(dev_file, dictionary, cuda=usecuda, volatile=True, batch_size=batch_size)
+test_data = SSTCorpus(test_file, dictionary, cuda=usecuda, volatile=True, batch_size=batch_size)
 
 model = SSTClassifier(dictionary, opt=args, label_num=label_dictionary.size())
-model.embedding.load_pretrained_vectors(args.word_vectors)
+# model.embedding.load_pretrained_vectors(args.word_vectors)
 criterion = nn.CrossEntropyLoss()
 
 if args.device >= 0:
@@ -97,7 +117,9 @@ def train_epoch(epoch_index):
     n_correct, n_total = 0, 0
 
     for batch in train_data.next_batch():
-        model.train(); wo_word_opt.zero_grad(); word_opt.zero_grad()
+        model.train()
+        wo_word_opt.zero_grad()
+        word_opt.zero_grad()
 
         pred = model(batch)
         n_correct += (torch.max(pred, 1)[1].view(batch.label.size()).data == batch.label.data).sum()

@@ -40,7 +40,8 @@ class RNNEncoder(nn.Module):
             if weight.data.dim() == 2:
                 nn.init.xavier_normal(weight)
 
-    def forward(self, inputs):
+    def forward(self, *args, **kwargs):
+        inputs = args[0]
         batch_size = inputs.size()[0]
 
         # (num_layers * num_directions, batch, hidden_size)
