@@ -76,7 +76,7 @@ dev_data = SSTCorpus(dev_file, dictionary, cuda=usecuda, volatile=True, batch_si
 test_data = SSTCorpus(test_file, dictionary, cuda=usecuda, volatile=True, batch_size=batch_size)
 
 model = SSTClassifier(dictionary, opt=args, label_num=label_dictionary.size())
-# model.embedding.load_pretrained_vectors(args.word_vectors)
+model.embedding.load_pretrained_vectors(args.word_vectors)
 criterion = nn.CrossEntropyLoss()
 
 if args.device >= 0:
