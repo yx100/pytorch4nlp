@@ -91,13 +91,16 @@ class Embeddings(nn.Module):
 
             # Init Out-of-PreTrain Wordembedding using Min,Max Uniform
             random_range = (torch.min(pretrained), torch.max(pretrained))
+            random_init_count = 0
             for word in self.word_dict:
 
                 if word not in vocab:
+                    random_init_count += 1
                     nn.init.uniform(pretrained[self.word_dict.lookup(word)],
                                     random_range[0], random_range[1])
 
             self.word_lookup_table.weight.data.copy_(pretrained)
+            print("Init %s words in uniform [%s, %s]" % (random_init_count, random_range[0], random_range[1]))
 
     def merge(self, features):
         if self.feat_merge == 'concat':
