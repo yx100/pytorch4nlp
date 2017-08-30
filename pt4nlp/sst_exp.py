@@ -33,6 +33,7 @@ parser.add_argument('-word-vectors', type=str, dest="word_vectors", default='en.
 parser.add_argument('-rnn-type', type=str, dest='rnn_type', default='LSTM')
 
 # Optimizer Option
+parser.add_argument('-word-normalize', action='store_true', dest="word_normalize")
 parser.add_argument('-optimizer', type=str, dest="optimizer", default="Adadelta")
 parser.add_argument('-lr', type=float, dest="lr", default=0.05)
 parser.add_argument('-word-optimizer', type=str, dest="word_optimizer", default="SGD")
@@ -76,7 +77,7 @@ dev_data = SSTCorpus(dev_file, dictionary, cuda=usecuda, volatile=True, batch_si
 test_data = SSTCorpus(test_file, dictionary, cuda=usecuda, volatile=True, batch_size=batch_size)
 
 model = SSTClassifier(dictionary, opt=args, label_num=label_dictionary.size())
-model.embedding.load_pretrained_vectors(args.word_vectors)
+model.embedding.load_pretrained_vectors(args.word_vectors, normalize=args.word_normalize)
 criterion = nn.CrossEntropyLoss()
 
 if args.device >= 0:
