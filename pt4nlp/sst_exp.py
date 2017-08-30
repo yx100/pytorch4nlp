@@ -70,11 +70,17 @@ label_dictionary = Dictionary()
 dictionary = Dictionary()
 dictionary.add_specials([Constants.PAD_WORD, Constants.UNK_WORD, Constants.BOS_WORD, Constants.EOS_WORD],
                         [Constants.PAD, Constants.UNK, Constants.BOS, Constants.EOS])
-SSTCorpus.add_word_to_dictionary(train_file, dictionary,
-                                 label_dictionary=label_dictionary)
+SSTCorpus.add_word_to_dictionary(train_file, dictionary, label_dictionary=label_dictionary)
+SSTCorpus.add_word_to_dictionary(dev_file, dictionary, label_dictionary=label_dictionary)
+SSTCorpus.add_word_to_dictionary(test_file, dictionary, label_dictionary=label_dictionary)
+
 train_data = SSTCorpus(train_file, dictionary, cuda=usecuda, batch_size=batch_size)
 dev_data = SSTCorpus(dev_file, dictionary, cuda=usecuda, volatile=True, batch_size=batch_size)
 test_data = SSTCorpus(test_file, dictionary, cuda=usecuda, volatile=True, batch_size=batch_size)
+
+print("Train Size: %s" % len(train_data))
+print("Dev   Size: %s" % len(dev_data))
+print("Test  Size: %s" % len(test_data))
 
 model = SSTClassifier(dictionary, opt=args, label_num=label_dictionary.size())
 model.embedding.load_pretrained_vectors(args.word_vectors, normalize=args.word_normalize)
