@@ -39,6 +39,7 @@ parser.add_argument('-lr', type=float, dest="lr", default=0.05)
 parser.add_argument('-word-optimizer', type=str, dest="word_optimizer", default="SGD")
 parser.add_argument('-word-lr', type=float, dest="word_lr", default=0.1)
 parser.add_argument('-clip', type=float, default=9.0, dest="clip", help='clip grad by norm')
+parser.add_argument('-regular', type=float, default=10e-4, dest="regular_weight", help='regular weight')
 
 args = parser.parse_args()
 torch.manual_seed(args.seed)
@@ -100,8 +101,8 @@ for name, param in model.named_parameters():
         print("%s(%s)\t%s with %s" % (name, param.size(), args.optimizer, args.lr))
         param_wo_embedding.append(param)
 
-wo_word_opt = getattr(torch.optim, args.optimizer)(param_wo_embedding, lr=args.lr, weight_decay=10e-4)
-word_opt = getattr(torch.optim, args.word_optimizer)(param_embedding, lr=args.word_lr, weight_decay=10e-4)
+wo_word_opt = getattr(torch.optim, args.optimizer)(param_wo_embedding, lr=args.lr, weight_decay=regular_weight)
+word_opt = getattr(torch.optim, args.word_optimizer)(param_embedding, lr=args.word_lr, weight_decay=regular_weight)
 
 
 def eval_epoch(data):
