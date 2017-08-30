@@ -26,6 +26,7 @@ class SSTClassifier(nn.Module):
         else:
             raise NotImplementedError
         self.out = nn.Sequential(nn.Dropout(opt.dropout),
+                                 nn.ReLU(),
                                  nn.Linear(self.encoder.output_size, label_num), )
         self.init_model()
 
