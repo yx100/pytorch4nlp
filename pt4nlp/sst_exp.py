@@ -33,11 +33,13 @@ parser.add_argument('-word-vectors', type=str, dest="word_vectors", default='en.
 parser.add_argument('-rnn-type', type=str, dest='rnn_type', default='LSTM')
 
 # Optimizer Option
+parser.add_argument('-word-normalize', action='store_true', dest="word_normalize")
 parser.add_argument('-optimizer', type=str, dest="optimizer", default="Adadelta")
 parser.add_argument('-lr', type=float, dest="lr", default=0.05)
 parser.add_argument('-word-optimizer', type=str, dest="word_optimizer", default="SGD")
 parser.add_argument('-word-lr', type=float, dest="word_lr", default=0.1)
 parser.add_argument('-clip', type=float, default=9.0, dest="clip", help='clip grad by norm')
+parser.add_argument('-regular', type=float, default=10e-4, dest="regular_weight", help='regular weight')
 
 args = parser.parse_args()
 torch.manual_seed(args.seed)
@@ -69,14 +71,20 @@ label_dictionary = Dictionary()
 dictionary = Dictionary()
 dictionary.add_specials([Constants.PAD_WORD, Constants.UNK_WORD, Constants.BOS_WORD, Constants.EOS_WORD],
                         [Constants.PAD, Constants.UNK, Constants.BOS, Constants.EOS])
-SSTCorpus.add_word_to_dictionary(train_file, dictionary,
-                                 label_dictionary=label_dictionary)
+SSTCorpus.add_word_to_dictionary(train_file, dictionary, label_dictionary=label_dictionary)
+SSTCorpus.add_word_to_dictionary(dev_file, dictionary, label_dictionary=label_dictionary)
+SSTCorpus.add_word_to_dictionary(test_file, dictionary, label_dictionary=label_dictionary)
+
 train_data = SSTCorpus(train_file, dictionary, cuda=usecuda, batch_size=batch_size)
 dev_data = SSTCorpus(dev_file, dictionary, cuda=usecuda, volatile=True, batch_size=batch_size)
 test_data = SSTCorpus(test_file, dictionary, cuda=usecuda, volatile=True, batch_size=batch_size)
 
+print("Train Size: %s" % len(train_data))
+print("Dev   Size: %s" % len(dev_data))
+print("Test  Size: %s" % len(test_data))
+
 model = SSTClassifier(dictionary, opt=args, label_num=label_dictionary.size())
-model.embedding.load_pretrained_vectors(args.word_vectors)
+model.embedding.load_pretrained_vectors(args.word_vectors, normalize=args.word_normalize)
 criterion = nn.CrossEntropyLoss()
 
 if args.device >= 0:
@@ -93,8 +101,8 @@ for name, param in model.named_parameters():
         print("%s(%s)\t%s with %s" % (name, param.size(), args.optimizer, args.lr))
         param_wo_embedding.append(param)
 
-wo_word_opt = getattr(torch.optim, args.optimizer)(param_wo_embedding, lr=args.lr, weight_decay=10e-4)
-word_opt = getattr(torch.optim, args.word_optimizer)(param_embedding, lr=args.word_lr, weight_decay=10e-4)
+wo_word_opt = getattr(torch.optim, args.optimizer)(param_wo_embedding, lr=args.lr, weight_decay=regular_weight)
+word_opt = getattr(torch.optim, args.word_optimizer)(param_embedding, lr=args.word_lr, weight_decay=regular_weight)
 
 
 def eval_epoch(data):
