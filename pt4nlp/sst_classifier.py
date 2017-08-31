@@ -32,7 +32,7 @@ class SSTClassifier(nn.Module):
     def init_model(self):
         for weight in self.out.parameters():
             if weight.data.dim() == 2:
-                nn.init.xavier_normal(weight)
+                nn.init.xavier_uniform(weight)
 
     def forward(self, batch):
         words_embeddings = self.embedding(batch.text)
