@@ -90,7 +90,9 @@ class Embeddings(nn.Module):
                                                                binary=binary, normalize=normalize)
 
             # Init Out-of-PreTrain Wordembedding using Min,Max Uniform
-            random_range = (torch.min(pretrained), torch.max(pretrained))
+            scale = torch.std(pretrained)
+            # random_range = (torch.min(pretrained), torch.max(pretrained))
+            random_range = (-scale, scale)
             random_init_count = 0
             for word in self.word_dict:
 
