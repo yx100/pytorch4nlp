@@ -108,9 +108,8 @@ word_opt = getattr(torch.optim, args.word_optimizer)(param_embedding, lr=args.wo
 def eval_epoch(data):
 
     n_correct, n_total = 0, 0
-
+    model.eval()
     for batch in data.next_batch():
-        model.eval()
 
         pred = model(batch)
 
@@ -124,8 +123,8 @@ def train_epoch(epoch_index):
 
     n_correct, n_total = 0, 0
 
+    model.train()
     for batch in train_data.next_batch():
-        model.train()
         wo_word_opt.zero_grad()
         word_opt.zero_grad()
 
@@ -148,10 +147,11 @@ def train_epoch(epoch_index):
     return 100. * n_correct/n_total
 
 
-for i in range(50):
+for i in range(args.epoch):
     start = time.time()
-    train_acc = train_epoch(i)
+    train_epoch(i)
     end = time.time()
+    train_acc = eval_epoch(train_data)
     dev_acc = eval_epoch(dev_data)
     test_acc = eval_epoch(test_data)
     print("iter %2d | %6.2f | %6.2f | %6.2f | %6.2f |" % (i, end - start, train_acc, dev_acc, test_acc))

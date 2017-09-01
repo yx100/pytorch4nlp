@@ -25,8 +25,8 @@ class SSTClassifier(nn.Module):
             self.encoder = CBOW(self.embedding.output_size)
         else:
             raise NotImplementedError
-        self.out = nn.Sequential(nn.Dropout(opt.dropout),
-                                 nn.ReLU(),
+        self.out = nn.Sequential(nn.ReLU(),
+                                 nn.Dropout(opt.dropout),
                                  nn.Linear(self.encoder.output_size, label_num), )
         self.init_model()
 

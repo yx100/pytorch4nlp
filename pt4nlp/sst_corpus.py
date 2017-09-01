@@ -15,12 +15,14 @@ class SSTCorpus():
                  dictionary,
                  volatile=False,
                  batch_size=64,
+                 max_length=200,
                  cuda=False):
         self.dictionary = dictionary
         self.volatile = volatile
         self.cuda = cuda
         self.data = self.load_data_file(data_path=data_path, dictionary=self.dictionary)
         self.batch_size = batch_size
+        self.max_length = max_length
         self.sort()
 
     @staticmethod
@@ -30,6 +32,8 @@ class SSTCorpus():
             for line in fin:
                 label, _, text = line.strip().partition(split_symbol)
                 text = dictionary.convert_to_index(text.split(), unk_word=Constants.UNK_WORD)
+                if len(text) > self.max_length:
+                    text = text[:self.max_length]
                 data.append((torch.LongTensor(text), int(label), len(text)))
         return data
 
