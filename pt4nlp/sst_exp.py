@@ -147,11 +147,16 @@ def train_epoch(epoch_index):
     return 100. * n_correct/n_total
 
 
+result = list()
 for i in range(args.epoch):
     start = time.time()
-    train_epoch(i)
+    train_acc = train_epoch(i)
     end = time.time()
-    train_acc = eval_epoch(train_data)
     dev_acc = eval_epoch(dev_data)
     test_acc = eval_epoch(test_data)
+    result.append((dev_acc, test_acc))
     print("iter %2d | %6.2f | %6.2f | %6.2f | %6.2f |" % (i, end - start, train_acc, dev_acc, test_acc))
+
+result = torch.stack(result)
+max_dev_acc, max_index = torch.max(result[:, 0])
+print("Best Iter %d, Dev Acc: %s, Test Acc: %s" % (max_index, result[max_index, 0], result[max_index, 1]))
