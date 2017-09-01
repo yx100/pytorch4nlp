@@ -33,7 +33,7 @@ class SSTClassifier(nn.Module):
         for name, param in self.out.named_parameters():
             if param.data.dim() == 2:
                 print("Init %s with %s" % (name, "xavier_uniform"))
-                nn.init.xavier_uniform(weight)
+                nn.init.xavier_uniform(param)
 
     def forward(self, batch):
         words_embeddings = self.embedding(batch.text)
