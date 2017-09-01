@@ -26,14 +26,14 @@ class SSTCorpus():
         self.sort()
 
     @staticmethod
-    def load_data_file(data_path, dictionary, split_symbol='\t'):
+    def load_data_file(data_path, dictionary, split_symbol='\t', max_length=200):
         data = list()
         with codecs.open(data_path, 'r', 'utf8') as fin:
             for line in fin:
                 label, _, text = line.strip().partition(split_symbol)
                 text = dictionary.convert_to_index(text.split(), unk_word=Constants.UNK_WORD)
-                if len(text) > self.max_length:
-                    text = text[:self.max_length]
+                if len(text) > max_length:
+                    text = text[:max_length]
                 data.append((torch.LongTensor(text), int(label), len(text)))
         return data
 
