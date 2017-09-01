@@ -30,8 +30,9 @@ class SSTClassifier(nn.Module):
         self.init_model()
 
     def init_model(self):
-        for weight in self.out.parameters():
-            if weight.data.dim() == 2:
+        for name, param in model.named_parameters():
+            if param.data.dim() == 2:
+                print("Init %s with %s" % (name, "xavier_uniform"))
                 nn.init.xavier_uniform(weight)
 
     def forward(self, batch):
