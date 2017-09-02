@@ -45,7 +45,9 @@ parser.add_argument('-regular', type=float, default=10e-4, dest="regular_weight"
 args = parser.parse_args()
 if args.seed < 0:
     seed = time.time() % 81321564
-    torch.manual_seed(args.seed)
+else:
+    seed = args.seed
+torch.manual_seed(args.seed)
 
 if args.label == 2:
     dev_file = "en_emotion_data/sst2_dev.csv"
