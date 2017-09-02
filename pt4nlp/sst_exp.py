@@ -90,7 +90,8 @@ print("Dev   Size: %s" % len(dev_data))
 print("Test  Size: %s" % len(test_data))
 
 model = SSTClassifier(dictionary, opt=args, label_num=label_dictionary.size())
-model.embedding.load_pretrained_vectors(args.word_vectors, normalize=args.word_normalize)
+if args.word_vectors != "random":
+    model.embedding.load_pretrained_vectors(args.word_vectors, normalize=args.word_normalize)
 criterion = nn.CrossEntropyLoss()
 
 if args.device >= 0:

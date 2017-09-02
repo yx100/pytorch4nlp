@@ -1,14 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # Created by Roger on 2017/8/27
-import torch
 import torch.nn as nn
-
+from pooling import get_pooling
 
 class CBOW(nn.Module):
     def __init__(self,
                  input_size,
-                 pooling_type="mean"):
+                 pooling_type="max"):
         super(CBOW, self).__init__()
         self.pooling_type = pooling_type
         self.output_size = input_size
@@ -23,7 +22,4 @@ class CBOW(nn.Module):
         :param lengths:  batch
         :return:
         """
-        if self.pooling_type == 'mean':
-            hidden = torch.sum(inputs, 1)
-            return hidden / lengths[:, None].float()
-        return
+        return get_pooling(inputs, pooling_type=self.pooling_type, lengths=lengths)
