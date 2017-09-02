@@ -48,7 +48,7 @@ if args.seed < 0:
 else:
     seed = args.seed
 print("Random Seed: %d" % seed)
-torch.manual_seed(seed)
+torch.manual_seed(int(seed))
 
 if args.label == 2:
     dev_file = "en_emotion_data/sst2_dev.csv"
