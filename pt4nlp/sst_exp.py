@@ -11,6 +11,7 @@ from dictionary import Dictionary
 import Constants
 from sst_corpus import SSTCorpus
 from argparse import ArgumentParser
+import numpy
 
 
 parser = ArgumentParser(description='SST Text Classifier')
@@ -28,7 +29,7 @@ parser.add_argument('-word-vec-size', type=int, dest="word_vec_size", default=30
 parser.add_argument('-hidden-size', type=int, dest="hidden_size", default=168)
 parser.add_argument('-num-layers', type=int, dest='num_layers', default=1)
 parser.add_argument('-dropout', type=float, dest='dropout', default=0.5)
-parser.add_argument('-no-bidirection', action='store_false', dest='brnn')
+parser.add_argument('-brnn', action='store_true', dest='brnn')
 parser.add_argument('-word-vectors', type=str, dest="word_vectors", default='en.emotion.glove.emb.bin')
 parser.add_argument('-rnn-type', type=str, dest='rnn_type', default='LSTM')
 
