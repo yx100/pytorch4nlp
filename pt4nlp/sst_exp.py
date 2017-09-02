@@ -160,4 +160,4 @@ for i in range(args.epoch):
 
 result = torch.from_numpy(numpy.array(result))
 max_dev_acc, max_index = torch.max(result[:, 0], 0)
-print("Best Iter %d, Dev Acc: %s, Test Acc: %s" % (max_index, result[max_index, 0], result[max_index, 1]))
+print("Best Iter %d, Dev Acc: %s, Test Acc: %s" % (max_index[0], result[max_index[0], 0], result[max_index[0], 1]))
