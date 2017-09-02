@@ -157,6 +157,6 @@ for i in range(args.epoch):
     result.append((dev_acc, test_acc))
     print("iter %2d | %6.2f | %6.2f | %6.2f | %6.2f |" % (i, end - start, train_acc, dev_acc, test_acc))
 
-result = torch.stack(result)
+result = torch.from_numpy(numpy.array(result))
 max_dev_acc, max_index = torch.max(result[:, 0])
 print("Best Iter %d, Dev Acc: %s, Test Acc: %s" % (max_index, result[max_index, 0], result[max_index, 1]))
