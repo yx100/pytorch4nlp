@@ -43,7 +43,9 @@ parser.add_argument('-clip', type=float, default=9.0, dest="clip", help='clip gr
 parser.add_argument('-regular', type=float, default=10e-4, dest="regular_weight", help='regular weight')
 
 args = parser.parse_args()
-torch.manual_seed(args.seed)
+if args.seed < 0:
+    seed = time.time() % 81321564
+    torch.manual_seed(args.seed)
 
 if args.label == 2:
     dev_file = "en_emotion_data/sst2_dev.csv"
