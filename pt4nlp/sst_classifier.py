@@ -6,7 +6,7 @@ import torch.nn as nn
 from rnn_encoder import RNNEncoder
 from embedding import Embeddings
 from cbow import CBOW
-from convolution import CNNEncoder
+from convolution import MultiSizeCNNEncoder
 
 
 class SSTClassifier(nn.Module):
