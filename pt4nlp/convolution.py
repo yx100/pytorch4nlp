@@ -4,7 +4,7 @@
 import torch
 import torch.nn as nn
 
-from pt4nlp.pooling import get_pooling
+from pooling import get_pooling
 
 
 class CNNEncoder(nn.Module):
@@ -60,7 +60,8 @@ class CNNEncoder(nn.Module):
         # (batch x hidden_size x new_len x 1)
         # -> (batch x hidden_size x new_len)
         # -> (batch x new_len x hidden_size)
-        return _temp.squeeze(inputs, 3).transpose_(1, 2)
+        __temp = _temp.squeeze(inputs, 3)
+        return torch.transpose(__temp, 1, 2)
 
     def forward(self, inputs, lengths=None):
         """
