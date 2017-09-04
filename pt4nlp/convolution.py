@@ -60,8 +60,8 @@ class CNNEncoder(nn.Module):
         # (batch x hidden_size x new_len x 1)
         # -> (batch x hidden_size x new_len)
         # -> (batch x new_len x hidden_size)
-        __temp = _temp.squeeze(inputs, 3)
-        return torch.transpose(__temp, 1, 2)
+        _temp.squeeze_(3)
+        return torch.transpose(_temp, 1, 2)
 
     def forward(self, inputs, lengths=None):
         """
