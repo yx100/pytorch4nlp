@@ -95,7 +95,7 @@ if args.word_vectors != "random":
 criterion = nn.CrossEntropyLoss()
 
 if args.device >= 0:
-    model.cuda()
+    model.cuda(args.device)
 
 param_wo_embedding = []
 param_embedding = []

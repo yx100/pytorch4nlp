@@ -41,7 +41,7 @@ class CNNEncoder(nn.Module):
                                      # zero padding for word dim
                                      padding=(win_size - 1, 0) if padding else 0,
                                      bias=bias)
-                           for win_size in self.window_sizes]
+                           for win_size in self.window_size]
         self.dropout_layer = nn.Dropout(self.dropout)
 
         self.init_model()
