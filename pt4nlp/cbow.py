@@ -7,7 +7,7 @@ from pooling import get_pooling
 class CBOW(nn.Module):
     def __init__(self,
                  input_size,
-                 pooling_type="max"):
+                 pooling_type="mean"):
         super(CBOW, self).__init__()
         self.pooling_type = pooling_type
         self.output_size = input_size
