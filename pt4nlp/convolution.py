@@ -36,7 +36,7 @@ class CNNEncoder(nn.Module):
         # In NLP, Hin is length, Win is Word Embedding Size
         self.conv_layer = [nn.Conv2d(in_channels=1,
                                      out_channels=hidden_size,
-                                     kernel_size=(self.win_size, self.input_size),
+                                     kernel_size=(win_size, self.input_size),
                                      # window_size-1 padding for length
                                      # zero padding for word dim
                                      padding=(win_size - 1, 0) if padding else 0,
