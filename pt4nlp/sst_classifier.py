@@ -5,8 +5,8 @@ from __future__ import absolute_import
 import torch.nn as nn
 from rnn_encoder import RNNEncoder
 from embedding import Embeddings
-
 from cbow import CBOW
+from convolution import CNNEncoder
 
 
 class SSTClassifier(nn.Module):
@@ -23,6 +23,14 @@ class SSTClassifier(nn.Module):
                                       rnn_type=opt.rnn_type)
         elif opt.encoder == "cbow":
             self.encoder = CBOW(self.embedding.output_size)
+        elif opt.encoder == "cnn":
+            self.encoder = CNNEncoder(self.embedding.output_size,
+                                      hidden_size=168,
+                                      window_size=3,
+                                      pooling_type='max',
+                                      padding=True,
+                                      dropout=0.5,
+                                      bias=True)
         else:
             raise NotImplementedError
         self.out = nn.Sequential(nn.Dropout(opt.dropout),

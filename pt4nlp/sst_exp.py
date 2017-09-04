@@ -24,7 +24,7 @@ parser.add_argument('-label', type=int, dest="label", default=2, choices=[2, 5])
 parser.add_argument('-subtree', action='store_true', dest="subtree")
 
 # Model Option
-parser.add_argument('-encoder', type=str, dest="encoder", default="rnn", choices=["rnn", "cbow"])
+parser.add_argument('-encoder', type=str, dest="encoder", default="rnn", choices=["rnn", "cbow", "cnn"])
 parser.add_argument('-word-vec-size', type=int, dest="word_vec_size", default=300)
 parser.add_argument('-hidden-size', type=int, dest="hidden_size", default=168)
 parser.add_argument('-num-layers', type=int, dest='num_layers', default=1)
