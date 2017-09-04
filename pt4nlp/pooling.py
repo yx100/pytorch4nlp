@@ -11,6 +11,8 @@ def lengths2mask(lengths, max_length):
     # print torch.max(lengths)[0]
     # assert max_length == torch.max(lengths)[0]
     range_i = torch.arange(0, max_length).expand(batch_size, max_length)
+    if lengths.is_cuda:
+        range_i = range_i.cuda()
     range_i = Variable(range_i)
     return torch.le(range_i, lengths.float()[:, None]).float()
 
