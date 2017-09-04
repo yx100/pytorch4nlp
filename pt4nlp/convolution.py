@@ -34,14 +34,15 @@ class CNNEncoder(nn.Module):
         # Define Layer
         # (N, Cin, Hin, Win)
         # In NLP, Hin is length, Win is Word Embedding Size
-        self.conv_layer = [nn.Conv2d(in_channels=1,
-                                     out_channels=hidden_size,
-                                     kernel_size=(win_size, self.input_size),
-                                     # window_size-1 padding for length
-                                     # zero padding for word dim
-                                     padding=(win_size - 1, 0) if padding else 0,
-                                     bias=bias)
-                           for win_size in self.window_size]
+        self.conv_layer = nn.ModuleList([nn.Conv2d(in_channels=1,
+                                                   out_channels=hidden_size,
+                                                   kernel_size=(win_size, self.input_size),
+                                                   # window_size-1 padding for length
+                                                   # zero padding for word dim
+                                                   padding=(win_size - 1, 0) if padding else 0,
+                                                   bias=bias)
+                                         for win_size in self.window_size]
+                                        )
         self.dropout_layer = nn.Dropout(self.dropout)
 
         self.init_model()
