@@ -79,3 +79,51 @@ class CNNEncoder(nn.Module):
                 lengths = lengths - (self.window_size + 1)
         pooling_result = get_pooling(conv_result, pooling_type=self.pooling_type, lengths=lengths)
         return pooling_result
+
+
+class MultiSizeCNNEncoder(nn.Module):
+    def __init__(self,
+                 input_size,
+                 hidden_size=168,
+                 window_size=[3, 4, 5],
+                 pooling_type='max',
+                 padding=True,
+                 dropout=0.5,
+                 bias=True):
+        super(MultiSizeCNNEncoder, self).__init__()
+        # Define Parameter
+        self.input_size = input_size
+        self.hidden_size = hidden_size
+        self.window_size = window_size
+        self.pooling_type = pooling_type
+        self.padding = padding
+        self.dropout = dropout
+        self.bias = bias
+
+        # Define Layer
+        # (N, Cin, Hin, Win)
+        # In NLP, Hin is length, Win is Word Embedding Size
+        self.conv_layer = nn.ModuleList([CNNEncoder(input_size,
+                                                    hidden_size=self.hidden_size,
+                                                    window_size=win_size,
+                                                    pooling_type=self.pooling_type,
+                                                    padding=self.padding,
+                                                    dropout=self.dropout,
+                                                    bias=self.bias)
+                                         for win_size in self.window_size])
+
+        self.init_model()
+
+        self.output_size = self.hidden_size * len(self.conv_layer)
+
+    def init_model(self):
+        pass
+
+    def forward(self, inputs, lengths=None):
+        """
+        :param inputs: batch x len x input_size
+        :param lengths: batch
+        :return: batch x hidden_size
+        """
+        conv_results = [conv(inputs, lengths) for conv in self.conv_layer]
+        return torch.cat(conv_results, 1)

@@ -24,13 +24,13 @@ class SSTClassifier(nn.Module):
         elif opt.encoder == "cbow":
             self.encoder = CBOW(self.embedding.output_size)
         elif opt.encoder == "cnn":
-            self.encoder = CNNEncoder(self.embedding.output_size,
-                                      hidden_size=168,
-                                      window_size=3,
-                                      pooling_type='max',
-                                      padding=True,
-                                      dropout=0.5,
-                                      bias=True)
+            self.encoder = MultiSizeCNNEncoder(self.embedding.output_size,
+                                               hidden_size=168,
+                                               window_size=[3, 4, 5],
+                                               pooling_type='max',
+                                               padding=True,
+                                               dropout=0.5,
+                                               bias=True)
         else:
             raise NotImplementedError
         self.out = nn.Sequential(nn.Dropout(opt.dropout),
