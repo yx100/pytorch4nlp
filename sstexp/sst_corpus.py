@@ -124,7 +124,7 @@ class SSTCorpus():
             self.shuffle()
             random_index = torch.randperm(num_batch)
         else:
-            random_index = torch.range(0, num_batch - 1).int()
+            random_index = torch.arange(0, num_batch).int()
         for index, i in enumerate(random_index):
             start, end = i * self.batch_size, (i + 1) * self.batch_size
             _batch_size = len(self.data[start:end])
