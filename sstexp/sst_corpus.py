@@ -2,11 +2,12 @@
 # -*- coding: utf-8 -*-
 # Created by Roger on 2017/8/26
 from __future__ import absolute_import
+import common
 import codecs
 import math
 import torch
 from torch.autograd import Variable
-import Constants
+from pt4nlp import Constants
 
 
 class SSTCorpus():

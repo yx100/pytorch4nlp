@@ -6,8 +6,8 @@
 from __future__ import absolute_import
 import torch
 import torch.nn as nn
-import Constants
-from utils import load_word2vec_format, aeq
+from . import Constants
+from .utils import load_word2vec_format, aeq
 
 
 class Embeddings(nn.Module):

@@ -2,11 +2,10 @@
 # -*- coding: utf-8 -*-
 # Created by Roger on 2017/8/26
 from __future__ import absolute_import
+import common
+from collections import OrderedDict
 import torch.nn as nn
-from rnn_encoder import RNNEncoder
-from embedding import Embeddings
-from cbow import CBOW
-from convolution import MultiSizeCNNEncoder
+from pt4nlp import RNNEncoder, Embeddings, CBOW, MultiSizeCNNEncoder
 
 
 class SSTClassifier(nn.Module):
@@ -33,9 +32,12 @@ class SSTClassifier(nn.Module):
                                                bias=True)
         else:
             raise NotImplementedError
-        self.out = nn.Sequential(nn.BatchNorm1d(self.encoder.output_size),
-                                 nn.Dropout(opt.dropout),
-                                 nn.Linear(self.encoder.output_size, label_num), )
+        out_component = OrderedDict()
+        if opt.bn:
+            out_component['bn'] = nn.BatchNorm1d(self.encoder.output_size)
+        out_component['dropout'] = nn.Dropout(opt.dropout)
+        out_component['linear'] = nn.Linear(self.encoder.output_size, label_num)
+        self.out = nn.Sequential(out_component)
         self.init_model()
 
     def init_model(self):

@@ -2,13 +2,13 @@
 # -*- coding: utf-8 -*-
 # Created by Roger on 2017/8/26
 from __future__ import absolute_import
+import common
 import time
 import torch
 import torch.nn as nn
 from builtins import range
+from pt4nlp import Constants, Dictionary
 from sst_classifier import SSTClassifier
-from dictionary import Dictionary
-import Constants
 from sst_corpus import SSTCorpus
 from argparse import ArgumentParser
 import numpy
@@ -30,10 +30,12 @@ parser.add_argument('-hidden-size', type=int, dest="hidden_size", default=168)
 parser.add_argument('-num-layers', type=int, dest='num_layers', default=1)
 parser.add_argument('-dropout', type=float, dest='dropout', default=0.5)
 parser.add_argument('-brnn', action='store_true', dest='brnn')
+parser.add_argument('-bn', action='store_true', dest='bn')
 parser.add_argument('-word-vectors', type=str, dest="word_vectors", default='en.emotion.glove.emb.bin')
 parser.add_argument('-rnn-type', type=str, dest='rnn_type', default='LSTM')
 parser.add_argument('-cnn-size', nargs='+', dest='cnn_size', default=[3])
 parser.add_argument('-cnn-pooling', type=str, dest='cnn_pooling', default="max", choices=["max", "sum", "mean"])
+
 
 # Optimizer Option
 parser.add_argument('-word-normalize', action='store_true', dest="word_normalize")
