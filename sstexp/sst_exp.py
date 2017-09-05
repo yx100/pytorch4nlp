@@ -79,7 +79,7 @@ else:
 print("Random Seed: %d" % seed)
 torch.manual_seed(int(seed))
 
-train_file, dev_file, test_file = get_filename(args.exp)
+train_file, dev_file, test_file = get_filename(args.exp_name)
 
 usecuda = False
 batch_size = args.batch
