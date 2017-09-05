@@ -85,9 +85,9 @@ SSTCorpus.add_word_to_dictionary(train_file, dictionary, label_dictionary=label_
 SSTCorpus.add_word_to_dictionary(dev_file, dictionary, label_dictionary=label_dictionary)
 SSTCorpus.add_word_to_dictionary(test_file, dictionary, label_dictionary=label_dictionary)
 
-train_data = SSTCorpus(train_file, dictionary, cuda=usecuda, batch_size=batch_size)
-dev_data = SSTCorpus(dev_file, dictionary, cuda=usecuda, volatile=True, batch_size=batch_size)
-test_data = SSTCorpus(test_file, dictionary, cuda=usecuda, volatile=True, batch_size=batch_size)
+train_data = SSTCorpus(train_file, dictionary, device=args.device, batch_size=batch_size)
+dev_data = SSTCorpus(dev_file, dictionary, device=args.device, volatile=True, batch_size=batch_size)
+test_data = SSTCorpus(test_file, dictionary, device=args.device, volatile=True, batch_size=batch_size)
 
 print("Train Size: %s" % len(train_data))
 print("Dev   Size: %s" % len(dev_data))

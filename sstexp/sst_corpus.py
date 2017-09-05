@@ -3,11 +3,12 @@
 # Created by Roger on 2017/8/26
 from __future__ import absolute_import
 import common
+import json
 import codecs
 import math
 import torch
 from torch.autograd import Variable
-from pt4nlp import Constants
+from pt4nlp import Constants, Dictionary
 
 
 class SSTCorpus():
@@ -17,25 +18,56 @@ class SSTCorpus():
                  volatile=False,
                  batch_size=64,
                  max_length=200,
-                 cuda=False):
+                 device=-1):
         self.dictionary = dictionary
         self.volatile = volatile
-        self.cuda = cuda
+        self.cuda = device >= 0
+        self.device = device
         self.data = self.load_data_file(data_path=data_path, dictionary=self.dictionary)
         self.batch_size = batch_size
         self.max_length = max_length
         self.sort()
 
     @staticmethod
-    def load_data_file(data_path, dictionary, split_symbol='\t', max_length=200):
-        data = list()
+    def load_json_file(data_path):
+        with codecs.open(data_path, 'r', 'utf8') as fin:
+            data = json.load(fin)
+            for d in data:
+                yield d["label"], d["text"]
+
+    @staticmethod
+    def load_text_file(data_path, split_symbol='\t'):
         with codecs.open(data_path, 'r', 'utf8') as fin:
             for line in fin:
                 label, _, text = line.strip().partition(split_symbol)
-                text = dictionary.convert_to_index(text.split(), unk_word=Constants.UNK_WORD)
-                if len(text) > max_length:
-                    text = text[:max_length]
-                data.append((torch.LongTensor(text), int(label), len(text)))
+                yield label, text
+
+    @staticmethod
+    def load_data_file(data_path, dictionary, split_symbol='\t', max_length=200,
+                       text_process_f=None, label_map_f=None, json=False):
+        label_dictionary = Dictionary()
+        data = list()
+
+        if json:
+            data_generator = SSTCorpus.load_json_file(data_path)
+        else:
+            data_generator = SSTCorpus.load_text_file(data_path, split_symbol=split_symbol)
+
+        for label, text in data_generator:
+
+            text = text_process_f(text) if text_process_f is not None else text
+            label = label_map_f(label) if label_map_f is not None else label
+
+            label_dictionary.add(label)
+
+            text = dictionary.convert_to_index(text.split(), unk_word=Constants.UNK_WORD)
+            label = label_dictionary.lookup(label)
+
+            if len(text) > max_length:
+                text = text[:max_length]
+
+            data.append((torch.LongTensor(text), int(label), len(text)))
+
         return data
 
     @staticmethod
@@ -82,9 +114,9 @@ class SSTCorpus():
             text, label, lengths = self._batchify(self.data[start:end])
 
             if self.cuda:
-                text = text.cuda()
-                label = label.cuda()
-                lengths = lengths.cuda()
+                text = text.cuda(self.device)
+                label = label.cuda(self.device)
+                lengths = lengths.cuda(self.device)
 
             text = Variable(text, volatile=self.volatile)
             label = Variable(label, volatile=self.volatile)
