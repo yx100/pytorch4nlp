@@ -8,8 +8,8 @@ import torch
 import torch.nn as nn
 from builtins import range
 from pt4nlp import Constants, Dictionary
-from .sst_classifier import SSTClassifier
-from .sst_corpus import SSTCorpus
+from sst_classifier import SSTClassifier
+from sst_corpus import SSTCorpus
 from argparse import ArgumentParser
 import numpy
 
