@@ -33,7 +33,8 @@ class SSTClassifier(nn.Module):
                                                bias=True)
         else:
             raise NotImplementedError
-        self.out = nn.Sequential(nn.Dropout(opt.dropout),
+        self.out = nn.Sequential(nn.BatchNorm1d(self.encoder.output_size),
+                                 nn.Dropout(opt.dropout),
                                  nn.Linear(self.encoder.output_size, label_num), )
         self.init_model()
 
