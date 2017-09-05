@@ -15,15 +15,19 @@ class SSTCorpus():
     def __init__(self,
                  data_path,
                  dictionary,
+                 label_dictionary,
                  volatile=False,
                  batch_size=64,
                  max_length=200,
                  device=-1):
         self.dictionary = dictionary
+        self.label_dictionary = label_dictionary
         self.volatile = volatile
         self.cuda = device >= 0
         self.device = device
-        self.data = self.load_data_file(data_path=data_path, dictionary=self.dictionary)
+        self.data = self.load_data_file(data_path=data_path,
+                                        dictionary=self.dictionary,
+                                        label_dictionary=label_dictionary)
         self.batch_size = batch_size
         self.max_length = max_length
         self.sort()
@@ -58,7 +62,6 @@ class SSTCorpus():
             label = label_map_f(label) if label_map_f is not None else label
 
             if label_dictionary is not None:
-                label_dictionary.add(label)
                 label = label_dictionary.lookup(label)
 
             text = dictionary.convert_to_index(text.split(), unk_word=Constants.UNK_WORD)
