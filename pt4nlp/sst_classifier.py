@@ -6,7 +6,7 @@ import torch.nn as nn
 from rnn_encoder import RNNEncoder
 from embedding import Embeddings
 from cbow import CBOW
-from convolution import CNNEncoder
+from convolution import MultiSizeCNNEncoder
 
 
 class SSTClassifier(nn.Module):
@@ -25,11 +25,11 @@ class SSTClassifier(nn.Module):
             self.encoder = CBOW(self.embedding.output_size)
         elif opt.encoder == "cnn":
             self.encoder = MultiSizeCNNEncoder(self.embedding.output_size,
-                                               hidden_size=168,
-                                               window_size=[3, 4, 5],
-                                               pooling_type='max',
+                                               hidden_size=opt.hidden_size,
+                                               window_size=[int(ws) for ws in opt.cnn_size],
+                                               pooling_type=opt.cnn_pooling,
                                                padding=True,
-                                               dropout=0.5,
+                                               dropout=opt.dropout,
                                                bias=True)
         else:
             raise NotImplementedError

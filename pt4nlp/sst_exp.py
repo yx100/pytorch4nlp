@@ -32,6 +32,8 @@ parser.add_argument('-dropout', type=float, dest='dropout', default=0.5)
 parser.add_argument('-brnn', action='store_true', dest='brnn')
 parser.add_argument('-word-vectors', type=str, dest="word_vectors", default='en.emotion.glove.emb.bin')
 parser.add_argument('-rnn-type', type=str, dest='rnn_type', default='LSTM')
+parser.add_argument('-cnn-size', nargs='+', dest='cnn_size', default=[3])
+parser.add_argument('-cnn-pooling', type=str, dest='cnn_pooling', default="max", choices=["max", "sum", "mean"])
 
 # Optimizer Option
 parser.add_argument('-word-normalize', action='store_true', dest="word_normalize")
