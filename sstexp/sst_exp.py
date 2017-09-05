@@ -14,6 +14,28 @@ from argparse import ArgumentParser
 import numpy
 
 
+def get_filename(expname):
+    if expname == 'sst2':
+        dev_filename = "en_emotion_data/sst2_dev.csv"
+        test_filename = "en_emotion_data/sst2_test.csv"
+        train_filename = "en_emotion_data/sst2_train_sentence.csv"
+    elif expname == 'sst5':
+        dev_filename = "en_emotion_data/sst5_dev.csv"
+        test_filename = "en_emotion_data/sst5_test.csv"
+        train_filename = "en_emotion_data/sst5_train_sentence.csv"
+    elif expname == 'sst2subtree':
+        dev_filename = "en_emotion_data/sst2_dev.csv"
+        test_filename = "en_emotion_data/sst2_test.csv"
+        train_filename = "en_emotion_data/sst2_train_phrases.csv"
+    elif expname == 'sst5subtree':
+        dev_filename = "en_emotion_data/sst5_dev.csv"
+        test_filename = "en_emotion_data/sst5_test.csv"
+        train_filename = "en_emotion_data/sst5_train_phrases.csv"
+    else:
+        raise NotImplementedError
+    return train_filename, dev_filename, test_filename
+
+
 parser = ArgumentParser(description='SST Text Classifier')
 # Train Option
 parser.add_argument('-epoch', type=int, dest="epoch", default=50)
@@ -22,6 +44,9 @@ parser.add_argument('-device', type=int, dest="device", default=0)
 parser.add_argument('-seed', type=int, dest="seed", default=1993)
 parser.add_argument('-label', type=int, dest="label", default=2, choices=[2, 5])
 parser.add_argument('-subtree', action='store_true', dest="subtree")
+parser.add_argument('-exp', type=str, dest="exp_name", default="sst2",
+                    choices=["sst2", "sst5", "sst2subtree", "sst5subtree", "imdb"])
+
 
 # Model Option
 parser.add_argument('-encoder', type=str, dest="encoder", default="rnn", choices=["rnn", "cbow", "cnn"])
@@ -54,22 +79,7 @@ else:
 print("Random Seed: %d" % seed)
 torch.manual_seed(int(seed))
 
-if args.label == 2:
-    dev_file = "en_emotion_data/sst2_dev.csv"
-    test_file = "en_emotion_data/sst2_test.csv"
-    if args.subtree:
-        train_file = "en_emotion_data/sst2_train_phrases.csv"
-    else:
-        train_file = "en_emotion_data/sst2_train_sentence.csv"
-elif args.label == 5:
-    dev_file = "en_emotion_data/sst5_dev.csv"
-    test_file = "en_emotion_data/sst5_test.csv"
-    if args.subtree:
-        train_file = "en_emotion_data/sst5_train_phrases.csv"
-    else:
-        train_file = "en_emotion_data/sst5_train_sentences.csv"
-else:
-    raise NotImplementedError
+train_file, dev_file, test_file = get_filename(args.exp)
 
 usecuda = False
 batch_size = args.batch
