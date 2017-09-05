@@ -95,6 +95,14 @@ class SSTCorpus():
         _, indexs = zip(*lengths)
         self.data = [self.data[i] for i in indexs]
 
+    def shuffle(self):
+        rand_range = torch.randperm(len(self.data))
+        lengths = [(length, rand_index, index)
+                   for index, ((_, _, length), rand_index) in enumerate(zip(self.data, rand_range))]
+        lengths.sort()
+        _, _, indexs = zip(*lengths)
+        self.data = [self.data[i] for i in indexs]
+
     @staticmethod
     def _batchify(data):
         text, label, lengths = zip(*data)
@@ -109,6 +117,7 @@ class SSTCorpus():
         return torch.stack(text, 0), label, torch.LongTensor(lengths)
 
     def next_batch(self):
+        self.shuffle()
         num_batch = int(math.ceil(len(self.data) / float(self.batch_size)))
         random_index = torch.randperm(num_batch)
         for index, i in enumerate(random_index):
