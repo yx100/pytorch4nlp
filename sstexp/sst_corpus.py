@@ -44,8 +44,7 @@ class SSTCorpus():
 
     @staticmethod
     def load_data_file(data_path, dictionary, split_symbol='\t', max_length=200,
-                       text_process_f=None, label_map_f=None, json=False):
-        label_dictionary = Dictionary()
+                       text_process_f=None, label_map_f=None, json=False, label_dictionary=None):
         data = list()
 
         if json:
@@ -58,10 +57,11 @@ class SSTCorpus():
             text = text_process_f(text) if text_process_f is not None else text
             label = label_map_f(label) if label_map_f is not None else label
 
-            label_dictionary.add(label)
+            if label_dictionary is not None:
+                label_dictionary.add(label)
+                label = label_dictionary.lookup(label)
 
             text = dictionary.convert_to_index(text.split(), unk_word=Constants.UNK_WORD)
-            label = label_dictionary.lookup(label)
 
             if len(text) > max_length:
                 text = text[:max_length]
