@@ -19,7 +19,8 @@ class SSTCorpus():
                  volatile=False,
                  batch_size=64,
                  max_length=200,
-                 device=-1):
+                 device=-1,
+                 random=True):
         self.dictionary = dictionary
         self.label_dictionary = label_dictionary
         self.volatile = volatile
@@ -30,6 +31,7 @@ class SSTCorpus():
                                         label_dictionary=label_dictionary)
         self.batch_size = batch_size
         self.max_length = max_length
+        self.random = random
         self.sort()
 
     @staticmethod
@@ -117,9 +119,12 @@ class SSTCorpus():
         return torch.stack(text, 0), label, torch.LongTensor(lengths)
 
     def next_batch(self):
-        self.shuffle()
         num_batch = int(math.ceil(len(self.data) / float(self.batch_size)))
-        random_index = torch.randperm(num_batch)
+        if self.random:
+            self.shuffle()
+            random_index = torch.randperm(num_batch)
+        else:
+            random_index = torch.range(0, num_batch - 1)
         for index, i in enumerate(random_index):
             start, end = i * self.batch_size, (i + 1) * self.batch_size
             _batch_size = len(self.data[start:end])

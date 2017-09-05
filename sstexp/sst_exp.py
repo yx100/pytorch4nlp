@@ -8,8 +8,8 @@ import torch
 import torch.nn as nn
 from builtins import range
 from pt4nlp import Constants, Dictionary
-from sst_classifier import SSTClassifier
-from sst_corpus import SSTCorpus
+from .sst_classifier import SSTClassifier
+from .sst_corpus import SSTCorpus
 from argparse import ArgumentParser
 import numpy
 
@@ -99,9 +99,9 @@ SSTCorpus.add_word_to_dictionary(test_file, dictionary, label_dictionary=label_d
 train_data = SSTCorpus(train_file, dictionary, device=args.device,
                        batch_size=batch_size, label_dictionary=label_dictionary)
 dev_data = SSTCorpus(dev_file, dictionary, device=args.device, volatile=True,
-                     batch_size=batch_size, label_dictionary=label_dictionary)
+                     batch_size=batch_size, label_dictionary=label_dictionary, random=False)
 test_data = SSTCorpus(test_file, dictionary, device=args.device, volatile=True,
-                      batch_size=batch_size, label_dictionary=label_dictionary)
+                      batch_size=batch_size, label_dictionary=label_dictionary, random=False)
 
 print("Train Size: %s" % len(train_data))
 print("Dev   Size: %s" % len(dev_data))
