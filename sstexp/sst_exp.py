@@ -46,6 +46,9 @@ parser.add_argument('-label', type=int, dest="label", default=2, choices=[2, 5])
 parser.add_argument('-subtree', action='store_true', dest="subtree")
 parser.add_argument('-exp', type=str, dest="exp_name", default="sst2",
                     choices=["sst2", "sst5", "sst2subtree", "sst5subtree", "imdb"])
+parser.add_argument('-train-file', type=str, dest="train_file", default=None)
+parser.add_argument('-dev-file', type=str, dest="dev_file", default=None)
+parser.add_argument('-test-file', type=str, dest="test_file", default=None)
 
 
 # Model Option
@@ -79,7 +82,12 @@ else:
 print("Random Seed: %d" % seed)
 torch.manual_seed(int(seed))
 
-train_file, dev_file, test_file = get_filename(args.exp_name)
+if args.train_file is None and args.dev_file is None and args.test_file is None:
+    train_file, dev_file, test_file = get_filename(args.exp_name)
+else:
+    train_file = args.train_file
+    dev_file = args.dev_file
+    test_file = args.test_file
 
 usecuda = False
 batch_size = args.batch
