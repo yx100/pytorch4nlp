@@ -43,7 +43,10 @@ class CNNEncoder(nn.Module):
         self.output_size = self.hidden_size
 
     def init_model(self):
-        pass
+        for name, param in self.conv_layer.named_parameters():
+            if param.data.dim() >= 2:
+                print("Init %s with %s" % (name, "xavier_uniform"))
+                nn.init.xavier_uniform(param)
 
     def forward_conv(self, inputs):
         """
@@ -117,10 +120,7 @@ class MultiSizeCNNEncoder(nn.Module):
         self.output_size = self.hidden_size * len(self.conv_layer)
 
     def init_model(self):
-        for name, param in self.conv_layer.named_parameters():
-            if param.data.dim() >= 2:
-                print("Init %s with %s" % (name, "xavier_uniform"))
-                nn.init.xavier_uniform(param)
+        pass
 
     def forward(self, inputs, lengths=None):
         """
