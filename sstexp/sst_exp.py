@@ -42,8 +42,6 @@ parser.add_argument('-epoch', type=int, dest="epoch", default=50)
 parser.add_argument('-batch', type=int, dest="batch", default=128)
 parser.add_argument('-device', type=int, dest="device", default=0)
 parser.add_argument('-seed', type=int, dest="seed", default=1993)
-parser.add_argument('-label', type=int, dest="label", default=2, choices=[2, 5])
-parser.add_argument('-subtree', action='store_true', dest="subtree")
 parser.add_argument('-exp', type=str, dest="exp_name", default="sst2",
                     choices=["sst2", "sst5", "sst2subtree", "sst5subtree", "imdb"])
 parser.add_argument('-train-file', type=str, dest="train_file", default=None)
