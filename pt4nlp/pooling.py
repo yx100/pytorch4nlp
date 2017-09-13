@@ -5,6 +5,8 @@ import torch
 
 from mask_util import lengths2mask
 
+_big_number = 10000
+
 
 def mask_mean_pooling(inputs, mask):
     return torch.sum(inputs, 1) / torch.sum(mask, 1)[:, None].float()
@@ -15,11 +17,11 @@ def mask_sum_pooling(inputs, mask):
 
 
 def mask_max_pooling(inputs, mask):
-    return torch.max(inputs * mask[:, :, None], 1)[0]
+    return torch.max(inputs * mask[:, :, None] - _big_number * (1 - mask[:, :, None]), 1)[0]
 
 
 def mask_min_pooling(inputs, mask):
-    return torch.min(inputs * mask[:, :, None], 1)[0]
+    return torch.min(inputs * mask[:, :, None] + _big_number * (1 - mask[:, :, None]), 1)[0]
 
 
 def mean_pooling(inputs):

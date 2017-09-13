@@ -196,13 +196,15 @@ class MultiPoolingCNNEncoder(CNNEncoder):
 
         split_positions = [p.squeeze(0) for p in position.t().split(1)]
         zero_start = Variable(inputs.data.new(batch_size).fill_(0))
-        length_end = Variable(lengths if lengths is not None else inputs.data.new(batch_size).fill_(max_length))
+        length_end = lengths if lengths is not None else Variable(inputs.data.new(batch_size).fill_(max_length))
 
         mask_list = list()
         left_positions = [zero_start] + split_positions
         right_positions = split_positions + [length_end]
         for left, right in zip(left_positions,
                                right_positions):
+            mask = relative_postition2mask(left, right, max_length)
+            print mask
             mask_list.append(relative_postition2mask(left, right, max_length))
 
         pooling_results = [get_pooling(conv_result, pooling_type=self.pooling_type, mask=mask)
@@ -213,8 +215,10 @@ class MultiPoolingCNNEncoder(CNNEncoder):
 if __name__ == "__main__":
     inputs = torch.FloatTensor(6, 7, 10)
     inputs.normal_()
-    position = torch.LongTensor([2, 4, 5, 0, 6, 1])
-    layer = MultiPoolingCNNEncoder(input_size=10, hidden_size=5)
+    position = torch.LongTensor([[1, 2, 3, 0, 3, 0], [2, 4, 5, 0, 6, 1]]).t()
+    lengths = torch.LongTensor([4, 5, 5, 5, 6, 7])
+    layer = MultiPoolingCNNEncoder(input_size=10, hidden_size=5, split_point_number=2)
     inputs = Variable(inputs)
     position = Variable(position)
-    layer(inputs, position)
+    lengths = Variable(lengths)
+    layer(inputs, position, lengths)
