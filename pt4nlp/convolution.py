@@ -118,7 +118,7 @@ class MultiSizeCNNEncoder(nn.Module):
 
     def init_model(self):
         for name, param in self.conv_layer.named_parameters():
-            if param.data.dim() == 2:
+            if param.data.dim() >= 2:
                 print("Init %s with %s" % (name, "xavier_uniform"))
                 nn.init.xavier_uniform(param)
 
