@@ -2,19 +2,8 @@
 # -*- coding: utf-8 -*-
 # Created by Roger on 2017/9/2
 import torch
-from torch.autograd import Variable
 
-
-def lengths2mask(lengths, max_length):
-    batch_size = lengths.size(0)
-    # print max_length
-    # print torch.max(lengths)[0]
-    # assert max_length == torch.max(lengths)[0]
-    range_i = torch.arange(0, max_length).expand(batch_size, max_length)
-    if lengths.is_cuda:
-        range_i = range_i.cuda(lengths.get_device())
-    range_i = Variable(range_i)
-    return torch.le(range_i, lengths.float()[:, None]).float()
+from mask_util import lengths2mask
 
 
 def mask_mean_pooling(inputs, mask):
@@ -49,8 +38,19 @@ def min_pooling(inputs):
     return torch.min(inputs, 1)[0]
 
 
-def get_pooling(inputs, pooling_type='mean', lengths=None):
-    if lengths is not None:
+def get_pooling(inputs, pooling_type='mean', lengths=None, mask=None):
+    if mask is not None:
+        if pooling_type == 'mean':
+            return mask_mean_pooling(inputs, mask)
+        elif pooling_type == 'max':
+            return mask_max_pooling(inputs, mask)
+        elif pooling_type == 'min':
+            return mask_min_pooling(inputs, mask)
+        elif pooling_type == 'sum':
+            return mask_sum_pooling(inputs, mask)
+        else:
+            raise NotImplementedError
+    elif lengths is not None:
         mask = lengths2mask(lengths, inputs.size()[1])
         if pooling_type == 'mean':
             return mask_mean_pooling(inputs, mask)

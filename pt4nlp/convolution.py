@@ -3,8 +3,10 @@
 # Created by Roger on 2017/9/4
 import torch
 import torch.nn as nn
+from torch.autograd import Variable
 
 from pooling import get_pooling
+from mask_util import relative_postition2mask
 
 
 class CNNEncoder(nn.Module):
@@ -130,3 +132,89 @@ class MultiSizeCNNEncoder(nn.Module):
         """
         conv_results = [conv(inputs, lengths) for conv in self.conv_layer]
         return torch.cat(conv_results, 1)
+
+
+class MultiPoolingCNNEncoder(CNNEncoder):
+    def __init__(self,
+                 input_size,
+                 hidden_size=168,
+                 window_size=3,
+                 pooling_type='max',
+                 padding=True,
+                 dropout=0.5,
+                 bias=True,
+                 split_point_number=1):
+        CNNEncoder.__init__(self,
+                            input_size=input_size,
+                            hidden_size=hidden_size,
+                            window_size=window_size,
+                            pooling_type=pooling_type,
+                            padding=padding,
+                            dropout=dropout,
+                            bias=bias)
+
+        self.split_point_number = split_point_number
+
+        self.output_size = self.hidden_size * (self.split_point_number + 1)
+
+    def init_model(self):
+        for name, param in self.conv_layer.named_parameters():
+            if param.data.dim() >= 2:
+                print("Init %s with %s" % (name, "xavier_uniform"))
+                nn.init.xavier_uniform(param)
+
+    def forward(self, inputs, position, lengths=None):
+        """
+        :param inputs: batch x len x input_size
+        :param position: batch x split number
+        :param lengths: batch
+        :return: batch x hidden_size
+        """
+        batch_size = inputs.size(0)
+
+        if position.dim() == 1:
+            position = position.unsqueeze(1)
+
+        split_number = position.size(1)
+        assert split_number == self.split_point_number
+
+        if lengths is None:
+            max_length = inputs.size(1)
+        else:
+            max_length = torch.max(lengths).data[0]
+        if self.padding:
+            max_length += self.window_size - 1
+
+        dp_input = self.dropout_layer(inputs)
+        conv_result = self.forward_conv(dp_input)
+
+        if lengths is not None:
+            if self.padding:
+                lengths = lengths + (self.window_size - 1)
+            else:
+                lengths = lengths - (self.window_size - 1)
+
+        split_positions = [p.squeeze(0) for p in position.t().split(1)]
+        zero_start = Variable(inputs.data.new(batch_size).fill_(0))
+        length_end = Variable(lengths if lengths is not None else inputs.data.new(batch_size).fill_(max_length))
+
+        mask_list = list()
+        left_positions = [zero_start] + split_positions
+        right_positions = split_positions + [length_end]
+        for left, right in zip(left_positions,
+                               right_positions):
+            mask_list.append(relative_postition2mask(left, right, max_length))
+
+        pooling_results = [get_pooling(conv_result, pooling_type=self.pooling_type, mask=mask)
+                           for mask in mask_list]
+        return torch.stack(pooling_results, dim=1)
+
+
+if __name__ == "__main__":
+    inputs = torch.FloatTensor(6, 7, 10)
+    inputs.normal_()
+    position = torch.LongTensor([2, 4, 5, 0, 6, 1])
+    layer = MultiPoolingCNNEncoder(input_size=10, hidden_size=5)
+    inputs = Variable(inputs)
+    position = Variable(position)
+    layer(inputs, position)
