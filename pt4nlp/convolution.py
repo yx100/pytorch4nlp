@@ -76,7 +76,7 @@ class CNNEncoder(nn.Module):
             if self.padding:
                 lengths = lengths + (self.window_size - 1)
             else:
-                lengths = lengths - (self.window_size + 1)
+                lengths = lengths - (self.window_size - 1)
         pooling_result = get_pooling(conv_result, pooling_type=self.pooling_type, lengths=lengths)
         return pooling_result
 
@@ -117,7 +117,10 @@ class MultiSizeCNNEncoder(nn.Module):
         self.output_size = self.hidden_size * len(self.conv_layer)
 
     def init_model(self):
-        pass
+        for name, param in self.conv_layer.named_parameters():
+            if param.data.dim() == 2:
+                print("Init %s with %s" % (name, "xavier_uniform"))
+                nn.init.xavier_uniform(param)
 
     def forward(self, inputs, lengths=None):
         """
