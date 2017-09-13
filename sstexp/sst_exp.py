@@ -56,6 +56,7 @@ parser.add_argument('-encoder', type=str, dest="encoder", default="rnn", choices
 parser.add_argument('-word-vec-size', type=int, dest="word_vec_size", default=300)
 parser.add_argument('-hidden-size', type=int, dest="hidden_size", default=168)
 parser.add_argument('-num-layers', type=int, dest='num_layers', default=1)
+parser.add_argument('-encoder-dropout', type=float, dest='encoder_dropout', default=0)
 parser.add_argument('-dropout', type=float, dest='dropout', default=0.5)
 parser.add_argument('-brnn', action='store_true', dest='brnn')
 parser.add_argument('-bn', action='store_true', dest='bn')

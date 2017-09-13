@@ -17,7 +17,7 @@ class SSTClassifier(nn.Module):
             self.encoder = RNNEncoder(input_size=self.embedding.output_size,
                                       hidden_size=opt.hidden_size,
                                       num_layers=opt.num_layers,
-                                      dropout=opt.dropout,
+                                      dropout=opt.encoder_dropout,
                                       brnn=opt.brnn,
                                       rnn_type=opt.rnn_type)
         elif opt.encoder == "cbow":
@@ -28,7 +28,7 @@ class SSTClassifier(nn.Module):
                                                window_size=[int(ws) for ws in opt.cnn_size],
                                                pooling_type=opt.cnn_pooling,
                                                padding=True,
-                                               dropout=opt.dropout,
+                                               dropout=opt.encoder_dropout,
                                                bias=True)
         else:
             raise NotImplementedError
