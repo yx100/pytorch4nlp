@@ -17,7 +17,8 @@ class Embeddings(nn.Module):
                  dicts,
                  feat_merge='concat',
                  feat_vec_exponent=0.7,
-                 feature_dicts=None):
+                 feature_dicts=None,
+                 feature_dims=None):
         """
         :param word_vec_size: Word Embedding Size
         :param dicts:         Word Dict
@@ -48,7 +49,7 @@ class Embeddings(nn.Module):
                                   for feat_dict in feature_dicts])
             elif self.feat_merge == 'sum':
                 # All embeddings to be summed must be the same size
-                emb_sizes.extend([self.word_vec_size] * len(feature_dicts))
+                emb_sizes.extend(feature_dims)
             else:
                 # TODO MLP
                 raise NotImplementedError

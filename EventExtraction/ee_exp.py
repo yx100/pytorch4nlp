@@ -73,16 +73,16 @@ train_data = EECorpus("trigger_ace_data/train/train.golden.dat",
                       "trigger_ace_data/train/train.ids.dat",
                       "trigger_ace_data/train/train.sents.dat",
                       word_d, posit_d, label_d, lexi_window=1)
-dev_data = EECorpus("trigger_ace_data/train/train.golden.dat",
+'''dev_data = EECorpus("trigger_ace_data/train/train.golden.dat",
                     "trigger_ace_data/train/train.ids.dat",
                     "trigger_ace_data/train/train.sents.dat",
                     word_d, posit_d, label_d, lexi_window=1)
 test_data = EECorpus("trigger_ace_data/train/train.golden.dat",
                      "trigger_ace_data/train/train.ids.dat",
                      "trigger_ace_data/train/train.sents.dat",
-                     word_d, posit_d, label_d, lexi_window=1)
+                     word_d, posit_d, label_d, lexi_window=1)'''
 
-model = DynamicMultiPoolingCNN(word_d, opt=args, label_num=label_d.size())
+model = DynamicMultiPoolingCNN(word_d, opt=args, label_num=label_d.size(), position_dict=posit_d)
 
 criterion = nn.CrossEntropyLoss()
 

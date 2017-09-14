@@ -8,10 +8,11 @@ from pt4nlp import Embeddings, MultiPoolingCNNEncoder
 
 
 class DynamicMultiPoolingCNN(nn.Module):
-    def __init__(self, dicts, opt, label_num):
+    def __init__(self, dicts, opt, label_num, position_dict):
         super(DynamicMultiPoolingCNN, self).__init__()
         self.embedding = Embeddings(word_vec_size=opt.word_vec_size,
                                     dicts=dicts,
+                                    feature_dicts=[position_dict]
                                     )
         self.encoder = MultiPoolingCNNEncoder(self.embedding.output_size,
                                               hidden_size=opt.hidden_size,
@@ -36,7 +37,7 @@ class DynamicMultiPoolingCNN(nn.Module):
                 nn.init.xavier_uniform(param)
 
     def forward(self, batch):
-        words_embeddings = self.embedding(batch.text[:, :, 0])
+        words_embeddings = self.embedding(batch.text)
         sentence_embedding = self.encoder(words_embeddings, batch.position, lengths=batch.lengths)
         scores = self.out(sentence_embedding)
         return scores
