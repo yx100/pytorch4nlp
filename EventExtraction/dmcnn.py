@@ -38,6 +38,6 @@ class DynamicMultiPoolingCNN(nn.Module):
 
     def forward(self, batch):
         words_embeddings = self.embedding(batch.text)
-        sentence_embedding = self.encoder(words_embeddings, batch.position, lengths=batch.lengths)
+        sentence_embedding = self.encoder(words_embeddings, position=batch.position, lengths=batch.lengths)
         scores = self.out(sentence_embedding)
         return scores
