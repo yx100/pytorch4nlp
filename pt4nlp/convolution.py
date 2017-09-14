@@ -203,13 +203,11 @@ class MultiPoolingCNNEncoder(CNNEncoder):
         right_positions = split_positions + [length_end]
         for left, right in zip(left_positions,
                                right_positions):
-            mask = relative_postition2mask(left, right, max_length)
-            print mask
             mask_list.append(relative_postition2mask(left, right, max_length))
 
         pooling_results = [get_pooling(conv_result, pooling_type=self.pooling_type, mask=mask)
                            for mask in mask_list]
-        return torch.stack(pooling_results, dim=1)
+        return torch.cat(pooling_results, dim=1)
 
 
 if __name__ == "__main__":

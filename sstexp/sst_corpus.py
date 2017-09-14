@@ -107,7 +107,7 @@ class SSTCorpus():
 
     @staticmethod
     def _batchify(data):
-        text, label, lengths = zip(*data)
+        _, label, lengths = zip(*data)
         max_length = max(lengths)
         text = data[0][0].new(len(data), max_length).fill_(Constants.PAD)
         label = torch.LongTensor(label)

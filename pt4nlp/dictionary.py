@@ -57,11 +57,16 @@ class Dictionary(object):
         return len(self)
 
     def lookup(self, key, default=None):
-        key = key.lower() if self.lower else key
+        key = self.lower_(key)
         try:
             return self.word2index[key]
         except KeyError:
             return default
+
+    def lower_(self, key):
+        if isinstance(key, int):
+            return key
+        return key.lower() if self.lower else key
 
     def add(self, key, idx=None, count=1):
         """
@@ -70,7 +75,7 @@ class Dictionary(object):
         :param idx:   Use `idx` as its index if given.
         :param count: Use `count` as its count if given, default is 1.
         """
-        key = key.lower() if self.lower else key
+        key = self.lower_(key)
         if idx is not None:
             self.index2word[idx] = key
             self.word2index[key] = idx
@@ -94,7 +99,7 @@ class Dictionary(object):
             self.add_special(key, idx=idx)
 
     def lookup_count(self, key):
-        key = key.lower() if self.lower else key
+        key = self.lower_(key)
         try:
             return self.word_count[key]
         except KeyError:
