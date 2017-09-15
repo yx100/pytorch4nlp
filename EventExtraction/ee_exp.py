@@ -25,18 +25,16 @@ parser.add_argument('-exp', type=str, dest="exp_name", default="sst2",
 parser.add_argument('-train-file', type=str, dest="train_file", default=None)
 parser.add_argument('-dev-file', type=str, dest="dev_file", default=None)
 parser.add_argument('-test-file', type=str, dest="test_file", default=None)
+parser.add_argument('-neg-ratio', type=float, dest="neg_ratio", default=14.)
 
 # Model Option
 parser.add_argument('-encoder', type=str, dest="encoder", default="rnn", choices=["rnn", "cbow", "cnn"])
 parser.add_argument('-word-vec-size', type=int, dest="word_vec_size", default=300)
 parser.add_argument('-hidden-size', type=int, dest="hidden_size", default=168)
-parser.add_argument('-num-layers', type=int, dest='num_layers', default=1)
 parser.add_argument('-encoder-dropout', type=float, dest='encoder_dropout', default=0)
 parser.add_argument('-dropout', type=float, dest='dropout', default=0.5)
-parser.add_argument('-brnn', action='store_true', dest='brnn')
 parser.add_argument('-bn', action='store_true', dest='bn')
 parser.add_argument('-word-vectors', type=str, dest="word_vectors", default='word_word2vec.bin')
-parser.add_argument('-rnn-type', type=str, dest='rnn_type', default='LSTM')
 parser.add_argument('-cnn-size', nargs='+', dest='cnn_size', default=[3])
 parser.add_argument('-cnn-pooling', type=str, dest='cnn_pooling', default="max", choices=["max", "sum", "mean"])
 
@@ -69,13 +67,12 @@ posit_d = EECorpus.get_position_dictionary(200)
 print(len(posit_d))
 word_d = EECorpus.get_word_dictionary_from_ids_file("trigger_ace_data/train/train.ids.dat")
 word_d.cut_by_count(2)
-print(len(word_d))
 
 train_data = EECorpus("trigger_ace_data/train/train.golden.dat",
                       "trigger_ace_data/train/train.ids.dat",
                       "trigger_ace_data/train/train.sents.dat",
                       word_d, posit_d, label_d, lexi_window=1,
-                      device=args.device)
+                      device=args.device, neg_ratio=args.neg_ratio)
 train_eval_data = EECorpus("trigger_ace_data/train/train.golden.dat",
                            "trigger_ace_data/train/train.ids.dat",
                            "trigger_ace_data/train/train.sents.dat",
