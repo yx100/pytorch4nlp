@@ -87,8 +87,8 @@ class EECorpus():
     def next_batch(self):
         if self.neg_ratio == 0:
             # evaluate
-            data = self.event_data
-            num_batch = int(math.ceil((self.event_data_size  / float(self.batch_size))))
+            data = self.event_data + self.non_event_data
+            num_batch = int(math.ceil((self.event_data_size / float(self.batch_size))))
             random_indexs = range(num_batch)
         else:
             if not self.fix_neg:
