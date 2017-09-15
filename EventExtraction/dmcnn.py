@@ -12,11 +12,12 @@ class DynamicMultiPoolingCNN(nn.Module):
     def __init__(self, dicts, opt, label_num, position_dict, lexi_window=1):
         super(DynamicMultiPoolingCNN, self).__init__()
         self.word_vec_size = opt.word_vec_size
+        self.posi_vec_size = opt.posi_vec_size
         self.lexi_window = lexi_window
         self.embedding = Embeddings(word_vec_size=opt.word_vec_size,
                                     dicts=dicts,
                                     feature_dicts=[position_dict],
-                                    feature_dims=[5],
+                                    feature_dims=[opt.posi_vec_size],
                                     )
         self.encoder = MultiPoolingCNNEncoder(self.embedding.output_size,
                                               hidden_size=opt.hidden_size,

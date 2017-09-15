@@ -30,6 +30,7 @@ parser.add_argument('-neg-ratio', type=float, dest="neg_ratio", default=14.)
 # Model Option
 parser.add_argument('-encoder', type=str, dest="encoder", default="rnn", choices=["rnn", "cbow", "cnn"])
 parser.add_argument('-word-vec-size', type=int, dest="word_vec_size", default=300)
+parser.add_argument('-posi-vec-size', type=int, dest="posi_vec_size", default=5)
 parser.add_argument('-hidden-size', type=int, dest="hidden_size", default=168)
 parser.add_argument('-encoder-dropout', type=float, dest='encoder_dropout', default=0)
 parser.add_argument('-dropout', type=float, dest='dropout', default=0.5)
@@ -37,6 +38,7 @@ parser.add_argument('-bn', action='store_true', dest='bn')
 parser.add_argument('-word-vectors', type=str, dest="word_vectors", default='word_word2vec.bin')
 parser.add_argument('-cnn-size', nargs='+', dest='cnn_size', default=[3])
 parser.add_argument('-cnn-pooling', type=str, dest='cnn_pooling', default="max", choices=["max", "sum", "mean"])
+parser.add_argument('-lexi-window', type=int, dest='lexi_window', default=1)
 
 # Optimizer Option
 parser.add_argument('-word-normalize', action='store_true', dest="word_normalize")
@@ -62,10 +64,8 @@ if args.device >= 0:
     usecuda = True
 
 label_d = EECorpus.load_label_dictionary("trigger_ace_data/label2id.dat")
-print(len(label_d))
 print("Label Size: %s" % len(label_d))
 posit_d = EECorpus.get_position_dictionary(200)
-print(len(posit_d))
 print("Position Vocab Size: %s" % len(posit_d))
 word_d = EECorpus.get_word_dictionary_from_ids_file("trigger_ace_data/train/train.ids.dat")
 word_d.cut_by_count(2)
