@@ -129,7 +129,7 @@ class EECorpus():
                     lexi[i] = sentence[tokenid + i]
                 lexi_ids = word_dict.convert_to_index(lexi, unk_word=Constants.UNK_WORD)
 
-                label = label_dict.lookup(ids_data[docid, sentid, tokenid]['type'])
+                label = label_dict.lookup(ids_data[docid, sentid, tokenid]['type'], default='other')
                 relative_position = [pos_dict.convert_to_index([d], unk_word=Constants.UNK_WORD)[0]
                                      for d in range(-tokenid, sentence_length - tokenid)]
 
