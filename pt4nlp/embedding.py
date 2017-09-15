@@ -45,8 +45,7 @@ class Embeddings(nn.Module):
             vocab_sizes.extend(feat_dict.size() for feat_dict in feature_dicts)
             if self.feat_merge == 'concat':
                 # Derive embedding sizes from each feature's vocab size
-                emb_sizes.extend([int(feat_dict.size() ** self.feat_exp)
-                                  for feat_dict in feature_dicts])
+                emb_sizes.extend([int(feature_dim) for feature_dim in feature_dims])
             elif self.feat_merge == 'sum':
                 # All embeddings to be summed must be the same size
                 emb_sizes.extend(feature_dims)

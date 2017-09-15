@@ -12,7 +12,8 @@ class DynamicMultiPoolingCNN(nn.Module):
         super(DynamicMultiPoolingCNN, self).__init__()
         self.embedding = Embeddings(word_vec_size=opt.word_vec_size,
                                     dicts=dicts,
-                                    feature_dicts=[position_dict]
+                                    feature_dicts=[position_dict],
+                                    feature_dims=[5],
                                     )
         self.encoder = MultiPoolingCNNEncoder(self.embedding.output_size,
                                               hidden_size=opt.hidden_size,
