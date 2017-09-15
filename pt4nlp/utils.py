@@ -37,7 +37,7 @@ def aeq(*args):
 
 
 def load_word2vec_format(filename, word_idx, binary=False, normalize=False,
-                         encoding='utf8', unicode_errors='strict'):
+                         encoding='utf8', unicode_errors='ignore'):
     """
     refer to gensim
     load Word Embeddings

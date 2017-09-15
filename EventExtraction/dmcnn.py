@@ -34,6 +34,7 @@ class DynamicMultiPoolingCNN(nn.Module):
         out_component = OrderedDict()
         if opt.bn:
             out_component['bn'] = nn.BatchNorm1d(encoder_output_size)
+        out_component['act'] = nn.Tanh()
         out_component['dropout'] = nn.Dropout(opt.dropout)
         out_component['linear'] = nn.Linear(encoder_output_size, label_num)
         self.out = nn.Sequential(out_component)

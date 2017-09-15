@@ -121,7 +121,7 @@ def eval_epoch(data):
     model.eval()
     for batch in data.next_batch():
         pred = model(batch)
-        pred_label = torch.max(pred, 1)[1].view(batch.label.size()).data
+        pred_label = torch.max(pred, 1)[1].data
         batch.pred = pred_label
         batch_pred = data.batch2pred(batch)
         pred_results += batch_pred
