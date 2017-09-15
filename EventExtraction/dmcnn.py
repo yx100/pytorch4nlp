@@ -3,6 +3,7 @@
 # Created by Roger on 2017/9/14
 from collections import OrderedDict
 
+import torch
 import torch.nn as nn
 from pt4nlp import Embeddings, MultiPoolingCNNEncoder
 
@@ -10,6 +11,7 @@ from pt4nlp import Embeddings, MultiPoolingCNNEncoder
 class DynamicMultiPoolingCNN(nn.Module):
     def __init__(self, dicts, opt, label_num, position_dict, lexi_window=1):
         super(DynamicMultiPoolingCNN, self).__init__()
+        self.word_vec_size = opt.word_vec_size
         self.lexi_window = lexi_window
         self.embedding = Embeddings(word_vec_size=opt.word_vec_size,
                                     dicts=dicts,
@@ -25,7 +27,7 @@ class DynamicMultiPoolingCNN(nn.Module):
                                               bias=True,
                                               split_point_number=1)
         if lexi_window > 0:
-            encoder_output_size = self.encoder.output_size + (2 * lexi_window + 1) * self.embedding.output_size
+            encoder_output_size = self.encoder.output_size + (2 * lexi_window + 1) * self.word_vec_size
         else:
             encoder_output_size = self.encoder.output_size
         out_component = OrderedDict()
@@ -44,8 +46,10 @@ class DynamicMultiPoolingCNN(nn.Module):
 
     def forward(self, batch):
         if self.lexi_window > 0:
-            lexi_embeddings = self.embedding(batch.lexi)
+            lexi_feature = self.embedding(batch.lexi)
+            lexi_feature = lexi_feature.resize(lexi_feature.size()[0], (2 * self.lexi_window + 1) * self.word_vec_size)
         words_embeddings = self.embedding(batch.text)
         sentence_embedding = self.encoder(words_embeddings, position=batch.position, lengths=batch.lengths)
-        scores = self.out(sentence_embedding)
+        sentence_feature = torch.cat([sentence_embedding, lexi_feature], dim=1)
+        scores = self.out(sentence_feature)
         return scores
