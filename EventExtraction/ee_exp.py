@@ -19,7 +19,7 @@ parser = ArgumentParser(description='DMCNN Text Classifier')
 parser.add_argument('-epoch', type=int, dest="epoch", default=50)
 parser.add_argument('-batch', type=int, dest="batch", default=128)
 parser.add_argument('-device', type=int, dest="device", default=0)
-parser.add_argument('-seed', type=int, dest="seed", default=1993)
+parser.add_argument('-seed', type=int, dest="seed", default=-1)
 parser.add_argument('-exp', type=str, dest="exp_name", default="sst2",
                     choices=["sst2", "sst5", "sst2subtree", "sst5subtree", "imdb"])
 parser.add_argument('-train-file', type=str, dest="train_file", default=None)
@@ -63,8 +63,10 @@ if args.device >= 0:
 
 label_d = EECorpus.load_label_dictionary("trigger_ace_data/label2id.dat")
 print(len(label_d))
+print("Label Size: %s" % len(label_d))
 posit_d = EECorpus.get_position_dictionary(200)
 print(len(posit_d))
+print("Position Vocab Size: %s" % len(posit_d))
 word_d = EECorpus.get_word_dictionary_from_ids_file("trigger_ace_data/train/train.ids.dat")
 word_d.cut_by_count(2)
 
