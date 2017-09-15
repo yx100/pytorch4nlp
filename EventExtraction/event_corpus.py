@@ -77,9 +77,12 @@ class EECorpus():
         return text, label, lengths, lexi, position, ident
 
     def sample_data(self):
-        neg_index = torch.randperm(self.nonevent_data_size)[:int(self.event_data_size * self.neg_ratio)]
-        neg_data = [self.non_event_data[index] for index in neg_index]
-        return self.event_data + neg_data
+        if self.neg_ratio > 0:
+            neg_index = torch.randperm(self.nonevent_data_size)[:int(self.event_data_size * self.neg_ratio)]
+            neg_data = [self.non_event_data[index] for index in neg_index]
+            return self.event_data + neg_data
+        else:
+            return self.event_data
 
     def next_batch(self):
         if self.neg_ratio == 0:
