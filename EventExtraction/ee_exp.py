@@ -75,9 +75,9 @@ train_data = EECorpus("trigger_ace_data/train/train.golden.dat",
                       "trigger_ace_data/train/train.sents.dat",
                       word_d, posit_d, label_d, lexi_window=1,
                       device=args.device)
-dev_data = EECorpus("trigger_ace_data/dev/dev.golden.dat",
-                    "trigger_ace_data/dev/dev.ids.dat",
-                    "trigger_ace_data/dev/dev.sents.dat",
+dev_data = EECorpus("trigger_ace_data/train/train.golden.dat",
+                    "trigger_ace_data/train/train.ids.dat",
+                    "trigger_ace_data/train/train.sents.dat",
                     word_d, posit_d, label_d, lexi_window=1,
                     device=args.device, neg_ratio=0)
 test_data = EECorpus("trigger_ace_data/test/test.golden.dat",
