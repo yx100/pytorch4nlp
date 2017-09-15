@@ -80,7 +80,7 @@ class EECorpus():
             num_batch = int(math.ceil((self.event_data_size  / float(self.batch_size))))
             random_indexs = range(num_batch)
         else:
-            neg_index = torch.randperm(self.nonevent_data_size)[:int(self.event_data_size) * self.neg_ratio]
+            neg_index = torch.randperm(self.nonevent_data_size)[:int(self.event_data_size * self.neg_ratio)]
             neg_data = [self.non_event_data[index] for index in neg_index]
             num_batch = int(math.ceil((self.event_data_size + len(neg_data)) / float(self.batch_size)))
 

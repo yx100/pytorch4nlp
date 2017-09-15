@@ -16,8 +16,8 @@ def evalute(golden_list, pred_list):
         if pred[3] != 'other':
             pred_set.add(pred)
 
-    print(len(gold_set))
-    print(len(pred_set))
+    if len(pred_set) is None:
+        return 0, 0, 0
 
     tp += len(gold_set & pred_set)
     fp += len(pred_set - gold_set)
