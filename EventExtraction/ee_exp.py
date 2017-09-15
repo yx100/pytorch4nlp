@@ -35,7 +35,7 @@ parser.add_argument('-encoder-dropout', type=float, dest='encoder_dropout', defa
 parser.add_argument('-dropout', type=float, dest='dropout', default=0.5)
 parser.add_argument('-brnn', action='store_true', dest='brnn')
 parser.add_argument('-bn', action='store_true', dest='bn')
-parser.add_argument('-word-vectors', type=str, dest="word_vectors", default='en.emotion.glove.emb.bin')
+parser.add_argument('-word-vectors', type=str, dest="word_vectors", default='word_word2vec.bin')
 parser.add_argument('-rnn-type', type=str, dest='rnn_type', default='LSTM')
 parser.add_argument('-cnn-size', nargs='+', dest='cnn_size', default=[3])
 parser.add_argument('-cnn-pooling', type=str, dest='cnn_pooling', default="max", choices=["max", "sum", "mean"])
@@ -92,6 +92,8 @@ test_data = EECorpus("trigger_ace_data/test/test.golden.dat",
                      device=args.device, neg_ratio=0)
 
 model = DynamicMultiPoolingCNN(word_d, opt=args, label_num=label_d.size(), position_dict=posit_d, lexi_window=1)
+if args.word_vectors != "random":
+    model.embedding.load_pretrained_vectors(args.word_vectors, normalize=args.word_normalize)
 
 criterion = nn.CrossEntropyLoss()
 
