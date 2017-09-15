@@ -108,15 +108,16 @@ word_opt = getattr(torch.optim, args.word_optimizer)(param_embedding, lr=args.wo
 
 
 def eval_epoch(data):
-    n_correct, n_total = 0, 0
+    pred_results = list()
     model.eval()
     for batch in data.next_batch():
         pred = model(batch)
-
-        n_correct += (torch.max(pred, 1)[1].view(batch.label.size()).data == batch.label.data).sum()
-        n_total += batch.batch_size
-
-    return 100. * n_correct / n_total
+        pred_label = torch.max(pred, 1)[1].view(batch.label.size()).data
+        batch.pred = pred_label
+        batch_pred = data.batch2pred(batch)
+        pred_results += batch_pred
+    p, r, f = evalute(data.gold_data, pred_results)
+    return f
 
 
 def train_epoch(epoch_index):

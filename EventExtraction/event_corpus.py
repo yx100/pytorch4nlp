@@ -34,10 +34,13 @@ class EECorpus():
         self.cuda = device >= 0
         self.device = device
         self.lexi_win = lexi_window
-        self.event_data, self.non_event_data = self.load_data_file(gold_file, ids_file, sents_file,
-                                                                   label_dict=label_dictionary,
-                                                                   word_dict=word_dictionary, pos_dict=pos_dictionary,
-                                                                   lexi_window=self.lexi_win)
+        data = self.load_data_file(gold_file, ids_file,
+                                   sents_file,
+                                   label_dict=label_dictionary,
+                                   word_dict=word_dictionary,
+                                   pos_dict=pos_dictionary,
+                                   lexi_window=self.lexi_win)
+        self.event_data, self.non_event_data, self.ids_data, self.gold_data = data
         self.batch_size = batch_size
         self.max_length = max_length
         self.random = random
@@ -53,7 +56,7 @@ class EECorpus():
 
     @staticmethod
     def _batchify(data):
-        _, label, lengths, lexi, position = zip(*data)
+        _, label, lengths, lexi, position, ident = zip(*data)
         max_length = max(lengths)
         text = data[0][0].new(len(data), max_length, data[0][0].size(1)).fill_(Constants.PAD)
         label = torch.LongTensor(label)
@@ -62,7 +65,12 @@ class EECorpus():
             length = data[i][0].size(0)
             text[i, :].narrow(0, 0, length).copy_(data[i][0])
 
-        return torch.stack(text, 0), label, torch.LongTensor(lengths), torch.stack(lexi, 0), torch.LongTensor(position)
+        text = torch.stack(text, 0)
+        lengths = torch.LongTensor(lengths)
+        lexi = torch.stack(lexi, 0)
+        position = torch.LongTensor(position)
+
+        return text, label, lengths, lexi, position, ident
 
     def next_batch(self):
         neg_index = torch.randperm(self.nonevent_data_size)[:int(self.event_data_size) * self.neg_ratio]
@@ -77,7 +85,7 @@ class EECorpus():
         for index, i in enumerate(random_indexs):
             start, end = i * self.batch_size, (i + 1) * self.batch_size
             _batch_size = len(data[start:end])
-            text, label, lengths, lexi, position = self._batchify(data[start:end])
+            text, label, lengths, lexi, position, ident = self._batchify(data[start:end])
 
             if self.cuda:
                 text = text.cuda(self.device)
@@ -92,7 +100,7 @@ class EECorpus():
             lexi = Variable(lexi, volatile=self.volatile)
             position = Variable(position, volatile=self.volatile)
 
-            yield Batch(text, label, _batch_size, lengths, lexi, position)
+            yield Batch(text, label, _batch_size, lengths, lexi, position, ident)
 
     @staticmethod
     def load_data_file(gold_file, ids_file, sents_file, label_dict, word_dict, pos_dict, max_length=200, lexi_window=1):
@@ -124,13 +132,14 @@ class EECorpus():
                          label,
                          sentence_length,
                          torch.LongTensor(lexi_ids),
-                         tokenid]
+                         tokenid,
+                         (docid, sentid, tokenid)]
                 if ids_data[docid, sentid, tokenid]['type'] != "other":
                     pos_data.append(_data)
                 else:
                     neg_data.append(_data)
 
-        return pos_data, neg_data
+        return pos_data, neg_data, ids_data, gold_data
 
     @staticmethod
     def load_ids_file(filename):
@@ -138,18 +147,18 @@ class EECorpus():
         :param filename: ids file name
         :return: (docid, senid, tokenid) -> start, length, type, token
         """
-        gold_data = dict()
+        ids_data = dict()
         with codecs.open(filename, 'r', 'utf8') as fin:
             for line in fin:
                 att = line.strip().split('\t')
                 key = (att[0], int(att[1]), int(att[2]))
-                gold_data[key] = {
-                    'start': att[3],
-                    'length': att[4],
+                ids_data[key] = {
+                    'start': int(att[3]),
+                    'length': int(att[4]),
                     'type': att[5],
                     'token': att[6],
                 }
-        return gold_data
+        return ids_data
 
     @staticmethod
     def load_gold_file(filename):
@@ -157,17 +166,12 @@ class EECorpus():
         :param filename: gold file name
         :return: docid, start, length, token, type
         """
-        ids_data = list()
+        gold_data = list()
         with codecs.open(filename, 'r', 'utf8') as fin:
             for line in fin:
                 att = line.strip().split('\t')
-                ids_data.append({'docid': att[0],
-                                 'start': att[1],
-                                 'length': att[2],
-                                 'token': att[3],
-                                 'type': att[4],
-                                 })
-        return ids_data
+                gold_data += [(att[0], int(att[1]), int(att[2]), att[4])]
+        return gold_data
 
     @staticmethod
     def load_sents_file(filename):
@@ -214,15 +218,28 @@ class EECorpus():
                 word_dictionary.add(token)
         return word_dictionary
 
+    def batch2pred(self, batch):
+        pred_list = list()
+        assert batch.pred is not None
+        for ident, pred in zip(batch.ident, batch.pred):
+            docid, sentid, tokenid = ident
+            start, length, _, _ = self.ids_data[ident]
+            pred_list += [(docid, start, length,
+                           self.label_dictionary.index2word[pred]
+                           )]
+        return pred_list
+
 
 class Batch(object):
-    def __init__(self, text, label, batch_size, lengths, lexi, position):
+    def __init__(self, text, label, batch_size, lengths, lexi, position, ident):
         self.text = text
         self.label = label
         self.batch_size = batch_size
         self.lengths = lengths
         self.lexi = lexi
         self.position = position
+        self.ident = ident
+        self.pred = None
 
 
 if __name__ == "__main__":
