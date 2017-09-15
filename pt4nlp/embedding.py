@@ -125,6 +125,11 @@ class Embeddings(nn.Module):
             emb = self.word_lookup_table(inp)
             return emb
 
+        if inp.dim() == 3 and inp.size(2) == 1:
+            # batch x len
+            emb = self.word_lookup_table(inp)
+            return emb
+
         in_batch, in_length, nfeat = inp.size()
         # 特征数量应与Embedding个数相同
         aeq(nfeat, len(self.emb_luts))

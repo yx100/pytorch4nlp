@@ -8,8 +8,9 @@ from pt4nlp import Embeddings, MultiPoolingCNNEncoder
 
 
 class DynamicMultiPoolingCNN(nn.Module):
-    def __init__(self, dicts, opt, label_num, position_dict):
+    def __init__(self, dicts, opt, label_num, position_dict, lexi_window=1):
         super(DynamicMultiPoolingCNN, self).__init__()
+        self.lexi_window = lexi_window
         self.embedding = Embeddings(word_vec_size=opt.word_vec_size,
                                     dicts=dicts,
                                     feature_dicts=[position_dict],
@@ -23,11 +24,15 @@ class DynamicMultiPoolingCNN(nn.Module):
                                               dropout=opt.encoder_dropout,
                                               bias=True,
                                               split_point_number=1)
+        if lexi_window > 0:
+            encoder_output_size = self.encoder.output_size + (2 * lexi_window + 1) * self.embedding.output_size
+        else:
+            encoder_output_size = self.encoder.output_size
         out_component = OrderedDict()
         if opt.bn:
-            out_component['bn'] = nn.BatchNorm1d(self.encoder.output_size)
+            out_component['bn'] = nn.BatchNorm1d(encoder_output_size)
         out_component['dropout'] = nn.Dropout(opt.dropout)
-        out_component['linear'] = nn.Linear(self.encoder.output_size, label_num)
+        out_component['linear'] = nn.Linear(encoder_output_size, label_num)
         self.out = nn.Sequential(out_component)
         self.init_model()
 
@@ -38,6 +43,8 @@ class DynamicMultiPoolingCNN(nn.Module):
                 nn.init.xavier_uniform(param)
 
     def forward(self, batch):
+        if self.lexi_window > 0:
+            lexi_embeddings = self.embedding(batch.lexi)
         words_embeddings = self.embedding(batch.text)
         sentence_embedding = self.encoder(words_embeddings, position=batch.position, lengths=batch.lengths)
         scores = self.out(sentence_embedding)

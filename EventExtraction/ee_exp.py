@@ -86,7 +86,7 @@ test_data = EECorpus("trigger_ace_data/test/test.golden.dat",
                      word_d, posit_d, label_d, lexi_window=1,
                      device=args.device, neg_ratio=0)
 
-model = DynamicMultiPoolingCNN(word_d, opt=args, label_num=label_d.size(), position_dict=posit_d)
+model = DynamicMultiPoolingCNN(word_d, opt=args, label_num=label_d.size(), position_dict=posit_d, lexi_window=1)
 
 criterion = nn.CrossEntropyLoss()
 
