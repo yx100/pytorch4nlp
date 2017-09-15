@@ -71,17 +71,17 @@ print(len(word_d))
 
 train_data = EECorpus("trigger_ace_data/train/train.golden.dat",
                       "trigger_ace_data/train/train.ids.dat",
-                      "trigger_ace_data/train/train.sents.dat",
+                      "trigger_ace_data/train/train.sents.datp",
                       word_d, posit_d, label_d, lexi_window=1,
                       device=args.device)
-dev_data = EECorpus("trigger_ace_data/train/train.golden.dat",
-                    "trigger_ace_data/train/train.ids.dat",
-                    "trigger_ace_data/train/train.sents.dat",
+dev_data = EECorpus("trigger_ace_data/dev/dev.golden.dat",
+                    "trigger_ace_data/dev/dev.ids.dat",
+                    "trigger_ace_data/dev/dev.sents.dat",
                     word_d, posit_d, label_d, lexi_window=1,
                     device=args.device)
-test_data = EECorpus("trigger_ace_data/train/train.golden.dat",
-                     "trigger_ace_data/train/train.ids.dat",
-                     "trigger_ace_data/train/train.sents.dat",
+test_data = EECorpus("trigger_ace_data/test/test.golden.dat",
+                     "trigger_ace_data/test/test.ids.dat",
+                     "trigger_ace_data/test/test.sents.dat",
                      word_d, posit_d, label_d, lexi_window=1,
                      device=args.device)
 
