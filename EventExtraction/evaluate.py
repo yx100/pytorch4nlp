@@ -24,4 +24,4 @@ def evalute(golden_list, pred_list):
     prec = tp / (tp + fp)
     reca = tp / (tp + fn)
     f1 =  2 * tp / (2 * tp + fp + fn)
-    return prec, reca, f1
+    return prec * 100., reca * 100., f1 * 100.
