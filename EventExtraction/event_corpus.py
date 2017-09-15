@@ -196,7 +196,7 @@ class EECorpus():
     @staticmethod
     def load_label_dictionary(label2id_file, label_dictionary=None):
         if label_dictionary is None:
-            label_dictionary = Dictionary()
+            label_dictionary = Dictionary(lower=False)
         with codecs.open(label2id_file, 'r', 'utf8') as fin:
             for line in fin:
                 label, index = line.strip().split('\t')

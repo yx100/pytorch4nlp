@@ -75,9 +75,14 @@ train_data = EECorpus("trigger_ace_data/train/train.golden.dat",
                       "trigger_ace_data/train/train.sents.dat",
                       word_d, posit_d, label_d, lexi_window=1,
                       device=args.device)
-dev_data = EECorpus("trigger_ace_data/train/train.golden.dat",
-                    "trigger_ace_data/train/train.ids.dat",
-                    "trigger_ace_data/train/train.sents.dat",
+train_eval_data = EECorpus("trigger_ace_data/train/train.golden.dat",
+                           "trigger_ace_data/train/train.ids.dat",
+                           "trigger_ace_data/train/train.sents.dat",
+                           word_d, posit_d, label_d, lexi_window=1,
+                           device=args.device, neg_ratio=0)
+dev_data = EECorpus("trigger_ace_data/dev/dev.golden.dat",
+                    "trigger_ace_data/dev/dev.ids.dat",
+                    "trigger_ace_data/dev/dev.sents.dat",
                     word_d, posit_d, label_d, lexi_window=1,
                     device=args.device, neg_ratio=0)
 test_data = EECorpus("trigger_ace_data/test/test.golden.dat",
@@ -153,6 +158,7 @@ for i in range(args.epoch):
     start = time.time()
     train_acc = train_epoch(i)
     end = time.time()
+    train_acc = eval_epoch(train_eval_data)
     dev_acc = eval_epoch(dev_data)
     test_acc = eval_epoch(test_data)
     result.append((dev_acc, test_acc))
