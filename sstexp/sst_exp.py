@@ -71,7 +71,7 @@ parser.add_argument('-lr', type=float, dest="lr", default=0.05)
 parser.add_argument('-word-optimizer', type=str, dest="word_optimizer", default="SGD")
 parser.add_argument('-word-lr', type=float, dest="word_lr", default=0.1)
 parser.add_argument('-clip', type=float, default=9.0, dest="clip", help='clip grad by norm')
-parser.add_argument('-regular', type=float, default=0, dest="regular_weight", help='regular weight')
+parser.add_argument('-regular', type=float, default=10e-4, dest="regular_weight", help='regular weight')
 
 args = parser.parse_args()
 if args.seed < 0:
