@@ -26,6 +26,7 @@ parser.add_argument('-train-file', type=str, dest="train_file", default=None)
 parser.add_argument('-dev-file', type=str, dest="dev_file", default=None)
 parser.add_argument('-test-file', type=str, dest="test_file", default=None)
 parser.add_argument('-neg-ratio', type=float, dest="neg_ratio", default=14.)
+parser.add_argument('-fix-neg', action='store_true', dest='fix_neg')
 
 # Model Option
 parser.add_argument('-encoder', type=str, dest="encoder", default="rnn", choices=["rnn", "cbow", "cnn"])
@@ -74,7 +75,7 @@ train_data = EECorpus("trigger_ace_data/train/train.golden.dat",
                       "trigger_ace_data/train/train.ids.dat",
                       "trigger_ace_data/train/train.sents.dat",
                       word_d, posit_d, label_d, lexi_window=1,
-                      device=args.device, neg_ratio=args.neg_ratio)
+                      device=args.device, neg_ratio=args.neg_ratio, fix_neg=args.fix_neg)
 train_eval_data = EECorpus("trigger_ace_data/train/train.golden.dat",
                            "trigger_ace_data/train/train.ids.dat",
                            "trigger_ace_data/train/train.sents.dat",
