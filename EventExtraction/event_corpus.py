@@ -26,7 +26,8 @@ class EECorpus():
                  max_length=200,
                  device=-1,
                  lexi_window=1,
-                 random=True):
+                 random=True,
+                 neg_ratio=14):
         self.word_dictionary = word_dictionary
         self.pos_dictionary = pos_dictionary
         self.label_dictionary = label_dictionary
@@ -44,7 +45,7 @@ class EECorpus():
         self.batch_size = batch_size
         self.max_length = max_length
         self.random = random
-        self.neg_ratio = 14
+        self.neg_ratio = neg_ratio
 
     @property
     def event_data_size(self):
@@ -73,14 +74,20 @@ class EECorpus():
         return text, label, lengths, lexi, position, ident
 
     def next_batch(self):
-        neg_index = torch.randperm(self.nonevent_data_size)[:int(self.event_data_size) * self.neg_ratio]
-        neg_data = [self.non_event_data[index] for index in neg_index]
-        num_batch = int(math.ceil((self.event_data_size + len(neg_data)) / float(self.batch_size)))
+        if self.neg_ratio == 0:
+            # evaluate
+            data = self.event_data
+            num_batch = int(math.ceil((self.event_data_size  / float(self.batch_size))))
+            random_indexs = range(num_batch)
+        else:
+            neg_index = torch.randperm(self.nonevent_data_size)[:int(self.event_data_size) * self.neg_ratio]
+            neg_data = [self.non_event_data[index] for index in neg_index]
+            num_batch = int(math.ceil((self.event_data_size + len(neg_data)) / float(self.batch_size)))
 
-        data = self.event_data + neg_data
-        data = [data[index] for index in torch.randperm(len(data))]
+            data = self.event_data + neg_data
+            data = [data[index] for index in torch.randperm(len(data))]
 
-        random_indexs = torch.randperm(num_batch)
+            random_indexs = torch.randperm(num_batch)
 
         for index, i in enumerate(random_indexs):
             start, end = i * self.batch_size, (i + 1) * self.batch_size
