@@ -93,7 +93,7 @@ class EECorpus():
         else:
             if not self.fix_neg:
                 self.data = self.sample_data()
-            num_batch = int(math.ceil((self.event_data_size + len(neg_data)) / float(self.batch_size)))
+            num_batch = int(math.ceil(len(self.data) / float(self.batch_size)))
 
             data = [self.data[index] for index in torch.randperm(len(data))]
 
