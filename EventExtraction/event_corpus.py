@@ -95,7 +95,7 @@ class EECorpus():
                 self.data = self.sample_data()
             num_batch = int(math.ceil(len(self.data) / float(self.batch_size)))
 
-            data = [self.data[index] for index in torch.randperm(len(data))]
+            data = [self.data[index] for index in torch.randperm(len(self.data))]
 
             random_indexs = torch.randperm(num_batch)
 
