@@ -68,6 +68,7 @@ print(len(label_d))
 posit_d = EECorpus.get_position_dictionary(200)
 print(len(posit_d))
 word_d = EECorpus.get_word_dictionary_from_ids_file("trigger_ace_data/train/train.ids.dat")
+word_d.cut_by_count(2)
 print(len(word_d))
 
 train_data = EECorpus("trigger_ace_data/train/train.golden.dat",
