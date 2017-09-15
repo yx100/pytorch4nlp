@@ -7,8 +7,9 @@ import time
 import torch
 import torch.nn as nn
 from builtins import range
-from pt4nlp import Constants, Dictionary
+
 from dmcnn import DynamicMultiPoolingCNN
+from evaluate import evalute
 from event_corpus import EECorpus
 from argparse import ArgumentParser
 import numpy
