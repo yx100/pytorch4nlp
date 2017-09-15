@@ -78,12 +78,12 @@ dev_data = EECorpus("trigger_ace_data/dev/dev.golden.dat",
                     "trigger_ace_data/dev/dev.ids.dat",
                     "trigger_ace_data/dev/dev.sents.dat",
                     word_d, posit_d, label_d, lexi_window=1,
-                    device=args.device)
+                    device=args.device, neg_ratio=0)
 test_data = EECorpus("trigger_ace_data/test/test.golden.dat",
                      "trigger_ace_data/test/test.ids.dat",
                      "trigger_ace_data/test/test.sents.dat",
                      word_d, posit_d, label_d, lexi_window=1,
-                     device=args.device)
+                     device=args.device, neg_ratio=0)
 
 model = DynamicMultiPoolingCNN(word_d, opt=args, label_num=label_d.size(), position_dict=posit_d)
 
