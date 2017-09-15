@@ -230,8 +230,8 @@ class EECorpus():
         assert batch.pred is not None
         for ident, pred in zip(batch.ident, batch.pred):
             docid, sentid, tokenid = ident
-            start, length, _, _ = self.ids_data[ident]
-            pred_list += [(docid, start, length,
+            ids_dict = self.ids_data[ident]
+            pred_list += [(docid, ids_dict['start'], ids_dict['length'],
                            self.label_dictionary.index2word[pred]
                            )]
         return pred_list
