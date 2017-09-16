@@ -23,7 +23,7 @@ parser.add_argument('-seed', type=int, dest="seed", default=-1)
 parser.add_argument('-data-folder', type=str, dest="data_folder", default="trigger_ace_data")
 parser.add_argument('-neg-ratio', type=float, dest="neg_ratio", default=14.)
 parser.add_argument('-fix-neg', action='store_true', dest='fix_neg')
-parser.add_argument('-word-cut', type=int, dest="word_cut", default=2)
+parser.add_argument('-word-cut', type=int, dest="word_cut", default=1)
 parser.add_argument('-dev-test-pre', action='store_true', dest="dev_test_pre")
 
 # Model Option
