@@ -1,12 +1,16 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # Created by Roger on 2017/9/15
-def evalute(golden_list, pred_list):
+def evalute(golden_list, pred_list, trigger_type=True):
     """
     :param golden_list: [(docid, start, length, type), ...]
     :param pred_list: [(docid, start, length, type), ...]
     :return:
     """
+    if not trigger_type:
+        golden_list = [d[:3] for d in golden_list]
+        pred_list = [d[:3] for d in pred_list]
+
     tp, fp, fn = 0., 0., 0.
 
     gold_set = set(golden_list)

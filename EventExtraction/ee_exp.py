@@ -131,8 +131,9 @@ def eval_epoch(data):
         batch.pred = pred_label
         batch_pred = data.batch2pred(batch)
         pred_results += batch_pred
-    p, r, f = evalute(data.gold_data, pred_results)
-    return f
+    type_p, type_r, type_f = evalute(data.gold_data, pred_results)
+    untype_p, untype_r, untype_f = evalute(data.gold_data, pred_results, trigger_type=False)
+    return type_f, untype_f
 
 
 def train_epoch(epoch_index):
@@ -167,12 +168,18 @@ for i in range(args.epoch):
     start = time.time()
     train_acc = train_epoch(i)
     end = time.time()
-    train_f1 = eval_epoch(train_eval_data)
-    dev_f1 = eval_epoch(dev_data)
-    test_f1 = eval_epoch(test_data)
-    result.append((dev_f1, test_f1))
-    print("iter %2d | %6.2f | %6.2f | %6.2f | %6.2f | %6.2f |" % (i, end - start, train_acc, train_f1, dev_f1, test_f1))
+    train_type_f1, train_untype_f1 = eval_epoch(train_eval_data)
+    dev_type_f1, dev_untype_f1 = eval_epoch(dev_data)
+    test_type_f1, test_untype_f1 = eval_epoch(test_data)
+    result.append((dev_untype_f1, test_untype_f1, dev_type_f1, test_type_f1))
+    print("iter %2d | %6.2f | %6.2f | %6.2f | %6.2f | %6.2f | %6.2f | %6.2f | %6.2f |"
+          % (i, end - start, train_acc,
+             train_untype_f1, dev_untype_f1, test_untype_f1, 
+             train_type_f1, dev_type_f1, test_type_f1))
+
 
 result = torch.from_numpy(numpy.array(result))
-max_dev_acc, max_index = torch.max(result[:, 0], 0)
-print("Best Iter %d, Dev Acc: %s, Test Acc: %s" % (max_index[0], result[max_index[0], 0], result[max_index[0], 1]))
+_, max_index = torch.max(result[:, 0], 0)
+print("Best Untype Iter %d, Dev F1: %s, Test F1: %s" % (max_index[0], result[max_index[0], 0], result[max_index[0], 1]))
+_, max_index = torch.max(result[:, 2], 0)
+print("Best Type Iter %d, Dev F1: %s, Test F1: %s" % (max_index[0], result[max_index[0], 2], result[max_index[0], 3]))
