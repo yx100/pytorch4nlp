@@ -36,15 +36,16 @@ class EECorpus():
         self.cuda = device >= 0
         self.device = device
         self.lexi_win = lexi_window
+        self.max_length = max_length
         data = self.load_data_file(gold_file, ids_file,
                                    sents_file,
                                    label_dict=label_dictionary,
                                    word_dict=word_dictionary,
                                    pos_dict=pos_dictionary,
-                                   lexi_window=self.lexi_win)
+                                   lexi_window=self.lexi_win,
+                                   max_length=self.max_length)
         self.event_data, self.non_event_data, self.ids_data, self.gold_data = data
         self.batch_size = batch_size
-        self.max_length = max_length
         self.random = random
         self.neg_ratio = neg_ratio
         self.fix_neg = fix_neg
@@ -82,7 +83,7 @@ class EECorpus():
             neg_data = [self.non_event_data[index] for index in neg_index]
             return self.event_data + neg_data
         else:
-            return self.event_data
+            return self.event_data + self.non_event_data
 
     def next_batch(self):
         if self.neg_ratio == 0:
