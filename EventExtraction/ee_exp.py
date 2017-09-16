@@ -27,6 +27,8 @@ parser.add_argument('-dev-file', type=str, dest="dev_file", default=None)
 parser.add_argument('-test-file', type=str, dest="test_file", default=None)
 parser.add_argument('-neg-ratio', type=float, dest="neg_ratio", default=14.)
 parser.add_argument('-fix-neg', action='store_true', dest='fix_neg')
+parser.add_argument('-word-cut', type=int, dest="word_cut", default=2)
+parser.add_argument('-dev-test-pre', action='store_true', dest="dev_test_pre")
 
 # Model Option
 parser.add_argument('-encoder', type=str, dest="encoder", default="rnn", choices=["rnn", "cbow", "cnn"])
@@ -36,10 +38,11 @@ parser.add_argument('-hidden-size', type=int, dest="hidden_size", default=168)
 parser.add_argument('-encoder-dropout', type=float, dest='encoder_dropout', default=0)
 parser.add_argument('-dropout', type=float, dest='dropout', default=0.5)
 parser.add_argument('-bn', action='store_true', dest='bn')
+parser.add_argument('-act', type=str, dest='act', default='Tanh')
 parser.add_argument('-word-vectors', type=str, dest="word_vectors", default='word_word2vec.bin')
 parser.add_argument('-cnn-size', nargs='+', dest='cnn_size', default=[3])
 parser.add_argument('-cnn-pooling', type=str, dest='cnn_pooling', default="max", choices=["max", "sum", "mean"])
-parser.add_argument('-lexi-window', type=int, dest='lexi_window', default=1)
+parser.add_argument('-lexi-window', type=int, dest='lexi_window', default=1, help='0 is no lexi feature')
 
 # Optimizer Option
 parser.add_argument('-word-normalize', action='store_true', dest="word_normalize")
@@ -69,27 +72,30 @@ print("Label Size: %s" % len(label_d))
 posit_d = EECorpus.get_position_dictionary(200)
 print("Position Vocab Size: %s" % len(posit_d))
 word_d = EECorpus.get_word_dictionary_from_ids_file("trigger_ace_data/train/train.ids.dat")
-word_d.cut_by_count(2)
+if args.dev_test_pre:
+    word_d = EECorpus.get_word_dictionary_from_ids_file("trigger_ace_data/dev/dev.ids.dat", word_d)
+    word_d = EECorpus.get_word_dictionary_from_ids_file("trigger_ace_data/test/test.ids.dat", word_d)
+word_d.cut_by_count(args.word_cut)
 
 train_data = EECorpus("trigger_ace_data/train/train.golden.dat",
                       "trigger_ace_data/train/train.ids.dat",
                       "trigger_ace_data/train/train.sents.dat",
-                      word_d, posit_d, label_d, lexi_window=1,
+                      word_d, posit_d, label_d, lexi_window=args.lexi_window,
                       device=args.device, neg_ratio=args.neg_ratio, fix_neg=args.fix_neg)
 train_eval_data = EECorpus("trigger_ace_data/train/train.golden.dat",
                            "trigger_ace_data/train/train.ids.dat",
                            "trigger_ace_data/train/train.sents.dat",
-                           word_d, posit_d, label_d, lexi_window=1,
+                           word_d, posit_d, label_d, lexi_window=args.lexi_window,
                            device=args.device, neg_ratio=0)
 dev_data = EECorpus("trigger_ace_data/dev/dev.golden.dat",
                     "trigger_ace_data/dev/dev.ids.dat",
                     "trigger_ace_data/dev/dev.sents.dat",
-                    word_d, posit_d, label_d, lexi_window=1,
+                    word_d, posit_d, label_d, lexi_window=args.lexi_window,
                     device=args.device, neg_ratio=0)
 test_data = EECorpus("trigger_ace_data/test/test.golden.dat",
                      "trigger_ace_data/test/test.ids.dat",
                      "trigger_ace_data/test/test.sents.dat",
-                     word_d, posit_d, label_d, lexi_window=1,
+                     word_d, posit_d, label_d, lexi_window=args.lexi_window,
                      device=args.device, neg_ratio=0)
 
 model = DynamicMultiPoolingCNN(word_d, opt=args, label_num=label_d.size(), position_dict=posit_d, lexi_window=1)
