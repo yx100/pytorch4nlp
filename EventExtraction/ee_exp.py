@@ -174,7 +174,7 @@ for i in range(args.epoch):
     result.append((dev_untype_f1, test_untype_f1, dev_type_f1, test_type_f1))
     print("iter %2d | %6.2f | %6.2f | %6.2f | %6.2f | %6.2f | %6.2f | %6.2f | %6.2f |"
           % (i, end - start, train_acc,
-             train_untype_f1, dev_untype_f1, test_untype_f1, 
+             train_untype_f1, dev_untype_f1, test_untype_f1,
              train_type_f1, dev_type_f1, test_type_f1))
 
 
@@ -182,4 +182,4 @@ result = torch.from_numpy(numpy.array(result))
 _, max_index = torch.max(result[:, 0], 0)
 print("Best Untype Iter %d, Dev F1: %s, Test F1: %s" % (max_index[0], result[max_index[0], 0], result[max_index[0], 1]))
 _, max_index = torch.max(result[:, 2], 0)
-print("Best Type Iter %d, Dev F1: %s, Test F1: %s" % (max_index[0], result[max_index[0], 2], result[max_index[0], 3]))
+print("Best Typed  Iter %d, Dev F1: %s, Test F1: %s" % (max_index[0], result[max_index[0], 2], result[max_index[0], 3]))

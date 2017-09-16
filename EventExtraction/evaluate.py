@@ -7,20 +7,24 @@ def evalute(golden_list, pred_list, trigger_type=True):
     :param pred_list: [(docid, start, length, type), ...]
     :return:
     """
-    if not trigger_type:
-        golden_list = [d[:3] for d in golden_list]
-        pred_list = [d[:3] for d in pred_list]
-
-    tp, fp, fn = 0., 0., 0.
-
-    gold_set = set(golden_list)
-    pred_set = set()
-    for pred in pred_list:
-        if pred[3] != u'other':
-            pred_set.add(pred)
+    if trigger_type:
+        gold_set = set(golden_list)
+        pred_set = set()
+        for pred in pred_list:
+            if pred[3] != u'other':
+                pred_set.add(pred)
+    else:
+        gold_set = set([d[:3] for d in golden_list])
+        pred_set = set()
+        for pred in pred_list:
+            if pred[3] != u'other':
+                pred_set.add(pred[:3])
 
     if len(pred_set) == 0:
         return 0, 0, 0
+
+    tp, fp, fn = 0., 0., 0.
+
 
     tp += len(gold_set & pred_set)
     fp += len(pred_set - gold_set)
