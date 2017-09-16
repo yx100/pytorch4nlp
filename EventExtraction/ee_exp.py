@@ -172,7 +172,7 @@ for i in range(args.epoch):
     dev_type_f1, dev_untype_f1 = eval_epoch(dev_data)
     test_type_f1, test_untype_f1 = eval_epoch(test_data)
     result.append((dev_untype_f1, test_untype_f1, dev_type_f1, test_type_f1))
-    print("iter %2d | %6.2f | %6.2f | %6.2f | %6.2f | %6.2f | %6.2f | %6.2f | %6.2f |"
+    print("iter %2d | %6.2f | %6.2f || %6.2f | %6.2f | %6.2f || %6.2f | %6.2f | %6.2f ||"
           % (i, end - start, train_acc,
              train_untype_f1, dev_untype_f1, test_untype_f1,
              train_type_f1, dev_type_f1, test_type_f1))
