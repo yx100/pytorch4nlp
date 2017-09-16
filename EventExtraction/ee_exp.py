@@ -7,24 +7,20 @@ import time
 import torch
 import torch.nn as nn
 from builtins import range
-
+import os
 from dmcnn import DynamicMultiPoolingCNN
 from evaluate import evalute
 from event_corpus import EECorpus
 from argparse import ArgumentParser
 import numpy
 
-parser = ArgumentParser(description='DMCNN Text Classifier')
+parser = ArgumentParser(description='DMCNN Event Detector')
 # Train Option
 parser.add_argument('-epoch', type=int, dest="epoch", default=50)
 parser.add_argument('-batch', type=int, dest="batch", default=128)
 parser.add_argument('-device', type=int, dest="device", default=0)
 parser.add_argument('-seed', type=int, dest="seed", default=-1)
-parser.add_argument('-exp', type=str, dest="exp_name", default="sst2",
-                    choices=["sst2", "sst5", "sst2subtree", "sst5subtree", "imdb"])
-parser.add_argument('-train-file', type=str, dest="train_file", default=None)
-parser.add_argument('-dev-file', type=str, dest="dev_file", default=None)
-parser.add_argument('-test-file', type=str, dest="test_file", default=None)
+parser.add_argument('-data-folder', type=str, dest="data_folder", default="trigger_ace_data")
 parser.add_argument('-neg-ratio', type=float, dest="neg_ratio", default=14.)
 parser.add_argument('-fix-neg', action='store_true', dest='fix_neg')
 parser.add_argument('-word-cut', type=int, dest="word_cut", default=2)
@@ -67,34 +63,34 @@ batch_size = args.batch
 if args.device >= 0:
     usecuda = True
 
-label_d = EECorpus.load_label_dictionary("trigger_ace_data/label2id.dat")
+label_d = EECorpus.load_label_dictionary(args.data_folder + "/label2id.dat")
 print("Label Size: %s" % len(label_d))
 posit_d = EECorpus.get_position_dictionary(200)
 print("Position Vocab Size: %s" % len(posit_d))
-word_d = EECorpus.get_word_dictionary_from_ids_file("trigger_ace_data/train/train.ids.dat")
+word_d = EECorpus.get_word_dictionary_from_ids_file(args.data_folder + "/train/train.ids.dat")
 if args.dev_test_pre:
-    word_d = EECorpus.get_word_dictionary_from_ids_file("trigger_ace_data/dev/dev.ids.dat", word_d)
-    word_d = EECorpus.get_word_dictionary_from_ids_file("trigger_ace_data/test/test.ids.dat", word_d)
+    word_d = EECorpus.get_word_dictionary_from_ids_file(args.data_folder + "/dev/dev.ids.dat", word_d)
+    word_d = EECorpus.get_word_dictionary_from_ids_file(args.data_folder + "/test/test.ids.dat", word_d)
 word_d.cut_by_count(args.word_cut)
 
-train_data = EECorpus("trigger_ace_data/train/train.golden.dat",
-                      "trigger_ace_data/train/train.ids.dat",
-                      "trigger_ace_data/train/train.sents.dat",
+train_data = EECorpus(args.data_folder + "/train/train.golden.dat",
+                      args.data_folder + "/train/train.ids.dat",
+                      args.data_folder + "/train/train.sents.dat",
                       word_d, posit_d, label_d, lexi_window=args.lexi_window,
                       device=args.device, neg_ratio=args.neg_ratio, fix_neg=args.fix_neg)
-train_eval_data = EECorpus("trigger_ace_data/train/train.golden.dat",
-                           "trigger_ace_data/train/train.ids.dat",
-                           "trigger_ace_data/train/train.sents.dat",
+train_eval_data = EECorpus(args.data_folder + "/train/train.golden.dat",
+                           args.data_folder + "/train/train.ids.dat",
+                           args.data_folder + "/train/train.sents.dat",
                            word_d, posit_d, label_d, lexi_window=args.lexi_window,
                            device=args.device, neg_ratio=0)
-dev_data = EECorpus("trigger_ace_data/dev/dev.golden.dat",
-                    "trigger_ace_data/dev/dev.ids.dat",
-                    "trigger_ace_data/dev/dev.sents.dat",
+dev_data = EECorpus(args.data_folder + "/dev/dev.golden.dat",
+                    args.data_folder + "/dev/dev.ids.dat",
+                    args.data_folder + "/dev/dev.sents.dat",
                     word_d, posit_d, label_d, lexi_window=args.lexi_window,
                     device=args.device, neg_ratio=0)
-test_data = EECorpus("trigger_ace_data/test/test.golden.dat",
-                     "trigger_ace_data/test/test.ids.dat",
-                     "trigger_ace_data/test/test.sents.dat",
+test_data = EECorpus(args.data_folder + "/test/test.golden.dat",
+                     args.data_folder + "/test/test.ids.dat",
+                     args.data_folder + "/test/test.sents.dat",
                      word_d, posit_d, label_d, lexi_window=args.lexi_window,
                      device=args.device, neg_ratio=0)
 
