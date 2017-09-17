@@ -76,22 +76,23 @@ train_data = EECorpus(args.data_folder + "/train/train.golden.dat",
                       args.data_folder + "/train/train.ids.dat",
                       args.data_folder + "/train/train.sents.dat",
                       word_d, posit_d, label_d, lexi_window=args.lexi_window,
-                      batch_size=args.batch, device=args.device, neg_ratio=args.neg_ratio, fix_neg=args.fix_neg)
+                      batch_size=args.batch, device=args.device, neg_ratio=args.neg_ratio, fix_neg=args.fix_neg,
+                      train=True)
 train_eval_data = EECorpus(args.data_folder + "/train/train.golden.dat",
                            args.data_folder + "/train/train.ids.dat",
                            args.data_folder + "/train/train.sents.dat",
-                           word_d, posit_d, label_d, lexi_window=args.lexi_window,
-                           batch_size=1000, device=args.device, neg_ratio=0)
+                           word_d, posit_d, label_d, lexi_window=args.lexi_window, batch_size=1000,
+                           device=args.device, neg_ratio=0, random=False)
 dev_data = EECorpus(args.data_folder + "/dev/dev.golden.dat",
                     args.data_folder + "/dev/dev.ids.dat",
                     args.data_folder + "/dev/dev.sents.dat",
-                    word_d, posit_d, label_d, lexi_window=args.lexi_window,
-                    batch_size=1000, device=args.device, neg_ratio=0)
+                    word_d, posit_d, label_d, lexi_window=args.lexi_window, batch_size=1000,
+                    device=args.device, neg_ratio=0, random=False)
 test_data = EECorpus(args.data_folder + "/test/test.golden.dat",
                      args.data_folder + "/test/test.ids.dat",
                      args.data_folder + "/test/test.sents.dat",
-                     word_d, posit_d, label_d, lexi_window=args.lexi_window,
-                     batch_size=1000, device=args.device, neg_ratio=0)
+                     word_d, posit_d, label_d, lexi_window=args.lexi_window, batch_size=1000,
+                     device=args.device, neg_ratio=0, random=False)
 
 model = DynamicMultiPoolingCNN(word_d, opt=args, label_num=label_d.size(), position_dict=posit_d, lexi_window=1)
 if args.word_vectors != "random":
