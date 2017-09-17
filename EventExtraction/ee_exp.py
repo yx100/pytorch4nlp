@@ -136,7 +136,6 @@ def train_epoch(epoch_index):
 
     model.train()
     for batch in train_data.next_batch():
-        print batch.position
         wo_word_opt.zero_grad()
         word_opt.zero_grad()
 
