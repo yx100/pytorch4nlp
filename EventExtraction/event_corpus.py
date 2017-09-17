@@ -28,7 +28,8 @@ class EECorpus():
                  lexi_window=1,
                  random=True,
                  neg_ratio=14,
-                 fix_neg=False):
+                 fix_neg=False,
+                 train=True):
         self.word_dictionary = word_dictionary
         self.pos_dictionary = pos_dictionary
         self.label_dictionary = label_dictionary
@@ -37,13 +38,15 @@ class EECorpus():
         self.device = device
         self.lexi_win = lexi_window
         self.max_length = max_length
+        self.train = train
         data = self.load_data_file(gold_file, ids_file,
                                    sents_file,
                                    label_dict=label_dictionary,
                                    word_dict=word_dictionary,
                                    pos_dict=pos_dictionary,
                                    lexi_window=self.lexi_win,
-                                   max_length=self.max_length)
+                                   max_length=self.max_length,
+                                   train=self.train)
         self.event_data, self.non_event_data, self.ids_data, self.gold_data = data
         self.batch_size = batch_size
         self.random = random
@@ -121,17 +124,20 @@ class EECorpus():
             yield Batch(text, label, _batch_size, lengths, lexi, position, ident)
 
     @staticmethod
-    def load_data_file(gold_file, ids_file, sents_file, label_dict, word_dict, pos_dict, max_length=200, lexi_window=1):
+    def load_data_file(gold_file, ids_file, sents_file, label_dict, word_dict, pos_dict, max_length=200, lexi_window=1,
+                       train=False):
         pos_data = list()
         neg_data = list()
         ids_data, posi_sent_set = EECorpus.load_ids_file(ids_file)
         gold_data = EECorpus.load_gold_file(gold_file)
         sents_data = EECorpus.load_sents_file(sents_file)
         for (key, sentence) in viewitems(sents_data):
-            if key not in posi_sent_set:
-                continue
             docid, sentid = key
             sentence_length = len(sentence)
+            if key not in posi_sent_set and train:
+                continue
+            if sentence_length > max_length and train:
+                continue
             sent_token_ids = word_dict.convert_to_index(sentence, unk_word=Constants.UNK_WORD)
             for tokenid, token in enumerate(sentence):
 
