@@ -221,7 +221,7 @@ class EECorpus():
             label_dictionary = Dictionary(lower=False)
         with codecs.open(label2id_file, 'r', 'utf8') as fin:
             for line in fin:
-                label, index = line.strip().split('\t')
+                label, index = line.strip().split()
                 label_dictionary.add_special(key=label, idx=int(index))
         return label_dictionary
 
