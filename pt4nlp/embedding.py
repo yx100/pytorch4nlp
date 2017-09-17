@@ -118,7 +118,7 @@ class Embeddings(nn.Module):
         Args:
             inp (LongTensor): batch x len x nfeat
         Return:
-            emb (FloatTensor): batch x len x self.embedding_size
+            emb (Tensor): batch x len x self.embedding_size
         """
         if inp.dim() == 2:
             # batch x len

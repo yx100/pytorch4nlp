@@ -7,7 +7,6 @@ import time
 import torch
 import torch.nn as nn
 from builtins import range
-import os
 from dmcnn import DynamicMultiPoolingCNN
 from evaluate import evalute
 from event_corpus import EECorpus
@@ -77,22 +76,22 @@ train_data = EECorpus(args.data_folder + "/train/train.golden.dat",
                       args.data_folder + "/train/train.ids.dat",
                       args.data_folder + "/train/train.sents.dat",
                       word_d, posit_d, label_d, lexi_window=args.lexi_window,
-                      device=args.device, neg_ratio=args.neg_ratio, fix_neg=args.fix_neg)
+                      batch_size=args.batch, device=args.device, neg_ratio=args.neg_ratio, fix_neg=args.fix_neg)
 train_eval_data = EECorpus(args.data_folder + "/train/train.golden.dat",
                            args.data_folder + "/train/train.ids.dat",
                            args.data_folder + "/train/train.sents.dat",
                            word_d, posit_d, label_d, lexi_window=args.lexi_window,
-                           device=args.device, neg_ratio=0)
+                           batch_size=1000, device=args.device, neg_ratio=0)
 dev_data = EECorpus(args.data_folder + "/dev/dev.golden.dat",
                     args.data_folder + "/dev/dev.ids.dat",
                     args.data_folder + "/dev/dev.sents.dat",
                     word_d, posit_d, label_d, lexi_window=args.lexi_window,
-                    device=args.device, neg_ratio=0)
+                    batch_size=1000, device=args.device, neg_ratio=0)
 test_data = EECorpus(args.data_folder + "/test/test.golden.dat",
                      args.data_folder + "/test/test.ids.dat",
                      args.data_folder + "/test/test.sents.dat",
                      word_d, posit_d, label_d, lexi_window=args.lexi_window,
-                     device=args.device, neg_ratio=0)
+                     batch_size=1000, device=args.device, neg_ratio=0)
 
 model = DynamicMultiPoolingCNN(word_d, opt=args, label_num=label_d.size(), position_dict=posit_d, lexi_window=1)
 if args.word_vectors != "random":
@@ -137,6 +136,7 @@ def train_epoch(epoch_index):
 
     model.train()
     for batch in train_data.next_batch():
+        print batch.position
         wo_word_opt.zero_grad()
         word_opt.zero_grad()
 
@@ -172,7 +172,6 @@ for i in range(args.epoch):
           % (i, end - start, train_acc,
              train_untype_f1, dev_untype_f1, test_untype_f1,
              train_type_f1, dev_type_f1, test_type_f1))
-
 
 result = torch.from_numpy(numpy.array(result))
 _, max_index = torch.max(result[:, 0], 0)
