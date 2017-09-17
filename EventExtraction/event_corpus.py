@@ -124,10 +124,12 @@ class EECorpus():
     def load_data_file(gold_file, ids_file, sents_file, label_dict, word_dict, pos_dict, max_length=200, lexi_window=1):
         pos_data = list()
         neg_data = list()
-        ids_data = EECorpus.load_ids_file(ids_file)
+        ids_data, posi_sent_set = EECorpus.load_ids_file(ids_file)
         gold_data = EECorpus.load_gold_file(gold_file)
         sents_data = EECorpus.load_sents_file(sents_file)
         for (key, sentence) in viewitems(sents_data):
+            if key not in posi_sent_set:
+                continue
             docid, sentid = key
             sentence_length = len(sentence)
             sent_token_ids = word_dict.convert_to_index(sentence, unk_word=Constants.UNK_WORD)
@@ -166,6 +168,7 @@ class EECorpus():
         :return: (docid, senid, tokenid) -> start, length, type, token
         """
         ids_data = dict()
+        pos_sent_set = set()
         with codecs.open(filename, 'r', 'utf8') as fin:
             for line in fin:
                 att = line.strip().split('\t')
@@ -176,7 +179,9 @@ class EECorpus():
                     'type': att[5],
                     'token': att[6],
                 }
-        return ids_data
+                if att[5] != 'other':
+                    pos_sent_set.add((att[0], int(att[1])))
+        return ids_data, pos_sent_set
 
     @staticmethod
     def load_gold_file(filename):
