@@ -61,6 +61,9 @@ class DynamicMultiPoolingCNN(nn.Module):
             # ignore position
             words_embeddings = self.embedding(batch.text[:, :, 0])
         sentence_embedding = self.encoder(words_embeddings, position=batch.position, lengths=batch.lengths)
-        sentence_feature = torch.cat([sentence_embedding, lexi_feature], dim=1)
+        if self.lexi_window > 0:
+            sentence_feature = torch.cat([sentence_embedding, lexi_feature], dim=1)
+        else:
+            sentence_feature = sentence_embedding
         scores = self.out(sentence_feature)
         return scores
