@@ -32,8 +32,8 @@ class DynamicMultiPoolingCNN(nn.Module):
                                               dropout=opt.encoder_dropout,
                                               bias=True,
                                               split_point_number=1)
-        if lexi_window >= 0:
-            encoder_output_size = self.encoder.output_size + (2 * lexi_window + 1) * self.word_vec_size
+        if self.lexi_window >= 0:
+            encoder_output_size = self.encoder.output_size + (2 * self.lexi_window + 1) * self.word_vec_size
         else:
             encoder_output_size = self.encoder.output_size
         out_component = OrderedDict()
