@@ -32,7 +32,7 @@ class DynamicMultiPoolingCNN(nn.Module):
                                               dropout=opt.encoder_dropout,
                                               bias=True,
                                               split_point_number=1)
-        if lexi_window > 0:
+        if lexi_window >= 0:
             encoder_output_size = self.encoder.output_size + (2 * lexi_window + 1) * self.word_vec_size
         else:
             encoder_output_size = self.encoder.output_size
@@ -52,7 +52,7 @@ class DynamicMultiPoolingCNN(nn.Module):
                 nn.init.xavier_uniform(param)
 
     def forward(self, batch):
-        if self.lexi_window > 0:
+        if self.lexi_window >= 0:
             lexi_feature = self.embedding(batch.lexi)
             lexi_feature = lexi_feature.resize(lexi_feature.size()[0], (2 * self.lexi_window + 1) * self.word_vec_size)
         if self.posi_vec_size > 0:
@@ -61,7 +61,7 @@ class DynamicMultiPoolingCNN(nn.Module):
             # ignore position
             words_embeddings = self.embedding(batch.text[:, :, 0])
         sentence_embedding = self.encoder(words_embeddings, position=batch.position, lengths=batch.lengths)
-        if self.lexi_window > 0:
+        if self.lexi_window >= 0:
             sentence_feature = torch.cat([sentence_embedding, lexi_feature], dim=1)
         else:
             sentence_feature = sentence_embedding

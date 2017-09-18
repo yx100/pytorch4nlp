@@ -37,7 +37,8 @@ parser.add_argument('-act', type=str, dest='act', default='Tanh')
 parser.add_argument('-word-vectors', type=str, dest="word_vectors", default='word_word2vec.bin')
 parser.add_argument('-cnn-size', nargs='+', dest='cnn_size', default=[3])
 parser.add_argument('-cnn-pooling', type=str, dest='cnn_pooling', default="max", choices=["max", "sum", "mean"])
-parser.add_argument('-lexi-window', type=int, dest='lexi_window', default=1, help='0 is no lexi feature')
+parser.add_argument('-lexi-window', type=int, dest='lexi_window', default=1, help='-1 is no lexi feature, '
+                                                                                  '0 is just centre word')
 
 # Optimizer Option
 parser.add_argument('-word-normalize', action='store_true', dest="word_normalize")
