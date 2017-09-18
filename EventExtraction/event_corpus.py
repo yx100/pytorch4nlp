@@ -124,8 +124,8 @@ class EECorpus():
             yield Batch(text, label, _batch_size, lengths, lexi, position, ident)
 
     @staticmethod
-    def load_data_file(gold_file, ids_file, sents_file, label_dict, word_dict, pos_dict, max_length=200, lexi_window=1,
-                       train=False):
+    def load_data_file(gold_file, ids_file, sents_file, label_dict, word_dict, pos_dict,
+                       min_length=2, max_length=200, lexi_window=1, train=False):
         pos_data = list()
         neg_data = list()
         ids_data, posi_sent_set = EECorpus.load_ids_file(ids_file)
@@ -138,6 +138,9 @@ class EECorpus():
                 continue
             if sentence_length > max_length and train:
                 continue
+            if sentence_length < min_length and train:
+                continue
+
             sent_token_ids = word_dict.convert_to_index(sentence, unk_word=Constants.UNK_WORD)
             for tokenid, token in enumerate(sentence):
 
@@ -152,6 +155,11 @@ class EECorpus():
                 relative_position = [pos_dict.convert_to_index([d], unk_word=Constants.UNK_WORD)[0]
                                      for d in range(-tokenid, sentence_length - tokenid)]
 
+                if token != ids_data[docid, sentid, tokenid]['token']:
+                    print("[WARNING]")
+                    print(token, ids_data[docid, sentid, tokenid]['token'])
+                    print(docid, sentid, tokenid)
+                    break
                 assert token == ids_data[docid, sentid, tokenid]['token']
                 # lexi feature, token + relative position, label, length, position to split
                 _data = [torch.LongTensor([sent_token_ids, relative_position]).t(),
