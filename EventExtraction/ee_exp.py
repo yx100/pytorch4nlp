@@ -94,7 +94,8 @@ test_data = EECorpus(args.data_folder + "/test/test.golden.dat",
                      word_d, posit_d, label_d, lexi_window=args.lexi_window, batch_size=1000,
                      device=args.device, neg_ratio=0, random=False)
 
-model = DynamicMultiPoolingCNN(word_d, opt=args, label_num=label_d.size(), position_dict=posit_d, lexi_window=1)
+model = DynamicMultiPoolingCNN(word_d, opt=args, label_num=label_d.size(), position_dict=posit_d,
+                               lexi_window=args.lexi_window)
 if args.word_vectors != "random":
     model.embedding.load_pretrained_vectors(args.word_vectors, normalize=args.word_normalize)
 
