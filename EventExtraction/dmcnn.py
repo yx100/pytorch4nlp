@@ -9,11 +9,11 @@ from pt4nlp import Embeddings, MultiPoolingCNNEncoder
 
 
 class DynamicMultiPoolingCNN(nn.Module):
-    def __init__(self, dicts, opt, label_num, position_dict, lexi_window=1):
+    def __init__(self, dicts, opt, label_num, position_dict):
         super(DynamicMultiPoolingCNN, self).__init__()
         self.word_vec_size = opt.word_vec_size
         self.posi_vec_size = opt.posi_vec_size
-        self.lexi_window = lexi_window
+        self.lexi_window = opt.lexi_window
         if opt.posi_vec_size > 0:
             self.embedding = Embeddings(word_vec_size=opt.word_vec_size,
                                         dicts=dicts,

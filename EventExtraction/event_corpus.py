@@ -243,7 +243,7 @@ class EECorpus():
                                          [Constants.PAD, Constants.UNK, Constants.BOS, Constants.EOS])
         with codecs.open(ids_file, 'r', 'utf8') as fin:
             for line in fin:
-                token = line.strip().split('\t')[-1]
+                token = line.strip().split('\t')[5]
                 word_dictionary.add(token)
         return word_dictionary
 
