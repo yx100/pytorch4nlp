@@ -51,7 +51,7 @@ class Decoder(nn.ModuleList):
         super(Decoder, self).__init__()
         self.size_de_fc = 12
         self.size_de_layer2 = 28
-        self.size_de_layer1 = 60
+        self.size_de_layer1 = 59
 
         self.de_layer1 = nn.ConvTranspose2d(in_channels=hidden_size[0], out_channels=1,
                                             kernel_size=(window_size[0], output_size),
@@ -95,3 +95,24 @@ class Decoder(nn.ModuleList):
 
         # (batch, 1, len, hidden) -> (batch, len, hidden)
         return h3.squeeze(1)
+
+
+if __name__ == "__main__":
+    from torch.autograd import Variable
+    x = torch.FloatTensor(20, 59, 300)
+    x.normal_()
+    x = Variable(x)
+    encoder = Encoder()
+    decoder = Decoder()
+    loss_function = torch.nn.MSELoss()
+    lr = 0.1
+    for i in xrange(500):
+        hidden = encoder(x)
+        y = decoder(hidden)
+        loss = loss_function.forward(y, x)
+        print(i, loss)
+        loss.backward()
+        for para in encoder.parameters():
+            para.data.add_(-lr, para.grad.data)
+        for para in decoder.parameters():
+            para.data.add_(-lr, para.grad.data)
