@@ -140,7 +140,6 @@ class MultiPoolingCNNEncoder(CNNEncoder):
                  hidden_size=168,
                  window_size=3,
                  pooling_type='max',
-                 padding=True,
                  dropout=0.5,
                  bias=True,
                  split_point_number=1):
@@ -149,7 +148,7 @@ class MultiPoolingCNNEncoder(CNNEncoder):
                             hidden_size=hidden_size,
                             window_size=window_size,
                             pooling_type=pooling_type,
-                            padding=padding,
+                            padding=True,
                             dropout=dropout,
                             bias=bias)
 
@@ -210,12 +209,62 @@ class MultiPoolingCNNEncoder(CNNEncoder):
         return torch.cat(pooling_results, dim=1)
 
 
+class MultiSizeMultiPoolingCNNEncoder(nn.Module):
+    def __init__(self,
+                 input_size,
+                 hidden_size=168,
+                 window_size=[3, 4, 5],
+                 pooling_type='max',
+                 padding=True,
+                 dropout=0.5,
+                 bias=True,
+                 split_point_number=1):
+        super(MultiSizeMultiPoolingCNNEncoder, self).__init__()
+        # Define Parameter
+        self.input_size = input_size
+        self.hidden_size = hidden_size
+        self.window_size = window_size
+        self.pooling_type = pooling_type
+        self.padding = padding
+        self.dropout = dropout
+        self.bias = bias
+        self.split_point_number = split_point_number
+
+        # Define Layer
+        # (N, Cin, Hin, Win)
+        # In NLP, Hin is length, Win is Word Embedding Size
+        self.conv_layer = nn.ModuleList([MultiPoolingCNNEncoder(input_size,
+                                                                hidden_size=self.hidden_size,
+                                                                window_size=win_size,
+                                                                pooling_type=self.pooling_type,
+                                                                dropout=self.dropout,
+                                                                bias=self.bias,
+                                                                split_point_number=self.split_point_number)
+                                         for win_size in self.window_size])
+
+        self.init_model()
+
+        self.output_size = sum([conv.output_size for conv in self.conv_layer])
+
+    def init_model(self):
+        pass
+
+    def forward(self, inputs, position, lengths=None):
+        """
+        :param inputs: batch x len x input_size
+        :param lengths: batch
+        :return: batch x hidden_size
+        """
+        conv_results = [conv(inputs, position, lengths) for conv in self.conv_layer]
+        return torch.cat(conv_results, 1)
+
+
 if __name__ == "__main__":
     inputs = torch.FloatTensor(6, 7, 10)
     inputs.normal_()
     position = torch.LongTensor([[1, 2, 3, 0, 3, 0], [2, 4, 5, 0, 6, 1]]).t()
     lengths = torch.LongTensor([4, 5, 5, 5, 6, 7])
-    layer = MultiPoolingCNNEncoder(input_size=10, hidden_size=5, split_point_number=2)
+    layer = MultiPoolingCNNEncoder(input_size=10, hidden_size=5, split_point_number=2, padding=False)
     inputs = Variable(inputs)
     position = Variable(position)
     lengths = Variable(lengths)

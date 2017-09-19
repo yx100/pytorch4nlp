@@ -36,7 +36,7 @@ class EECorpus():
         self.volatile = volatile
         self.cuda = device >= 0
         self.device = device
-        self.lexi_win = lexi_window
+        self.lexi_win = max(lexi_window, 0)
         self.max_length = max_length
         self.train = train
         data = self.load_data_file(gold_file, ids_file,
