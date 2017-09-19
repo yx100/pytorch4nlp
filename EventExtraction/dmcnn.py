@@ -26,7 +26,7 @@ class DynamicMultiPoolingCNN(nn.Module):
                                         )
         self.encoder = MultiSizeMultiPoolingCNNEncoder(self.embedding.output_size,
                                               hidden_size=opt.hidden_size,
-                                              window_size=opt.cnn_size[0],
+                                              window_size=[int(ws) for ws in opt.cnn_size],
                                               pooling_type=opt.cnn_pooling,
                                               dropout=opt.encoder_dropout,
                                               bias=True,
