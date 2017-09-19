@@ -47,7 +47,7 @@ class SSTClassifier(nn.Module):
                 nn.init.xavier_uniform(param)
 
     def forward(self, batch):
-        words_embeddings = self.embedding(batch.text)
-        sentence_embedding = self.encoder(words_embeddings, batch.lengths)
+        words_embeddings = self.embedding.forward(batch.text)
+        sentence_embedding = self.encoder.forward(words_embeddings, batch.lengths)
         scores = self.out(sentence_embedding)
         return scores

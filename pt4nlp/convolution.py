@@ -252,6 +252,7 @@ class MultiSizeMultiPoolingCNNEncoder(nn.Module):
     def forward(self, inputs, position, lengths=None):
         """
         :param inputs: batch x len x input_size
+        :param inputs: batch x n
         :param lengths: batch
         :return: batch x hidden_size
         """
@@ -260,12 +261,12 @@ class MultiSizeMultiPoolingCNNEncoder(nn.Module):
 
 
 if __name__ == "__main__":
-    inputs = torch.FloatTensor(6, 7, 10)
-    inputs.normal_()
-    position = torch.LongTensor([[1, 2, 3, 0, 3, 0], [2, 4, 5, 0, 6, 1]]).t()
-    lengths = torch.LongTensor([4, 5, 5, 5, 6, 7])
-    layer = MultiPoolingCNNEncoder(input_size=10, hidden_size=5, split_point_number=2, padding=False)
-    inputs = Variable(inputs)
-    position = Variable(position)
-    lengths = Variable(lengths)
-    layer(inputs, position, lengths)
+    x = torch.FloatTensor(6, 7, 10)
+    x.normal_()
+    x_position = torch.LongTensor([[1, 2, 3, 0, 3, 0], [2, 4, 5, 0, 6, 1]]).t()
+    x_lengths = torch.LongTensor([4, 5, 5, 5, 6, 7])
+    layer = MultiPoolingCNNEncoder(input_size=10, hidden_size=5, split_point_number=2)
+    x = Variable(x)
+    x_position = Variable(x_position)
+    x_lengths = Variable(x_lengths)
+    layer.forward(x, x_position, x_lengths)

@@ -3,11 +3,10 @@
 # Created by Roger on 2017/8/27
 # Mostly from https://github.com/OpenNMT/OpenNMT-py
 # Most Code in load/save word2vec format refer to Gensim
-from __future__ import absolute_import
 import torch
 import torch.nn as nn
-from . import Constants
-from .utils import load_word2vec_format, aeq
+import Constants
+from utils import load_word2vec_format, aeq
 
 
 class Embeddings(nn.Module):
@@ -41,7 +40,7 @@ class Embeddings(nn.Module):
 
         # emb_sizes
         emb_sizes = [self.word_vec_size]
-        if feature_dicts:
+        if len(feature_dicts) > 0:
             vocab_sizes.extend(feat_dict.size() for feat_dict in feature_dicts)
             if self.feat_merge == 'concat':
                 # Derive embedding sizes from each feature's vocab size

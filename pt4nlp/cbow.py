@@ -4,6 +4,7 @@
 import torch.nn as nn
 from pooling import get_pooling
 
+
 class CBOW(nn.Module):
     def __init__(self,
                  input_size,
