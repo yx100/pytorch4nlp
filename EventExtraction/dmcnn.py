@@ -5,7 +5,7 @@ from collections import OrderedDict
 
 import torch
 import torch.nn as nn
-from pt4nlp import Embeddings, MultiPoolingCNNEncoder
+from pt4nlp import Embeddings, MultiSizeMultiPoolingCNNEncoder
 
 
 class DynamicMultiPoolingCNN(nn.Module):
@@ -24,11 +24,10 @@ class DynamicMultiPoolingCNN(nn.Module):
             self.embedding = Embeddings(word_vec_size=opt.word_vec_size,
                                         dicts=dicts,
                                         )
-        self.encoder = MultiPoolingCNNEncoder(self.embedding.output_size,
+        self.encoder = MultiSizeMultiPoolingCNNEncoder(self.embedding.output_size,
                                               hidden_size=opt.hidden_size,
-                                              window_size=int(opt.cnn_size[0]),
+                                              window_size=opt.cnn_size[0],
                                               pooling_type=opt.cnn_pooling,
-                                              padding=True,
                                               dropout=opt.encoder_dropout,
                                               bias=True,
                                               split_point_number=1)
