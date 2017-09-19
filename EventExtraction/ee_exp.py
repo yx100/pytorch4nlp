@@ -15,8 +15,8 @@ import numpy
 
 parser = ArgumentParser(description='DMCNN Event Detector')
 # Train Option
-parser.add_argument('-epoch', type=int, dest="epoch", default=50)
-parser.add_argument('-batch', type=int, dest="batch", default=128)
+parser.add_argument('-epoch', type=int, dest="epoch", default=100)
+parser.add_argument('-batch', type=int, dest="batch", default=170)
 parser.add_argument('-device', type=int, dest="device", default=0)
 parser.add_argument('-seed', type=int, dest="seed", default=-1)
 parser.add_argument('-data-folder', type=str, dest="data_folder", default="trigger_ace_data")
@@ -26,10 +26,9 @@ parser.add_argument('-word-cut', type=int, dest="word_cut", default=1)
 parser.add_argument('-dev-test-pre', action='store_true', dest="dev_test_pre")
 
 # Model Option
-parser.add_argument('-encoder', type=str, dest="encoder", default="rnn", choices=["rnn", "cbow", "cnn"])
-parser.add_argument('-word-vec-size', type=int, dest="word_vec_size", default=300)
+parser.add_argument('-word-vec-size', type=int, dest="word_vec_size", default=100)
 parser.add_argument('-posi-vec-size', type=int, dest="posi_vec_size", default=5)
-parser.add_argument('-hidden-size', type=int, dest="hidden_size", default=168)
+parser.add_argument('-hidden-size', type=int, dest="hidden_size", default=200)
 parser.add_argument('-encoder-dropout', type=float, dest='encoder_dropout', default=0)
 parser.add_argument('-dropout', type=float, dest='dropout', default=0.5)
 parser.add_argument('-bn', action='store_true', dest='bn')
@@ -37,8 +36,8 @@ parser.add_argument('-act', type=str, dest='act', default='Tanh')
 parser.add_argument('-word-vectors', type=str, dest="word_vectors", default='word_word2vec.bin')
 parser.add_argument('-cnn-size', nargs='+', dest='cnn_size', default=[3])
 parser.add_argument('-cnn-pooling', type=str, dest='cnn_pooling', default="max", choices=["max", "sum", "mean"])
-parser.add_argument('-lexi-window', type=int, dest='lexi_window', default=1, help='-1 is no lexi feature, '
-                                                                                  '0 is just centre word')
+parser.add_argument('-lexi-window', type=int, dest='lexi_window', default=1,
+                    help='-1 is no lexi feature, 0 is just centre word')
 
 # Optimizer Option
 parser.add_argument('-word-normalize', action='store_true', dest="word_normalize")
@@ -63,35 +62,43 @@ batch_size = args.batch
 if args.device >= 0:
     usecuda = True
 
+
+def get_data_file_names(file_type='train'):
+    return (args.data_folder + "/%s/%s.golden.dat" % (file_type, file_type),
+            args.data_folder + "/%s/%s.ids.dat" % (file_type, file_type),
+            args.data_folder + "/%s/%s.sents.dat" % (file_type, file_type))
+
+
 label_d = EECorpus.load_label_dictionary(args.data_folder + "/label2id.dat")
 print("Label Size: %s" % len(label_d))
 posit_d = EECorpus.get_position_dictionary(200)
 print("Position Vocab Size: %s" % len(posit_d))
-word_d = EECorpus.get_word_dictionary_from_ids_file(args.data_folder + "/train/train.ids.dat")
+word_d = EECorpus.get_word_dictionary_from_ids_file(get_data_file_names('train')[1])
 if args.dev_test_pre:
-    word_d = EECorpus.get_word_dictionary_from_ids_file(args.data_folder + "/dev/dev.ids.dat", word_d)
-    word_d = EECorpus.get_word_dictionary_from_ids_file(args.data_folder + "/test/test.ids.dat", word_d)
+    word_d = EECorpus.get_word_dictionary_from_ids_file(get_data_file_names('dev')[1], word_d)
+    word_d = EECorpus.get_word_dictionary_from_ids_file(get_data_file_names('test')[1], word_d)
 word_d.cut_by_count(args.word_cut)
 
-train_data = EECorpus(args.data_folder + "/train/train.golden.dat",
-                      args.data_folder + "/train/train.ids.dat",
-                      args.data_folder + "/train/train.sents.dat",
+train_data = EECorpus(get_data_file_names('train')[0],
+                      get_data_file_names('train')[1],
+                      get_data_file_names('train')[2],
                       word_d, posit_d, label_d, lexi_window=args.lexi_window,
                       batch_size=args.batch, device=args.device, neg_ratio=args.neg_ratio, fix_neg=args.fix_neg,
                       train=True)
-train_eval_data = EECorpus(args.data_folder + "/train/train.golden.dat",
-                           args.data_folder + "/train/train.ids.dat",
-                           args.data_folder + "/train/train.sents.dat",
-                           word_d, posit_d, label_d, lexi_window=args.lexi_window, batch_size=1000,
+train_eval_data = EECorpus(get_data_file_names('train')[0],
+                           get_data_file_names('train')[1],
+                           get_data_file_names('train')[2],
+                           word_d, posit_d, label_d,
+                           lexi_window=args.lexi_window, batch_size=1000,
                            device=args.device, neg_ratio=0, random=False)
-dev_data = EECorpus(args.data_folder + "/dev/dev.golden.dat",
-                    args.data_folder + "/dev/dev.ids.dat",
-                    args.data_folder + "/dev/dev.sents.dat",
+dev_data = EECorpus(get_data_file_names('dev')[0],
+                    get_data_file_names('dev')[1],
+                    get_data_file_names('dev')[2],
                     word_d, posit_d, label_d, lexi_window=args.lexi_window, batch_size=1000,
                     device=args.device, neg_ratio=0, random=False)
-test_data = EECorpus(args.data_folder + "/test/test.golden.dat",
-                     args.data_folder + "/test/test.ids.dat",
-                     args.data_folder + "/test/test.sents.dat",
+test_data = EECorpus(get_data_file_names('test')[0],
+                     get_data_file_names('test')[1],
+                     get_data_file_names('test')[2],
                      word_d, posit_d, label_d, lexi_window=args.lexi_window, batch_size=1000,
                      device=args.device, neg_ratio=0, random=False)
 
@@ -114,6 +121,7 @@ for name, param in model.named_parameters():
     else:
         print("%s(%s)\t%s with %s" % (name, param.size(), args.optimizer, args.lr))
         param_wo_embedding.append(param)
+
 
 wo_word_opt = getattr(torch.optim, args.optimizer)(param_wo_embedding, lr=args.lr, weight_decay=args.regular_weight)
 word_opt = getattr(torch.optim, args.word_optimizer)(param_embedding, lr=args.word_lr, weight_decay=args.regular_weight)
