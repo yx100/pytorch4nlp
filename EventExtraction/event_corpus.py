@@ -287,7 +287,7 @@ class EECorpus():
         with codecs.open(ids_file, 'r', 'utf8') as fin:
             for line in fin:
                 docid, senid, tokenid = line.split('\t')[:3]
-                if (docid, int(senid), int(tokenid)) not in pos_set:
+                if (docid, int(senid)) not in pos_set:
                     continue
                 token = line.strip().split('\t')[6]
                 word_dict.add(token)
