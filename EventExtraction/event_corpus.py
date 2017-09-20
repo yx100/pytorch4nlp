@@ -282,8 +282,13 @@ class EECorpus():
             word_dict.add_specials([Constants.PAD_WORD, Constants.UNK_WORD, Constants.BOS_WORD, Constants.EOS_WORD],
                                    [Constants.PAD, Constants.UNK, Constants.BOS, Constants.EOS])
 
+        _, pos_set = EECorpus.load_ids_file(ids_file)
+
         with codecs.open(ids_file, 'r', 'utf8') as fin:
             for line in fin:
+                docid, senid, tokenid = line.split('\t')[:3]
+                if (docid, int(senid), int(tokenid)) not in pos_set:
+                    continue
                 token = line.strip().split('\t')[6]
                 word_dict.add(token)
 
