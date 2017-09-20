@@ -215,10 +215,10 @@ class EECorpus():
                 ids_data[key] = {
                     'start': int(att[3]),
                     'length': int(att[4]),
-                    'type': att[5],
+                    'type': att[5].split(';')[0],
                     'token': att[6],
                 }
-                if att[5] != common.OTHER_NAME:
+                if att[5].split(';')[0] != common.OTHER_NAME:
                     pos_sent_set.add((att[0], int(att[1])))
         return ids_data, pos_sent_set
 
@@ -232,7 +232,11 @@ class EECorpus():
         with codecs.open(filename, 'r', 'utf8') as fin:
             for line in fin:
                 att = line.strip().split('\t')
-                gold_data += [(att[0], int(att[1]), int(att[2]), att[4])]
+                if ';' in att[4]:
+                    for label in att[4].split(';'):
+                        gold_data += [(att[0], int(att[1]), int(att[2]), label)]
+                else:
+                    gold_data += [(att[0], int(att[1]), int(att[2]), att[4])]
         return gold_data
 
     @staticmethod
