@@ -107,7 +107,7 @@ if args.word_vectors != "random":
     model.embedding.load_pretrained_vectors(args.word_vectors, normalize=args.word_normalize)
 
 if len(model.embedding.emb_luts) > 1:
-    model.embedding.emb_luts[-1].weight.data.normal_(-1, 1)
+    torch.nn.init.uniform(model.embedding.emb_luts[-1].weight, -1, 1)
 
 criterion = nn.CrossEntropyLoss()
 
