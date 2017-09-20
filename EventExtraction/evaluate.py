@@ -25,11 +25,13 @@ def evalute(golden_list, pred_list, trigger_type=True):
 
     tp, fp, fn = 0., 0., 0.
 
-
     tp += len(gold_set & pred_set)
     fp += len(pred_set - gold_set)
     fn += len(gold_set - pred_set)
     prec = tp / (tp + fp)
     reca = tp / (tp + fn)
     f1 =  2 * tp / (2 * tp + fp + fn)
+
+    print(tp, fp, fn, prec, reca, f1)
+
     return prec * 100., reca * 100., f1 * 100.
