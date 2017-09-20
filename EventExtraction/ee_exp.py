@@ -71,7 +71,7 @@ def get_data_file_names(file_type='train'):
 
 label_d = EECorpus.load_label_dictionary(args.data_folder + "/label2id.dat")
 print("Label Size: %s" % len(label_d))
-posit_d = EECorpus.get_position_dictionary(200)
+posit_d = EECorpus.get_position_dictionary(50)
 print("Position Vocab Size: %s" % len(posit_d))
 word_d = EECorpus.get_word_dictionary_from_ids_file(get_data_file_names('train')[1])
 if args.dev_test_pre:
@@ -105,6 +105,9 @@ test_data = EECorpus(get_data_file_names('test')[0],
 model = DynamicMultiPoolingCNN(word_d, opt=args, label_num=label_d.size(), position_dict=posit_d)
 if args.word_vectors != "random":
     model.embedding.load_pretrained_vectors(args.word_vectors, normalize=args.word_normalize)
+
+if len(model.embedding.emb_luts) > 1:
+    model.embedding.emb_luts[-1].weight.data.normal_(-1, 1)
 
 criterion = nn.CrossEntropyLoss()
 
