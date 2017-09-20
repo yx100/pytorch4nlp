@@ -25,7 +25,7 @@ class EECorpus():
                  random=True,
                  neg_ratio=14,
                  fix_neg=False,
-                 train=True):
+                 train=False):
 
         self.word_dictionary = word_dictionary
         self.pos_dictionary = pos_dictionary
