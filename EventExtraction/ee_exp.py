@@ -141,7 +141,7 @@ def eval_epoch(data):
         pred_results += batch_pred
     type_p, type_r, type_f = evalute(data.gold_data, pred_results)
     untype_p, untype_r, untype_f = evalute(data.gold_data, pred_results, trigger_type=False)
-    return type_f, untype_f
+    return type_p, type_r, type_f, untype_p, untype_r, untype_f
 
 
 def train_epoch(epoch_index):
@@ -176,14 +176,23 @@ for i in range(args.epoch):
     start = time.time()
     train_acc = train_epoch(i)
     end = time.time()
-    train_type_f1, train_untype_f1 = eval_epoch(train_eval_data)
-    dev_type_f1, dev_untype_f1 = eval_epoch(dev_data)
-    test_type_f1, test_untype_f1 = eval_epoch(test_data)
-    result.append((dev_untype_f1, test_untype_f1, dev_type_f1, test_type_f1))
-    print("iter %2d | %6.2f | %6.2f || %6.2f | %6.2f | %6.2f || %6.2f | %6.2f | %6.2f ||"
+
+    train_type_p, train_type_r, train_type_f1, train_span_p, train_span_r, train_span_f1 = eval_epoch(train_eval_data)
+    dev_type_p, dev_type_r, dev_type_f1, dev_span_p, dev_span_r, dev_span_f1 = eval_epoch(dev_data)
+    test_type_p, test_type_r, test_type_f1, test_span_p, test_span_r, test_span_f1 = eval_epoch(test_data)
+
+    result.append((dev_span_f1, test_span_f1, dev_type_f1, test_type_f1))
+    print("iter %2d | %6.2f | %6.2f || %6.2f | %6.2f | %6.2f || %6.2f | %6.2f | %6.2f || %6.2f | %6.2f | %6.2f ||"
           % (i, end - start, train_acc,
-             train_untype_f1, dev_untype_f1, test_untype_f1,
-             train_type_f1, dev_type_f1, test_type_f1))
+             train_span_p, train_span_r, train_span_f1,
+             dev_span_p, dev_span_r, dev_span_f1,
+             test_span_p, test_span_r, test_span_f1,))
+    print("iter %2d | %6.2f | %6.2f || %6.2f | %6.2f | %6.2f || %6.2f | %6.2f | %6.2f || %6.2f | %6.2f | %6.2f ||"
+          % (i, end - start, train_acc,
+             train_type_p, train_type_r, train_type_f1,
+             dev_type_p, dev_type_r, dev_type_f1,
+             test_type_p, test_type_r, test_type_f1,))
+    print
 
 result = torch.from_numpy(numpy.array(result))
 _, max_index = torch.max(result[:, 0], 0)
