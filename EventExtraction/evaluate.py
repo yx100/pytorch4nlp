@@ -32,7 +32,7 @@ def evalute(golden_list, pred_list, trigger_type=True):
     reca = tp / (tp + fn)
     f1 =  2 * tp / (2 * tp + fp + fn)
 
-    print("||tp: %6d | fp: %d6 | fn: %d || %6.2f | %6.2f | %6.2f ||"
+    print("||tp: %6d | fp: %6d | fn: %6d || %6.2f | %6.2f | %6.2f ||"
           % (tp, fp, fn, prec * 100., reca * 100., f1 * 100.))
 
     return prec * 100., reca * 100., f1 * 100.
