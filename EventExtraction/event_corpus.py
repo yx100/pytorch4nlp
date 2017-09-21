@@ -116,7 +116,6 @@ class EECorpus():
             return Variable(x, volatile=self.volatile)
 
         for index, i in enumerate(random_indexs):
-
             start, end = i * self.batch_size, (i + 1) * self.batch_size
             _batch_size = len(data[start:end])
             text, label, lengths, lexi, position, ident = self._batchify(data[start:end])
@@ -159,7 +158,7 @@ class EECorpus():
             sent_token_ids = word_dict.convert_to_index(sentence, unk_word=Constants.UNK_WORD)
             for tokenid, token in enumerate(sentence):
 
-                type_name = ids_data[docid, sentid, tokenid]['type']
+                type_names = ids_data[docid, sentid, tokenid]['type']
                 token_from_ids = ids_data[docid, sentid, tokenid]['token']
 
                 # Lexi Info
@@ -170,33 +169,38 @@ class EECorpus():
                     lexi[i] = sentence[tokenid + i]
                 lexi_ids = word_dict.convert_to_index(lexi, unk_word=Constants.UNK_WORD)
 
-                # Label Info
-                label = label_dict.lookup(type_name, default=label_dict.lookup(common.OTHER_NAME))
-
                 # Position Info
                 relative_position = [pos_dict.convert_to_index([d], unk_word=Constants.UNK_WORD)[0]
                                      for d in range(-tokenid, sentence_length - tokenid)]
 
-                # Check Whether same token sents and ids
-                if token != token_from_ids:
-                    print("[WARNING]")
-                    print(token, token_from_ids)
-                    print(docid, sentid, tokenid)
-                    break
-                assert token == token_from_ids
+                # some trigger has multi label
+                for type_name in type_names:
 
-                # token + relative position, label, length,  lexi feature, position to split, ident info
-                _data = [EECorpus.convert2longtensor([sent_token_ids, relative_position]).t(),
-                         label,
-                         sentence_length,
-                         EECorpus.convert2longtensor(lexi_ids),
-                         tokenid,
-                         (docid, sentid, tokenid)]
+                    # Label Info
+                    label = label_dict.lookup(type_name, default=label_dict.lookup(common.OTHER_NAME))
 
-                if type_name != common.OTHER_NAME:
-                    pos_data.append(_data)
-                else:
-                    neg_data.append(_data)
+                    # Check Whether same token sents and ids
+                    if token != token_from_ids:
+                        print("[WARNING]")
+                        print(token, token_from_ids)
+                        print(docid, sentid, tokenid)
+                        break
+                    assert token == token_from_ids
+
+                    # token + relative position, label, length,  lexi feature, position to split, ident info
+                    _data = [EECorpus.convert2longtensor([sent_token_ids, relative_position]).t(),
+                             label,
+                             sentence_length,
+                             EECorpus.convert2longtensor(lexi_ids),
+                             tokenid,
+                             (docid, sentid, tokenid)]
+
+                    if type_name != common.OTHER_NAME:
+                        pos_data.append(_data)
+                    else:
+                        neg_data.append(_data)
+
+        print("Pos: %d, Neg: %d." % (len(pos_data), len(neg_data)))
 
         return pos_data, neg_data, ids_data, gold_data
 
@@ -204,6 +208,7 @@ class EECorpus():
     def load_ids_file(filename):
         """
         :param filename: ids file name
+        # type is list
         :return: (docid, senid, tokenid) -> start, length, type, token
         """
         ids_data = dict()
@@ -215,7 +220,7 @@ class EECorpus():
                 ids_data[key] = {
                     'start': int(att[3]),
                     'length': int(att[4]),
-                    'type': att[5].split(';')[0],
+                    'type': att[5].split(';'),
                     'token': att[6],
                 }
                 if att[5].split(';')[0] != common.OTHER_NAME:
