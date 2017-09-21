@@ -217,12 +217,15 @@ class EECorpus():
             for line in fin:
                 att = line.strip().split('\t')
                 key = (att[0], int(att[1]), int(att[2]))
-                ids_data[key] = {
-                    'start': int(att[3]),
-                    'length': int(att[4]),
-                    'type': att[5].split(';'),
-                    'token': att[6],
-                }
+                if key in ids_data:
+                    ids_data[key].extend(att[5].split(';'))
+                else:
+                    ids_data[key] = {
+                        'start': int(att[3]),
+                        'length': int(att[4]),
+                        'type': att[5].split(';'),
+                        'token': att[6],
+                    }
                 if att[5].split(';')[0] != common.OTHER_NAME:
                     pos_sent_set.add((att[0], int(att[1])))
         return ids_data, pos_sent_set
