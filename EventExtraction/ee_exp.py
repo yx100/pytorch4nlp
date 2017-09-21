@@ -58,7 +58,7 @@ else:
 print("Random Seed: %d" % seed)
 torch.manual_seed(int(seed))
 
-if set_eval:
+if args.set_eval:
     evalute = evaluate.evalute_set
 else:
     evalute = evaluate.evalute_hongyu
