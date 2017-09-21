@@ -218,7 +218,7 @@ class EECorpus():
                 att = line.strip().split('\t')
                 key = (att[0], int(att[1]), int(att[2]))
                 if key in ids_data:
-                    ids_data[key].extend(att[5].split(';'))
+                    ids_data[key]['type'].extend(att[5].split(';'))
                 else:
                     ids_data[key] = {
                         'start': int(att[3]),
