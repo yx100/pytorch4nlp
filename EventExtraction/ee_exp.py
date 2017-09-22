@@ -8,7 +8,7 @@ import torch
 import torch.nn as nn
 from builtins import range
 from dmcnn import DynamicMultiPoolingCNN
-from evaluate import evalute
+import evaluate
 from event_corpus import EECorpus
 from argparse import ArgumentParser
 import numpy
@@ -25,6 +25,8 @@ parser.add_argument('-neg-ratio', type=float, dest="neg_ratio", default=14.)
 parser.add_argument('-fix-neg', action='store_true', dest='fix_neg')
 parser.add_argument('-word-cut', type=int, dest="word_cut", default=1)
 parser.add_argument('-dev-test-pre', action='store_true', dest="dev_test_pre")
+parser.add_argument('-just-pos-sent-word', action='store_true', dest="just_pos_sent_word")
+parser.add_argument('-set-eval', action='store_true', dest="set_eval")
 
 # Model Option
 parser.add_argument('-word-vec-size', type=int, dest="word_vec_size", default=100)
@@ -57,6 +59,11 @@ else:
 print("Random Seed: %d" % seed)
 torch.manual_seed(int(seed))
 
+if args.set_eval:
+    evalute = evaluate.evalute_set
+else:
+    evalute = evaluate.evalute_hongyu
+
 usecuda = False
 batch_size = args.batch
 
@@ -74,7 +81,8 @@ label_d = EECorpus.load_label_dictionary(args.data_folder + "/label2id.dat")
 print("Label Size: %s" % len(label_d))
 posit_d = EECorpus.get_position_dictionary(50)
 print("Position Vocab Size: %s" % len(posit_d))
-word_d = EECorpus.get_word_dictionary_from_ids_file(get_data_file_names('train')[1])
+word_d = EECorpus.get_word_dictionary_from_ids_file(get_data_file_names('train')[1],
+                                                    just_pos_sent=args.just_pos_sent_word)
 if args.dev_test_pre:
     word_d = EECorpus.get_word_dictionary_from_ids_file(get_data_file_names('dev')[1], word_d)
     word_d = EECorpus.get_word_dictionary_from_ids_file(get_data_file_names('test')[1], word_d)

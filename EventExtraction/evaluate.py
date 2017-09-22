@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # Created by Roger on 2017/9/15
-def evalute_my(golden_list, pred_list, trigger_type=True):
+def evalute_set(golden_list, pred_list, trigger_type=True):
     """
     :param golden_list: [(docid, start, length, type), ...]
     :param pred_list: [(docid, start, length, type), ...]
