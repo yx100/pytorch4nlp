@@ -166,7 +166,7 @@ class EECorpus():
                 for i in range(-lexi_window, lexi_window + 1):
                     if tokenid + i < 0 or tokenid + i >= sentence_length:
                         continue
-                    lexi[i] = sentence[tokenid + i]
+                    lexi[i + lexi_window] = sentence[tokenid + i]
                 lexi_ids = word_dict.convert_to_index(lexi, unk_word=Constants.UNK_WORD)
 
                 # Position Info
