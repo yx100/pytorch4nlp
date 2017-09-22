@@ -12,6 +12,7 @@ from evaluate import evalute
 from event_corpus import EECorpus
 from argparse import ArgumentParser
 import numpy
+import pt4nlp
 
 parser = ArgumentParser(description='DMCNN Event Detector')
 # Train Option
@@ -164,6 +165,7 @@ def train_epoch(epoch_index):
 
         if args.clip > 0:
             nn.utils.clip_grad_norm(model.parameters(), args.clip)
+            pt4nlp.clip_weight_norm(model, 9)
 
         wo_word_opt.step()
         word_opt.step()

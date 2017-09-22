@@ -7,10 +7,12 @@ from recurrent import RNNEncoder
 from cbow import CBOW
 from dictionary import Dictionary
 from embedding import Embeddings
+from utils import clip_weight_norm
 
 __all__ = ["Dictionary",
            "PAD", "UNK", "BOS", "EOS", "PAD_WORD", "UNK_WORD", "BOS_WORD", "EOS_WORD",
            "CBOW",
            "Embeddings",
            "CNNEncoder", "MultiSizeCNNEncoder", "MultiPoolingCNNEncoder", "MultiSizeMultiPoolingCNNEncoder",
-           "RNNEncoder",]
+           "RNNEncoder",
+           "clip_weight_norm"]

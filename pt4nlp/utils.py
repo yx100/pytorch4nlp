@@ -91,3 +91,30 @@ def load_word2vec_format(filename, word_idx, binary=False, normalize=False,
         word_matrix = torch.renorm(word_matrix, 2, 0, 1)
     print("loaded %d words pre-trained from %s with %d" % (len(vocab), filename, vector_size))
     return word_matrix, vector_size, vocab
+
+
+def clip_weight_norm(model, max_norm, norm_type=2):
+    """Clips gradient norm of an iterable of parameters.
+
+    The norm is computed over all gradients together, as if they were
+    concatenated into a single vector. Gradients are modified in-place.
+
+    Arguments:
+        parameters (Iterable[Variable]): an iterable of Variables that will have
+            gradients normalized
+        max_norm (float or int): max norm of the gradients
+        norm_type (float or int): type of the used p-norm. Can be ``'inf'`` for
+            infinity norm.
+
+    Returns:
+        Total norm of the parameters (viewed as a single vector).
+    """
+    for name, param in model.named_parameters():
+        if "emb_luts" in name:
+            pass
+        else:
+            if param.size() == 2:
+                col_norm = torch.norm(param.data, norm_type, 0)
+                desired_norm = torch.clamp(col_norm, 0, max_norm)
+                scale = desired_norm / col_norm
+                param.data *= scale
