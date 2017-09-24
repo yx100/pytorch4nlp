@@ -183,6 +183,7 @@ class MultiPoolingCNNEncoder(CNNEncoder):
             max_length = torch.max(lengths).data[0]
         if self.padding:
             max_length += self.window_size - 1
+            position += self.window_size - 1
 
         dp_input = self.dropout_layer(inputs)
         conv_result = self.forward_conv(dp_input)
