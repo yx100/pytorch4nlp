@@ -48,7 +48,8 @@ parser.add_argument('-optimizer', type=str, dest="optimizer", default="Adadelta"
 parser.add_argument('-lr', type=float, dest="lr", default=0.05)
 parser.add_argument('-word-optimizer', type=str, dest="word_optimizer", default="SGD")
 parser.add_argument('-word-lr', type=float, dest="word_lr", default=0.1)
-parser.add_argument('-clip', type=float, default=9.0, dest="clip", help='clip grad by norm')
+parser.add_argument('-grad-clip', type=float, default=9.0, dest="grad_clip", help='clip grad by norm')
+parser.add_argument('-weight-clip', type=float, default=9.0, dest="weight_clip", help='clip weight by norm')
 parser.add_argument('-regular', type=float, default=0, dest="regular_weight", help='regular weight')
 
 args = parser.parse_args()
@@ -171,12 +172,14 @@ def train_epoch(epoch_index):
         # backpropagate and update optimizer learning rate
         loss.backward()
 
-        if args.clip > 0:
+        if args.grad_clip > 0:
             nn.utils.clip_grad_norm(model.parameters(), args.clip)
-            pt4nlp.clip_weight_norm(model, 9)
 
         wo_word_opt.step()
         word_opt.step()
+
+        if args.weight_clip > 0:
+            pt4nlp.clip_weight_norm(model, args.weight_clip)
 
     return 100. * n_correct / n_total
 
