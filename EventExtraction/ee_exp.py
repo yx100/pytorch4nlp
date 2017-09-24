@@ -173,7 +173,7 @@ def train_epoch(epoch_index):
         loss.backward()
 
         if args.grad_clip > 0:
-            nn.utils.clip_grad_norm(model.parameters(), args.clip)
+            nn.utils.clip_grad_norm(model.parameters(), args.grad_clip)
 
         wo_word_opt.step()
         word_opt.step()
