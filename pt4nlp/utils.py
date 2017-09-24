@@ -93,7 +93,7 @@ def load_word2vec_format(filename, word_idx, binary=False, normalize=False,
     return word_matrix, vector_size, vocab
 
 
-def clip_weight_norm(model, max_norm, norm_type=2):
+def clip_weight_norm(model, max_norm, norm_type=2, except_params=None):
     """Clips gradient norm of an iterable of parameters.
 
     The norm is computed over all gradients together, as if they were
@@ -110,7 +110,7 @@ def clip_weight_norm(model, max_norm, norm_type=2):
         Total norm of the parameters (viewed as a single vector).
     """
     for name, param in model.named_parameters():
-        if "emb_luts" in name:
+        if except_params is not None and name in except_params:
             pass
         else:
             if len(param.size()) == 2:

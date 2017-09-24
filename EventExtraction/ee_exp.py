@@ -179,7 +179,7 @@ def train_epoch(epoch_index):
         word_opt.step()
 
         if args.weight_clip > 0:
-            pt4nlp.clip_weight_norm(model, args.weight_clip)
+            pt4nlp.clip_weight_norm(model, args.weight_clip, except_params=['emb_luts.0'])
 
     return 100. * n_correct / n_total
 
