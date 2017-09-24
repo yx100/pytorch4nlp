@@ -110,8 +110,10 @@ def clip_weight_norm(model, max_norm, norm_type=2, except_params=None):
         Total norm of the parameters (viewed as a single vector).
     """
     for name, param in model.named_parameters():
-        if except_params is not None and name in except_params:
-            pass
+        if except_params is not None:
+            for except_param in except_params:
+                if except_param in name:
+                    pass
         else:
             if len(param.size()) == 2:
                 col_norm = torch.norm(param.data, norm_type, 0)
