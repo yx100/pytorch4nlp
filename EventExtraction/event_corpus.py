@@ -240,11 +240,8 @@ class EECorpus():
         with codecs.open(filename, 'r', 'utf8') as fin:
             for line in fin:
                 att = line.strip().split('\t')
-                if ';' in att[4]:
-                    for label in att[4].split(';'):
-                        gold_data += [(att[0], int(att[1]), int(att[2]), label)]
-                else:
-                    gold_data += [(att[0], int(att[1]), int(att[2]), att[4])]
+                for label in att[4].split(';'):
+                    gold_data += [(att[0], int(att[1]), int(att[2]), label)]
         return gold_data
 
     @staticmethod

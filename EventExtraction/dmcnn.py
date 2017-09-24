@@ -36,12 +36,12 @@ class DynamicMultiPoolingCNN(nn.Module):
                                                        split_point_number=1)
 
         encoder_output_size = self.encoder.output_size
+        self.act_function = getattr(nn, opt.act)()
         if self.lexi_window >= 0:
             encoder_output_size += (2 * self.lexi_window + 1) * self.word_vec_size
         out_component = OrderedDict()
         if opt.bn:
             out_component['bn'] = nn.BatchNorm1d(encoder_output_size)
-        out_component['act'] = getattr(nn, opt.act)()
         out_component['dropout'] = nn.Dropout(opt.dropout)
         out_component['linear'] = nn.Linear(encoder_output_size, label_num)
 
@@ -66,7 +66,7 @@ class DynamicMultiPoolingCNN(nn.Module):
             words_embeddings = self.embedding.forward(batch.text[:, :, 0])
 
         sentence_embedding = self.encoder.forward(words_embeddings, position=batch.position, lengths=batch.lengths)
-
+        sentence_embedding = self.act_function(sentence_embedding)
         if self.lexi_window >= 0:
             sentence_feature = torch.cat([sentence_embedding, lexi_feature], dim=1)
         else:
