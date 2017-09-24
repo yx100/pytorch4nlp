@@ -113,7 +113,7 @@ def clip_weight_norm(model, max_norm, norm_type=2):
         if "emb_luts" in name:
             pass
         else:
-            if param.size() == 2:
+            if len(param.size()) == 2:
                 print("clip %s" % name)
                 col_norm = torch.norm(param.data, norm_type, 0)
                 desired_norm = torch.clamp(col_norm, 0, max_norm)
