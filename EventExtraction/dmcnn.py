@@ -27,18 +27,17 @@ class DynamicMultiPoolingCNN(nn.Module):
                                     feature_dims=feature_dims,
                                     )
 
-        '''self.encoder = MultiSizeMultiPoolingCNNEncoder(self.embedding.output_size,
+        self.encoder = MultiSizeMultiPoolingCNNEncoder(self.embedding.output_size,
                                                        hidden_size=opt.hidden_size,
                                                        window_size=[int(ws) for ws in opt.cnn_size],
                                                        pooling_type=opt.cnn_pooling,
                                                        dropout=opt.encoder_dropout,
                                                        bias=True,
-                                                       split_point_number=1)'''
+                                                       split_point_number=1)
 
-        # encoder_output_size = self.encoder.output_size
-        # if self.lexi_window >= 0:
-        #     encoder_output_size += (2 * self.lexi_window + 1) * self.word_vec_size
-        encoder_output_size = (2 * self.lexi_window + 1) * self.word_vec_size
+        encoder_output_size = self.encoder.output_size
+        if self.lexi_window >= 0:
+            encoder_output_size += (2 * self.lexi_window + 1) * self.word_vec_size
         out_component = OrderedDict()
         if opt.bn:
             out_component['bn'] = nn.BatchNorm1d(encoder_output_size)
@@ -66,13 +65,12 @@ class DynamicMultiPoolingCNN(nn.Module):
             # ignore position
             words_embeddings = self.embedding.forward(batch.text[:, :, 0])
 
-        # sentence_embedding = self.encoder.forward(words_embeddings, position=batch.position, lengths=batch.lengths)
+        sentence_embedding = self.encoder.forward(words_embeddings, position=batch.position, lengths=batch.lengths)
 
-        '''if self.lexi_window >= 0:
+        if self.lexi_window >= 0:
             sentence_feature = torch.cat([sentence_embedding, lexi_feature], dim=1)
         else:
-            sentence_feature = sentence_embedding'''
-        sentence_feature = lexi_feature
+            sentence_feature = sentence_embedding
 
         scores = self.out(sentence_feature)
         return scores
