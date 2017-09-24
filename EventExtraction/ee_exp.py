@@ -137,9 +137,15 @@ for name, param in model.named_parameters():
         print("%s(%s)\t%s with %s" % (name, param.size(), args.optimizer, args.lr))
         param_wo_embedding.append(param)
 
-
-wo_word_opt = getattr(torch.optim, args.optimizer)(param_wo_embedding, lr=args.lr, weight_decay=args.regular_weight)
-word_opt = getattr(torch.optim, args.word_optimizer)(param_embedding, lr=args.word_lr, weight_decay=args.regular_weight)
+if args.optimizer == 'Adadelta':
+    wo_word_opt = getattr(torch.optim, args.optimizer)(param_wo_embedding, rho=args.lr,
+                                                       weight_decay=args.regular_weight)
+    word_opt = getattr(torch.optim, args.word_optimizer)(param_embedding, rho=args.word_lr,
+                                                         weight_decay=args.regular_weight)
+else:
+    wo_word_opt = getattr(torch.optim, args.optimizer)(param_wo_embedding, lr=args.lr, weight_decay=args.regular_weight)
+    word_opt = getattr(torch.optim, args.word_optimizer)(param_embedding, lr=args.word_lr,
+                                                         weight_decay=args.regular_weight)
 
 
 def eval_epoch(data):
