@@ -170,7 +170,7 @@ class EECorpus():
                 lexi_ids = word_dict.convert_to_index(lexi, unk_word=Constants.UNK_WORD)
 
                 # Position Info
-                relative_position = [pos_dict.convert_to_index([d], unk_word=Constants.UNK_WORD)[0]
+                relative_position = [pos_dict.convert_to_index([d], unk_word=Constants.PAD_WORD)[0]
                                      for d in range(-tokenid, sentence_length - tokenid)]
 
                 # some trigger has multi label
@@ -273,7 +273,7 @@ class EECorpus():
     def get_position_dictionary(max_length=200, position_dict=None):
         if position_dict is None:
             position_dict = Dictionary()
-            position_dict.add_specials([Constants.UNK_WORD], [Constants.UNK])
+            position_dict.add_specials([Constants.PAD_WORD], [Constants.PAD])
 
         for number in range(-max_length, max_length + 1):
             position_dict.add_special(number)
@@ -310,6 +310,25 @@ class EECorpus():
                            self.label_dictionary.index2word[pred]
                            )]
         return pred_list
+
+    def batch2log(self, batch):
+        for index, (ident, pred) in enumerate(zip(batch.ident, batch.pred)):
+            docid, sentid, tokenid = ident
+            data = batch.text[index]
+            tokens = data[:, 0]
+            rela_posi = data[:, 1]
+            lexi = batch.lexi[index]
+            position = batch.position[index]
+            pred_label = self.label_dictionary.index2word[pred]
+            label = self.ids_data[ident]['type']
+            if pred_label != label:
+                print docid, sentid, tokenid
+                print ' '.join(map(str, tokens.data.tolist()))
+                print ' '.join(map(str, rela_posi.data.tolist()))
+                print ' '.join(map(str, lexi.data.tolist()))
+                print ' '.join(map(str, position.data.tolist()))
+                print pred
+                print
 
 
 class Batch(object):

@@ -156,6 +156,7 @@ def eval_epoch(data):
         pred_label = torch.max(pred, 1)[1].data
         batch.pred = pred_label
         batch_pred = data.batch2pred(batch)
+        # data.batch2log(batch)
         pred_results += batch_pred
     type_p, type_r, type_f = evalute(data.gold_data, pred_results)
     untype_p, untype_r, untype_f = evalute(data.gold_data, pred_results, trigger_type=False)
