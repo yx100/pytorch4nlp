@@ -284,9 +284,9 @@ class EECorpus():
         return position_dict
 
     @staticmethod
-    def get_word_dictionary_from_ids_file(ids_file, word_dict=None, just_pos_sent=False):
+    def get_word_dictionary_from_ids_file(ids_file, word_dict=None, just_pos_sent=False, lower=True):
         if word_dict is None:
-            word_dict = Dictionary()
+            word_dict = Dictionary(lower)
             word_dict.add_specials([Constants.PAD_WORD, Constants.UNK_WORD, Constants.BOS_WORD, Constants.EOS_WORD],
                                    [Constants.PAD, Constants.UNK, Constants.BOS, Constants.EOS])
 

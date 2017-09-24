@@ -24,6 +24,7 @@ parser.add_argument('-data-folder', type=str, dest="data_folder", default="trigg
 parser.add_argument('-neg-ratio', type=float, dest="neg_ratio", default=14.)
 parser.add_argument('-fix-neg', action='store_true', dest='fix_neg')
 parser.add_argument('-word-cut', type=int, dest="word_cut", default=1)
+parser.add_argument('-no-lower', action='store_false', dest='lower')
 parser.add_argument('-dev-test-pre', action='store_true', dest="dev_test_pre")
 parser.add_argument('-just-pos-sent-word', action='store_true', dest="just_pos_sent_word")
 parser.add_argument('-set-eval', action='store_true', dest="set_eval")
@@ -83,7 +84,8 @@ print("Label Size: %s" % len(label_d))
 posit_d = EECorpus.get_position_dictionary(50)
 print("Position Vocab Size: %s" % len(posit_d))
 word_d = EECorpus.get_word_dictionary_from_ids_file(get_data_file_names('train')[1],
-                                                    just_pos_sent=args.just_pos_sent_word)
+                                                    just_pos_sent=args.just_pos_sent_word,
+                                                    lower=args.lower)
 if args.dev_test_pre:
     word_d = EECorpus.get_word_dictionary_from_ids_file(get_data_file_names('dev')[1], word_d)
     word_d = EECorpus.get_word_dictionary_from_ids_file(get_data_file_names('test')[1], word_d)
