@@ -38,7 +38,7 @@ class DynamicMultiPoolingCNN(nn.Module):
         # encoder_output_size = self.encoder.output_size
         # if self.lexi_window >= 0:
         #     encoder_output_size += (2 * self.lexi_window + 1) * self.word_vec_size
-        encoder_output_size = (2 * self.lexi_window + 1)
+        encoder_output_size = (2 * self.lexi_window + 1) * self.word_vec_size
         out_component = OrderedDict()
         if opt.bn:
             out_component['bn'] = nn.BatchNorm1d(encoder_output_size)
