@@ -56,8 +56,7 @@ class Embeddings(nn.Module):
         # [word_embedd, ...
         #  other embedding if has]
         self.emb_luts = nn.ModuleList([
-            nn.Embedding(vocab, dim,
-                         padding_idx=Constants.PAD)
+            nn.Embedding(vocab, dim, padding_idx=Constants.PAD)
             for vocab, dim in zip(vocab_sizes, emb_sizes)])
 
         self.init_model()

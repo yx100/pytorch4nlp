@@ -25,7 +25,8 @@ class EECorpus():
                  random=True,
                  neg_ratio=14,
                  fix_neg=False,
-                 train=False):
+                 train=False,
+                 neg_from_global=False):
 
         self.word_dictionary = word_dictionary
         self.pos_dictionary = pos_dictionary
@@ -41,6 +42,7 @@ class EECorpus():
         self.random = random
         self.neg_ratio = neg_ratio
         self.fix_neg = fix_neg
+        self.neg_from_global = neg_from_global
 
         data = self.load_data_file(gold_file, ids_file,
                                    sents_file,
@@ -49,7 +51,8 @@ class EECorpus():
                                    pos_dict=pos_dictionary,
                                    lexi_window=self.lexi_win,
                                    max_length=self.max_length,
-                                   train=self.train)
+                                   train=self.train,
+                                   neg_from_global=self.neg_from_global)
 
         self.event_data, self.non_event_data, self.ids_data, self.gold_data = data
         self.data = self.sample_data()
@@ -131,7 +134,7 @@ class EECorpus():
     @staticmethod
     def load_data_file(gold_file, ids_file, sents_file,
                        label_dict, word_dict, pos_dict,
-                       min_length=2, max_length=200, lexi_window=1, train=False):
+                       min_length=2, max_length=200, lexi_window=1, train=False, neg_from_global=False):
         pos_data = list()
         neg_data = list()
 
@@ -151,7 +154,7 @@ class EECorpus():
             # Train: Only keep the sentence which smaller than max length
             # Train: Only keep the sentence which bigger than min length
             if train:
-                if key not in posi_sent_set:
+                if not neg_from_global and key not in posi_sent_set:
                     escape_count += 1
                     continue
                 if sentence_length > max_length:
@@ -208,8 +211,9 @@ class EECorpus():
                     else:
                         neg_data.append(_data)
 
-        print("Pos: %d, Neg: %d, Load Sentence: %s, Escape: %d." % (len(pos_data), len(neg_data),
-                                                                    sentence_count, escape_count))
+        print("Pos: %d, Neg: %d, Load Sentence: %s, Escape: %d, Pos Sent %d." % (len(pos_data), len(neg_data),
+                                                                                 sentence_count, escape_count,
+                                                                                 len(posi_sent_set)))
 
         return pos_data, neg_data, ids_data, gold_data
 
