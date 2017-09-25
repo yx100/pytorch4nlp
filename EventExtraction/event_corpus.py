@@ -338,7 +338,7 @@ class EECorpus():
                 print docid, sentid, tokenid
                 print tokens.data.tolist()
                 print ' '.join(self.word_dictionary.convert_to_word(tokens.data.tolist()))
-                print ' '.join(self.pos_dictionary.convert_to_word(rela_posi.data.tolist()))
+                print ' '.join(map(str, self.pos_dictionary.convert_to_word(rela_posi.data.tolist())))
                 print ' '.join(self.word_dictionary.convert_to_word(lexi.data.tolist()))
                 print ' '.join(map(str, position.data.tolist()))
                 print pred_label
