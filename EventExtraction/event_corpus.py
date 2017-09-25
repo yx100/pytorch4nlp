@@ -339,15 +339,23 @@ class EECorpus():
             position = batch.position[index]
             pred_label = self.label_dictionary.index2word[pred]
             label = self.ids_data[ident]['type']
-            if pred_label not in label and common.OTHER_NAME in label:
-                if output is not None:
-                    output.write("%s\t%s\t%s\n" % (docid, sentid, tokenid))
-                    output.write(' '.join(self.word_dictionary.convert_to_word(tokens.data.tolist())) + '\n')
-                    output.write(' '.join(map(str, self.pos_dictionary.convert_to_word(rela_posi.data.tolist()))) + '\n')
-                    output.write(' '.join(self.word_dictionary.convert_to_word(lexi.data.tolist())) + '\n')
-                    output.write(' '.join(map(str, position.data.tolist())) + '\n')
-                    output.write(pred_label + '\n')
-                    output.write("%s\n" % label)
+            if pred_label not in label:
+                if common.OTHER_NAME in label and output is not None:
+                    output.write("[RAW NEG]" + "%s\t%s\t%s\n" % (docid, sentid, tokenid))
+                    output.write("[RAW NEG]" + ' '.join(self.word_dictionary.convert_to_word(tokens.data.tolist())) + '\n')
+                    output.write("[RAW NEG]" + ' '.join(map(str, self.pos_dictionary.convert_to_word(rela_posi.data.tolist()))) + '\n')
+                    output.write("[RAW NEG]" + ' '.join(self.word_dictionary.convert_to_word(lexi.data.tolist())) + '\n')
+                    output.write("[RAW NEG]" + ' '.join(map(str, position.data.tolist())) + '\n')
+                    output.write("[RAW NEG]" + "Pred: " + pred_label + '\n')
+                    output.write("[RAW NEG]" + "Gold: " + "%s\n" % label)
+                if common.OTHER_NAME not in label and output is not None:
+                    output.write("[RAW POS]" + "%s\t%s\t%s\n" % (docid, sentid, tokenid))
+                    output.write("[RAW POS]" + ' '.join(self.word_dictionary.convert_to_word(tokens.data.tolist())) + '\n')
+                    output.write("[RAW POS]" + ' '.join(map(str, self.pos_dictionary.convert_to_word(rela_posi.data.tolist()))) + '\n')
+                    output.write("[RAW POS]" + ' '.join(self.word_dictionary.convert_to_word(lexi.data.tolist())) + '\n')
+                    output.write("[RAW POS]" + ' '.join(map(str, position.data.tolist())) + '\n')
+                    output.write("[RAW POS]" + "Pred: " + pred_label + '\n')
+                    output.write("[RAW POS]" + "Gold: " + "%s\n" % label)
 
 
 class Batch(object):
