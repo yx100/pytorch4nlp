@@ -170,7 +170,7 @@ class EECorpus():
                 token_from_ids = ids_data[docid, sentid, tokenid]['token']
 
                 # Lexi Info
-                lexi = (2 * lexi_window + 1) * [Constants.BOS_WORD]
+                lexi = (2 * lexi_window + 1) * [Constants.PAD_WORD]
                 for i in range(-lexi_window, lexi_window + 1):
                     if tokenid + i < 0 or tokenid + i >= sentence_length:
                         continue
@@ -250,7 +250,7 @@ class EECorpus():
             for line in fin:
                 att = line.strip().split('\t')
                 for label in att[4].split(';'):
-                    gold_data += [(att[0], int(att[1]), int(att[2]), label)]
+                    gold_data += [(att[0], int(att[1]), int(att[2]), label.lower())]
         return gold_data
 
     @staticmethod
