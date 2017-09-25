@@ -11,6 +11,7 @@ import math
 import torch
 from torch.autograd import Variable
 from pt4nlp import Constants, Dictionary
+import random as pyrandom
 
 
 class EECorpus():
@@ -26,7 +27,8 @@ class EECorpus():
                  neg_ratio=14,
                  fix_neg=False,
                  train=False,
-                 neg_from_global=False):
+                 neg_from_global=False,
+                 neg_sample_seed=3435):
 
         self.word_dictionary = word_dictionary
         self.pos_dictionary = pos_dictionary
@@ -43,6 +45,9 @@ class EECorpus():
         self.neg_ratio = neg_ratio
         self.fix_neg = fix_neg
         self.neg_from_global = neg_from_global
+        self.neg_sample_seed = neg_sample_seed
+        pyrandom.seed(self.neg_sample_seed)
+        print("Neg Sample Seed: %s." % (self.neg_sample_seed))
 
         data = self.load_data_file(gold_file, ids_file,
                                    sents_file,
@@ -92,7 +97,7 @@ class EECorpus():
 
     def sample_data(self):
         if self.neg_ratio > 0:
-            neg_index = torch.randperm(self.nonevent_data_size)[:int(self.event_data_size * self.neg_ratio)]
+            neg_index = pyrandom.shuffle(self.nonevent_data_size)[:int(self.event_data_size * self.neg_ratio)]
             neg_data = [self.non_event_data[index] for index in neg_index]
             return self.event_data + neg_data
         else:

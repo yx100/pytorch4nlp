@@ -30,6 +30,7 @@ parser.add_argument('-just-pos-sent-word', action='store_true', dest="just_pos_s
 parser.add_argument('-set-eval', action='store_true', dest="set_eval")
 parser.add_argument('-neg-from-global', action='store_true', dest="neg_from_global")
 parser.add_argument('-log-file', type=str, dest="err_instance_file_name", default=None)
+parser.add_argument('-neg-sample-seed', type=int, dest="neg_sample_seed", default=3435)
 
 # Model Option
 parser.add_argument('-word-vec-size', type=int, dest="word_vec_size", default=100)
@@ -98,7 +99,7 @@ train_data = EECorpus(get_data_file_names('train')[0],
                       get_data_file_names('train')[2],
                       word_d, posit_d, label_d, lexi_window=args.lexi_window,
                       batch_size=args.batch, device=args.device, neg_ratio=args.neg_ratio, fix_neg=args.fix_neg,
-                      train=True, neg_from_global=args.neg_from_global)
+                      train=True, neg_from_global=args.neg_from_global, neg_sample_seed=neg_sample_seed)
 train_eval_data = EECorpus(get_data_file_names('train')[0],
                            get_data_file_names('train')[1],
                            get_data_file_names('train')[2],
