@@ -139,6 +139,9 @@ class EECorpus():
         gold_data = EECorpus.load_gold_file(gold_file)
         sents_data = EECorpus.load_sents_file(sents_file)
 
+        escape_count = 0
+        sentence_count = 0
+
         for (key, sentence) in viewitems(sents_data):
 
             docid, sentid = key
@@ -149,11 +152,16 @@ class EECorpus():
             # Train: Only keep the sentence which bigger than min length
             if train:
                 if key not in posi_sent_set:
+                    escape_count += 1
                     continue
                 if sentence_length > max_length:
+                    escape_count += 1
                     continue
                 if sentence_length < min_length:
+                    escape_count += 1
                     continue
+
+            sentence_count += 1
 
             sent_token_ids = word_dict.convert_to_index(sentence, unk_word=Constants.UNK_WORD)
             for tokenid, token in enumerate(sentence):
@@ -200,7 +208,8 @@ class EECorpus():
                     else:
                         neg_data.append(_data)
 
-        print("Pos: %d, Neg: %d." % (len(pos_data), len(neg_data)))
+        print("Pos: %d, Neg: %d, Load Sentence: %s, Escape: %d." % (len(pos_data), len(neg_data),
+                                                                    sentence_count, escape_count))
 
         return pos_data, neg_data, ids_data, gold_data
 
@@ -260,7 +269,7 @@ class EECorpus():
     @staticmethod
     def load_label_dictionary(label2id_file, label_dict=None):
         if label_dict is None:
-            label_dict = Dictionary(lower=False)
+            label_dict = Dictionary(lower=True)
 
         with codecs.open(label2id_file, 'r', 'utf8') as fin:
             for line in fin:
