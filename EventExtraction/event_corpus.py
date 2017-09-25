@@ -14,6 +14,9 @@ from pt4nlp import Constants, Dictionary
 import random as pyrandom
 
 
+escape_symbol = [',', '.', '?']
+
+
 class EECorpus():
     def __init__(self,
                  gold_file, ids_file, sents_file,
@@ -174,6 +177,9 @@ class EECorpus():
             sent_token_ids = word_dict.convert_to_index(sentence, unk_word=Constants.UNK_WORD)
             for tokenid, token in enumerate(sentence):
 
+                if token in escape_symbol:
+                    continue
+
                 type_names = ids_data[docid, sentid, tokenid]['type']
                 token_from_ids = ids_data[docid, sentid, tokenid]['token']
 
@@ -182,7 +188,17 @@ class EECorpus():
                 for i in range(-lexi_window, lexi_window + 1):
                     if tokenid + i < 0 or tokenid + i >= sentence_length:
                         continue
-                    lexi[i + lexi_window] = sentence[tokenid + i]
+                    if sentence[tokenid + i] in escape_symbol:
+                        if i < 0:
+                            if tokenid + i - 1< 0:
+                                continue
+                            lexi[i + lexi_window] = sentence[tokenid + i - 1]
+                        elif i > 0:
+                            if tokenid + i + 1< 0:
+                                continue
+                            lexi[i + lexi_window] = sentence[tokenid + i + 1]
+                    else:
+                        lexi[i + lexi_window] = sentence[tokenid + i]
                 lexi_ids = word_dict.convert_to_index(lexi, unk_word=Constants.UNK_WORD)
 
                 # Position Info
