@@ -324,7 +324,7 @@ class EECorpus():
                            )]
         return pred_list
 
-    def batch2log(self, batch):
+    def batch2log(self, batch, output=None):
         for index, (ident, pred) in enumerate(zip(batch.ident, batch.pred)):
             docid, sentid, tokenid = ident
             data = batch.text[index]
@@ -335,15 +335,14 @@ class EECorpus():
             pred_label = self.label_dictionary.index2word[pred]
             label = self.ids_data[ident]['type']
             if pred_label not in label and common.OTHER_NAME in label:
-                print docid, sentid, tokenid
-                print tokens.data.tolist()
-                print ' '.join(self.word_dictionary.convert_to_word(tokens.data.tolist()))
-                print ' '.join(map(str, self.pos_dictionary.convert_to_word(rela_posi.data.tolist())))
-                print ' '.join(self.word_dictionary.convert_to_word(lexi.data.tolist()))
-                print ' '.join(map(str, position.data.tolist()))
-                print pred_label
-                print label
-                print
+                if output is not None:
+                    output.write("%s\t%s\t%s\n" % (docid, sentid, tokenid))
+                    output.write(' '.join(self.word_dictionary.convert_to_word(tokens.data.tolist())) + '\n')
+                    output.write(' '.join(map(str, self.pos_dictionary.convert_to_word(rela_posi.data.tolist()))) + '\n')
+                    output.write(' '.join(self.word_dictionary.convert_to_word(lexi.data.tolist())) + '\n')
+                    output.write(' '.join(map(str, position.data.tolist())) + '\n')
+                    output.write(pred_label + '\n')
+                    output.write("%s\n" % label)
 
 
 class Batch(object):
