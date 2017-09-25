@@ -334,7 +334,7 @@ class EECorpus():
             position = batch.position[index]
             pred_label = self.label_dictionary.index2word[pred]
             label = self.ids_data[ident]['type']
-            if pred_label != label and label == common.OTHER_NAME:
+            if pred_label != label and common.OTHER_NAME in label:
                 print docid, sentid, tokenid
                 print ' '.join(map(str, tokens.data.tolist()))
                 print ' '.join(map(str, rela_posi.data.tolist()))
