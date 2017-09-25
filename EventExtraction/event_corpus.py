@@ -97,7 +97,7 @@ class EECorpus():
 
     def sample_data(self):
         if self.neg_ratio > 0:
-            sample_size = min(self.event_data_size * self.neg_ratio, self.nonevent_data_size)
+            sample_size = int(min(self.event_data_size * self.neg_ratio, self.nonevent_data_size))
             neg_data = pyrandom.sample(self.non_event_data, sample_size)
             return self.event_data + neg_data
         else:
