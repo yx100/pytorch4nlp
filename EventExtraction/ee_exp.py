@@ -99,7 +99,7 @@ train_data = EECorpus(get_data_file_names('train')[0],
                       get_data_file_names('train')[2],
                       word_d, posit_d, label_d, lexi_window=args.lexi_window,
                       batch_size=args.batch, device=args.device, neg_ratio=args.neg_ratio, fix_neg=args.fix_neg,
-                      train=True, neg_from_global=args.neg_from_global, neg_sample_seed=neg_sample_seed)
+                      train=True, neg_from_global=args.neg_from_global, neg_sample_seed=args.neg_sample_seed)
 train_eval_data = EECorpus(get_data_file_names('train')[0],
                            get_data_file_names('train')[1],
                            get_data_file_names('train')[2],
