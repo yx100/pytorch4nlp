@@ -160,7 +160,7 @@ def eval_epoch(data, log_out=None):
         batch.pred = pred_label
         batch_pred = data.batch2pred(batch)
         if log_out is not None:
-            data.batch2log(batch)
+            data.batch2log(batch, log_out)
         pred_results += batch_pred
     type_p, type_r, type_f = evalute(data.gold_data, pred_results)
     untype_p, untype_r, untype_f = evalute(data.gold_data, pred_results, trigger_type=False)
