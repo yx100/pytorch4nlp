@@ -5,7 +5,7 @@ from collections import OrderedDict
 
 import torch
 import torch.nn as nn
-from pt4nlp import Embeddings, MultiSizeMultiPoolingCNNEncoder
+from pt4nlp import Embeddings, MultiSizeMultiPoolingCNNEncoder, MultiSizeCNNEncoder
 
 
 class DynamicMultiPoolingCNN(nn.Module):
@@ -14,6 +14,7 @@ class DynamicMultiPoolingCNN(nn.Module):
         self.word_vec_size = opt.word_vec_size
         self.posi_vec_size = opt.posi_vec_size
         self.lexi_window = opt.lexi_window
+        self.multi_pooling = multi_pooling
 
         feature_dicts = list()
         feature_dims = list()
@@ -27,13 +28,21 @@ class DynamicMultiPoolingCNN(nn.Module):
                                     feature_dims=feature_dims,
                                     )
 
-        self.encoder = MultiSizeMultiPoolingCNNEncoder(self.embedding.output_size,
-                                                       hidden_size=opt.hidden_size,
-                                                       window_size=[int(ws) for ws in opt.cnn_size],
-                                                       pooling_type=opt.cnn_pooling,
-                                                       dropout=opt.encoder_dropout,
-                                                       bias=True,
-                                                       split_point_number=1)
+        if opt.multi_pooling:
+            self.encoder = MultiSizeMultiPoolingCNNEncoder(self.embedding.output_size,
+                                                           hidden_size=opt.hidden_size,
+                                                           window_size=[int(ws) for ws in opt.cnn_size],
+                                                           pooling_type=opt.cnn_pooling,
+                                                           dropout=opt.encoder_dropout,
+                                                           bias=True,
+                                                           split_point_number=1)
+        else:
+            self.encoder = MultiSizeCNNEncoder(self.embedding.output_size,
+                                               hidden_size=opt.hidden_size,
+                                               window_size=[int(ws) for ws in opt.cnn_size],
+                                               pooling_type=opt.cnn_pooling,
+                                               dropout=opt.encoder_dropout,
+                                               bias=True)
 
         encoder_output_size = self.encoder.output_size
         self.act_function = getattr(nn, opt.act)()
@@ -65,8 +74,12 @@ class DynamicMultiPoolingCNN(nn.Module):
             # ignore position
             words_embeddings = self.embedding.forward(batch.text[:, :, 0])
 
-        sentence_embedding = self.encoder.forward(words_embeddings, position=batch.position, lengths=batch.lengths)
+        if self.multi_pooling:
+            sentence_embedding = self.encoder.forward(words_embeddings, position=batch.position, lengths=batch.lengths)
+        else:
+            sentence_embedding = self.encoder.forward(words_embeddings, lengths=batch.lengths)
         sentence_embedding = self.act_function(sentence_embedding)
+
         if self.lexi_window >= 0:
             sentence_feature = torch.cat([sentence_embedding, lexi_feature], dim=1)
         else:
