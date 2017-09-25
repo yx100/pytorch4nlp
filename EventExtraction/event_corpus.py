@@ -336,11 +336,12 @@ class EECorpus():
             label = self.ids_data[ident]['type']
             if pred_label not in label and common.OTHER_NAME in label:
                 print docid, sentid, tokenid
-                print ' '.join(map(str, tokens.data.tolist()))
-                print ' '.join(map(str, rela_posi.data.tolist()))
-                print ' '.join(map(str, lexi.data.tolist()))
+                print ' '.join(map(self.word_dictionary.convert_to_word, tokens.data.tolist()))
+                print ' '.join(map(self.pos_dictionary.convert_to_word, rela_posi.data.tolist()))
+                print ' '.join(map(self.word_dictionary.convert_to_word, lexi.data.tolist()))
                 print ' '.join(map(str, position.data.tolist()))
-                print pred
+                print pred_label
+                print label
                 print
 
 
