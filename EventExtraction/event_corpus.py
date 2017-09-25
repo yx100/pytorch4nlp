@@ -194,7 +194,7 @@ class EECorpus():
                                 continue
                             lexi[i + lexi_window] = sentence[tokenid + i - 1]
                         elif i > 0:
-                            if tokenid + i + 1< 0:
+                            if tokenid + i + 1 >= sentence_length:
                                 continue
                             lexi[i + lexi_window] = sentence[tokenid + i + 1]
                     else:
