@@ -35,6 +35,8 @@ def evalute_set(golden_list, pred_list, trigger_type=True):
     # print("||tp: %6d | fp: %6d | fn: %6d || %6.2f | %6.2f | %6.2f ||"
     #       % (tp, fp, fn, prec * 100., reca * 100., f1 * 100.))
 
+    print("Pred Right: %s, Pred Num %s, Total Right: %s." % (tp, len(pred_set), len(gold_set)))
+
     return prec * 100., reca * 100., f1 * 100.
 
 
@@ -77,5 +79,7 @@ def evalute_hongyu(golden_list, pred_list, trigger_type=True):
 
     # print("||tp: %6d | fp: %6d | fn: %6d || %6.2f | %6.2f | %6.2f ||"
     #       % (tp, fp, fn, prec * 100., reca * 100., f1 * 100.))
+
+    print("Pred Right: %s, Pred Num %s, Total Right: %s." % (tp, pred_sum, len(golden_list)))
 
     return prec * 100., reca * 100., f1 * 100.
