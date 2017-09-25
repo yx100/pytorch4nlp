@@ -204,7 +204,7 @@ for i in range(args.epoch):
 
     train_type_p, train_type_r, train_type_f1, train_span_p, train_span_r, train_span_f1 = eval_epoch(train_eval_data)
     dev_type_p, dev_type_r, dev_type_f1, dev_span_p, dev_span_r, dev_span_f1 = eval_epoch(dev_data)
-    test_type_p, test_type_r, test_type_f1, test_span_p, test_span_r, test_span_f1 = eval_epoch(test_data)
+    test_type_p, test_type_r, test_type_f1, test_span_p, test_span_r, test_span_f1 = eval_epoch(test_data, True)
 
     result.append((dev_span_f1, test_span_f1, dev_type_f1, test_type_f1))
     print("SPAN iter %2d | %6.2f | %6.2f || %6.2f | %6.2f | %6.2f || %6.2f | %6.2f | %6.2f || %6.2f | %6.2f | %6.2f ||"
