@@ -14,7 +14,7 @@ class DynamicMultiPoolingCNN(nn.Module):
         self.word_vec_size = opt.word_vec_size
         self.posi_vec_size = opt.posi_vec_size
         self.lexi_window = opt.lexi_window
-        self.multi_pooling = multi_pooling
+        self.multi_pooling = opt.multi_pooling
 
         feature_dicts = list()
         feature_dims = list()
