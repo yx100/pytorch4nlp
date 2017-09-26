@@ -120,3 +120,8 @@ def clip_weight_norm(model, max_norm, norm_type=2, except_params=None):
                 desired_norm = torch.clamp(col_norm, 0, torch.sqrt(max_norm))
                 scale = desired_norm / (col_norm + 1e-7)
                 param.data *= scale
+            if name == 'out.linear.weight':
+                row_norm = torch.norm(param.data, norm_type, 1)
+                desired_norm = torch.clamp(row_norm, 0, torch.sqrt(max_norm))
+                scale = desired_norm / (row_norm + 1e-7)
+                param.data = scale * param.data

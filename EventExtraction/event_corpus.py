@@ -142,7 +142,7 @@ class EECorpus():
     @staticmethod
     def load_data_file(gold_file, ids_file, sents_file,
                        label_dict, word_dict, pos_dict,
-                       min_length=2, max_length=200, lexi_window=1, train=False, neg_from_global=False):
+                       min_length=2, max_length=300, lexi_window=1, train=False, neg_from_global=False):
         pos_data = list()
         neg_data = list()
 
@@ -165,10 +165,10 @@ class EECorpus():
                 if not neg_from_global and key not in posi_sent_set:
                     escape_count += 1
                     continue
-                if sentence_length > max_length:
+                if sentence_length > max_length and key not in posi_sent_set:
                     escape_count += 1
                     continue
-                if sentence_length < min_length:
+                if sentence_length < min_length and key not in posi_sent_set:
                     escape_count += 1
                     continue
 
