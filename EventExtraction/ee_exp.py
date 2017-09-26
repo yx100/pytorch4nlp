@@ -37,7 +37,7 @@ parser.add_argument('-word-vec-size', type=int, dest="word_vec_size", default=10
 parser.add_argument('-posi-vec-size', type=int, dest="posi_vec_size", default=5)
 parser.add_argument('-hidden-size', type=int, dest="hidden_size", default=200)
 parser.add_argument('-encoder-dropout', type=float, dest='encoder_dropout', default=0)
-parser.add_argument('-dropout', type=float, dest='dropout', default=0.5)
+parser.add_argument('-dropout', type=float, dest='dropout', default=0)
 parser.add_argument('-bn', action='store_true', dest='bn')
 parser.add_argument('-act', type=str, dest='act', default='Tanh')
 parser.add_argument('-word-vectors', type=str, dest="word_vectors", default='word_word2vec.bin')

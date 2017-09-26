@@ -190,15 +190,6 @@ class EECorpus():
                         lexi[i + lexi_window] = sentence[0]
                     elif tokenid + i >= sentence_length:
                         lexi[i + lexi_window] = sentence[-1]
-                    elif sentence[tokenid + i] in escape_symbol:
-                        if i < 0:
-                            if tokenid + i - 1< 0:
-                                continue
-                            lexi[i + lexi_window] = sentence[tokenid + i - 1]
-                        elif i > 0:
-                            if tokenid + i + 1 >= sentence_length:
-                                continue
-                            lexi[i + lexi_window] = sentence[tokenid + i + 1]
                     else:
                         lexi[i + lexi_window] = sentence[tokenid + i]
                 lexi_ids = word_dict.convert_to_index(lexi, unk_word=Constants.UNK_WORD)
