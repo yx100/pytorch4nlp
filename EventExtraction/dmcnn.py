@@ -28,23 +28,27 @@ class DynamicMultiPoolingCNN(nn.Module):
                                     feature_dims=feature_dims,
                                     )
 
-        if opt.multi_pooling:
-            self.encoder = MultiSizeMultiPoolingCNNEncoder(self.embedding.output_size,
-                                                           hidden_size=opt.hidden_size,
-                                                           window_size=[int(ws) for ws in opt.cnn_size],
-                                                           pooling_type=opt.cnn_pooling,
-                                                           dropout=opt.encoder_dropout,
-                                                           bias=True,
-                                                           split_point_number=1)
-        else:
-            self.encoder = MultiSizeCNNEncoder(self.embedding.output_size,
-                                               hidden_size=opt.hidden_size,
-                                               window_size=[int(ws) for ws in opt.cnn_size],
-                                               pooling_type=opt.cnn_pooling,
-                                               dropout=opt.encoder_dropout,
-                                               bias=True)
+        if not opt.no_cnn:
+            if opt.multi_pooling:
+                self.encoder = MultiSizeMultiPoolingCNNEncoder(self.embedding.output_size,
+                                                               hidden_size=opt.hidden_size,
+                                                               window_size=[int(ws) for ws in opt.cnn_size],
+                                                               pooling_type=opt.cnn_pooling,
+                                                               dropout=opt.encoder_dropout,
+                                                               bias=True,
+                                                               split_point_number=1)
+            else:
+                self.encoder = MultiSizeCNNEncoder(self.embedding.output_size,
+                                                   hidden_size=opt.hidden_size,
+                                                   window_size=[int(ws) for ws in opt.cnn_size],
+                                                   pooling_type=opt.cnn_pooling,
+                                                   dropout=opt.encoder_dropout,
+                                                   bias=True)
 
-        encoder_output_size = self.encoder.output_size
+            encoder_output_size = self.encoder.output_size
+        else:
+            self.encoder = None
+            encoder_output_size = 0
         self.act_function = getattr(nn, opt.act)()
         if self.lexi_window >= 0:
             encoder_output_size += (2 * self.lexi_window + 1) * self.word_vec_size
@@ -64,6 +68,12 @@ class DynamicMultiPoolingCNN(nn.Module):
                 nn.init.xavier_uniform(param)
 
     def forward(self, batch):
+        feature_list = list()
+
+        if self.lexi_window >= 0:
+            lexi_feature = self.embedding.forward(batch.lexi)
+            lexi_feature = lexi_feature.view(lexi_feature.size()[0], -1)
+            feature_list.append(lexi_feature)
 
         if self.posi_vec_size > 0:
             words_embeddings = self.embedding.forward(batch.text)
@@ -71,18 +81,16 @@ class DynamicMultiPoolingCNN(nn.Module):
             # ignore position
             words_embeddings = self.embedding.forward(batch.text[:, :, 0])
 
-        if self.multi_pooling:
-            sentence_embedding = self.encoder.forward(words_embeddings, position=batch.position, lengths=batch.lengths)
-        else:
-            sentence_embedding = self.encoder.forward(words_embeddings, lengths=batch.lengths)
-        sentence_embedding = self.act_function(sentence_embedding)
+        if self.encoder is not None:
+            if self.multi_pooling:
+                sentence_embedding = self.encoder.forward(words_embeddings, position=batch.position, lengths=batch.lengths)
+            else:
+                sentence_embedding = self.encoder.forward(words_embeddings, lengths=batch.lengths)
+            sentence_embedding = self.act_function(sentence_embedding)
+            feature_list.append(sentence_embedding)
 
-        if self.lexi_window >= 0:
-            lexi_feature = self.embedding.forward(batch.lexi)
-            lexi_feature = lexi_feature.view(lexi_feature.size()[0], -1)
-            sentence_feature = torch.cat([sentence_embedding, lexi_feature], dim=1)
-        else:
-            sentence_feature = sentence_embedding
+        sentence_feature = torch.cat(feature_list, dim=1)
 
         scores = self.out(sentence_feature)
+
         return scores

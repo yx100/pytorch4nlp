@@ -46,6 +46,7 @@ parser.add_argument('-cnn-pooling', type=str, dest='cnn_pooling', default="max",
 parser.add_argument('-lexi-window', type=int, dest='lexi_window', default=1,
                     help='-1 is no lexi feature, 0 is just centre word')
 parser.add_argument('-no-multi-pooling', action='store_false', dest='multi_pooling')
+parser.add_argument('-no-cnn', action='store_true', dest='no_cnn')
 
 # Optimizer Option
 parser.add_argument('-word-normalize', action='store_true', dest="word_normalize")
