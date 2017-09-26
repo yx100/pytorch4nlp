@@ -14,7 +14,7 @@ from pt4nlp import Constants, Dictionary
 import random as pyrandom
 
 
-escape_symbol = [',', '.', '?', '!', ';', ':', '-']
+escape_symbol = [',', '.', '?', '!', ';', ':']
 
 
 class EECorpus():
@@ -186,9 +186,11 @@ class EECorpus():
                 # Lexi Info
                 lexi = (2 * lexi_window + 1) * [Constants.PAD_WORD]
                 for i in range(-lexi_window, lexi_window + 1):
-                    if tokenid + i < 0 or tokenid + i >= sentence_length:
-                        continue
-                    if sentence[tokenid + i] in escape_symbol:
+                    if tokenid + i < 0:
+                        lexi[i + lexi_window] = sentence[0]
+                    elif tokenid + i >= sentence_length:
+                        lexi[i + lexi_window] = sentence[-1]
+                    elif sentence[tokenid + i] in escape_symbol:
                         if i < 0:
                             if tokenid + i - 1< 0:
                                 continue
@@ -367,7 +369,7 @@ class EECorpus():
                     output.write("[RAW NEG] " + "Gold: " + "%s\n" % label)
                     output.write('\n')
                 if common.OTHER_NAME not in label and output is not None:
-                    output.write("[RAW NEG] " + "%s\t%s\t%s\t%s\t%s\n" % (docid, sentid, tokenid, start, length))
+                    output.write("[RAW POS] " + "%s\t%s\t%s\t%s\t%s\n" % (docid, sentid, tokenid, start, length))
                     output.write("[RAW POS] " + ' '.join(self.word_dictionary.convert_to_word(tokens.data.tolist())) + '\n')
                     output.write("[RAW POS] " + ' '.join(map(str, self.pos_dictionary.convert_to_word(rela_posi.data.tolist()))) + '\n')
                     output.write("[RAW POS] " + ' '.join(self.word_dictionary.convert_to_word(lexi.data.tolist())) + '\n')
