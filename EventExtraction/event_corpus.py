@@ -290,6 +290,9 @@ class EECorpus():
         with codecs.open(filename, 'r', 'utf8') as fin:
             for line in fin:
                 att = line.strip().split('\t')
+                if len(att) != 3:
+                    print att
+                    continue
                 sents_data[(att[0], int(att[1]))] = att[2].split(' ')
         return sents_data
 
