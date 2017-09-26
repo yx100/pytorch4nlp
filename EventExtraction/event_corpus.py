@@ -23,7 +23,7 @@ class EECorpus():
                  word_dictionary, pos_dictionary, label_dictionary,
                  volatile=False,
                  batch_size=64,
-                 max_length=200,
+                 max_length=300,
                  device=-1,
                  lexi_window=1,
                  random=True,
