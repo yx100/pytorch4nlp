@@ -14,7 +14,8 @@ from pt4nlp import Constants, Dictionary
 import random as pyrandom
 
 
-escape_symbol = [',', '.', '?', '!', ';', ':']
+escape_symbol = [',', '.', '?', '!', ';', ':',
+                 u'；', u'。', u'“', u'”', u'：', u'？', u'！']
 
 
 class EECorpus():
