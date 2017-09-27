@@ -234,6 +234,7 @@ for i in range(args.epoch):
 
 
 result = torch.from_numpy(numpy.array(result))
+print(args)
 _, max_index = torch.max(result[:, 0], 0)
 print("Best Untype Iter %d, Dev F1: %s, Test F1: %s" % (max_index[0], result[max_index[0], 0], result[max_index[0], 1]))
 _, max_index = torch.max(result[:, 2], 0)
