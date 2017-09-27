@@ -2,6 +2,9 @@
 # -*- coding: utf-8 -*-
 # Created by Roger on 2017/9/14
 from __future__ import absolute_import
+
+import codecs
+
 import common
 import time
 import torch
@@ -206,7 +209,7 @@ for i in range(args.epoch):
     end = time.time()
 
     if args.err_instance_file_name is not None:
-        err_output = open(args.err_instance_file_name + ".%s" % i + '.log', 'w')
+        err_output = codecs.open(args.err_instance_file_name + ".%s" % i + '.log', 'w', 'utf8')
     else:
         err_output = None
 
