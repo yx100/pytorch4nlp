@@ -80,15 +80,17 @@ class DynamicMultiPoolingCNN(nn.Module):
             lexi_feature = lexi_feature.view(lexi_feature.size()[0], -1)
             feature_list.append(lexi_feature)
 
-        if self.posi_vec_size > 0:
-            words_embeddings = self.embedding.forward(batch.text)
-        else:
-            # ignore position
-            words_embeddings = self.embedding.forward(batch.text[:, :, 0])
-
         if self.encoder is not None:
+            # If None means Only Lexi Feature
+            if self.posi_vec_size > 0:
+                words_embeddings = self.embedding.forward(batch.text)
+            else:
+                # ignore position
+                words_embeddings = self.embedding.forward(batch.text[:, :, 0])
+
             if self.multi_pooling:
-                sentence_embedding = self.encoder.forward(words_embeddings, position=batch.position, lengths=batch.lengths)
+                sentence_embedding = self.encoder.forward(words_embeddings, position=batch.position,
+                                                          lengths=batch.lengths)
             else:
                 sentence_embedding = self.encoder.forward(words_embeddings, lengths=batch.lengths)
             if self.bn is not None:
