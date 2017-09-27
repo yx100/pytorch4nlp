@@ -51,13 +51,13 @@ class DynamicMultiPoolingCNN(nn.Module):
 
         self.act_function = getattr(nn, opt.act)()
 
-        if self.lexi_window >= 0:
-            encoder_output_size += (2 * self.lexi_window + 1) * self.word_vec_size
-
         if opt.bn:
             self.bn = nn.BatchNorm1d(encoder_output_size)
         else:
             self.bn = None
+
+        if self.lexi_window >= 0:
+            encoder_output_size += (2 * self.lexi_window + 1) * self.word_vec_size
 
         out_component = OrderedDict()
         out_component['dropout'] = nn.Dropout(opt.dropout)
