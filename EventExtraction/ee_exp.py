@@ -57,7 +57,7 @@ parser.add_argument('-optimizer', type=str, dest="optimizer", default="Adadelta"
 parser.add_argument('-lr', type=float, dest="lr", default=0.95)
 parser.add_argument('-word-optimizer', type=str, dest="word_optimizer", default="Adadelta")
 parser.add_argument('-word-lr', type=float, dest="word_lr", default=0.95)
-parser.add_argument('-grad-clip', type=float, default=-1, dest="grad_clip", help='clip grad by norm')
+parser.add_argument('-grad-clip', type=float, default=9.0, dest="grad_clip", help='clip grad by norm')
 parser.add_argument('-weight-clip', type=float, default=9.0, dest="weight_clip", help='clip weight by norm')
 parser.add_argument('-regular', type=float, default=0, dest="regular_weight", help='regular weight')
 
