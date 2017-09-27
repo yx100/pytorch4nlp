@@ -18,10 +18,9 @@ class DynamicMultiPoolingCNN(nn.Module):
 
         feature_dicts = list()
         feature_dims = list()
-        if opt.posi_vec_size > 0:
+        if opt.posi_vec_size > 0 and not opt.no_cnn:
             feature_dicts += [position_dict]
             feature_dims += [opt.posi_vec_size]
-
         self.embedding = Embeddings(word_vec_size=opt.word_vec_size,
                                     dicts=dicts,
                                     feature_dicts=feature_dicts,
@@ -49,12 +48,18 @@ class DynamicMultiPoolingCNN(nn.Module):
         else:
             self.encoder = None
             encoder_output_size = 0
+
         self.act_function = getattr(nn, opt.act)()
+
         if self.lexi_window >= 0:
             encoder_output_size += (2 * self.lexi_window + 1) * self.word_vec_size
-        out_component = OrderedDict()
+
         if opt.bn:
-            out_component['bn'] = nn.BatchNorm1d(encoder_output_size)
+            self.bn = nn.BatchNorm1d(encoder_output_size)
+        else:
+            self.bn = None
+
+        out_component = OrderedDict()
         out_component['dropout'] = nn.Dropout(opt.dropout)
         out_component['linear'] = nn.Linear(encoder_output_size, label_num)
 
@@ -86,6 +91,8 @@ class DynamicMultiPoolingCNN(nn.Module):
                 sentence_embedding = self.encoder.forward(words_embeddings, position=batch.position, lengths=batch.lengths)
             else:
                 sentence_embedding = self.encoder.forward(words_embeddings, lengths=batch.lengths)
+            if self.bn is not None:
+                sentence_embedding = self.bn(sentence_embedding)
             sentence_embedding = self.act_function(sentence_embedding)
             feature_list.append(sentence_embedding)
 
