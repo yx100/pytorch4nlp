@@ -202,7 +202,7 @@ class EECorpus():
                 for type_name in type_names:
 
                     # Label Info
-                    label = label_dict.lookup(type_name, default=label_dict.lookup(common.OTHER_NAME))
+                    label = label_dict.lookup(type_name)  #, default=label_dict.lookup(common.OTHER_NAME))
 
                     # Check Whether same token sents and ids
                     if token != token_from_ids:
