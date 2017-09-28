@@ -70,7 +70,7 @@ weight[pt4nlp.PAD] = 0
 
 if args.device >= 0:
     model.cuda(args.device)
-    weight.cida(args.device)
+    weight.cuda(args.device)
 
 
 criterion = nn.CrossEntropyLoss(weight=weight)
