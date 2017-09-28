@@ -121,17 +121,24 @@ class TextDeconvolutionAutoEncoer(nn.Module):
                                                     stride_size=stride_size,
                                                     )
 
-    def forward(self, batch):
+    def encode(self, text):
         # (batch, len) -> (batch, len, dim)
-        word_embeddings = self.embedding.forward(batch.text)
+        word_embeddings = self.embedding.forward(text)
         # (batch, len, dim) -> (batch, len, dim)
-        de_word_embeddings = self.auto_encoder.forward(word_embeddings)
+        hidden = self.auto_encoder.forward(word_embeddings)
+        return hidden
+
+    def decode(self, x):
         # (batch, len, dim) dot (dim, dictionary) -> (batch, len, dictionary)
-        to_decode = de_word_embeddings.view(de_word_embeddings.size(0) * de_word_embeddings.size(1),
-                                            de_word_embeddings.size(2))
-        decoded = torch.mm(to_decode,
-                           self.embedding.word_lookup_table.weight.t())
-        return decoded.view(de_word_embeddings.size(0) * de_word_embeddings.size(1), decoded.size(1))
+        to_decode = x.view(x.size(0) * x.size(1), x.size(2))
+        decoded = torch.mm(to_decode, self.embedding.word_lookup_table.weight.t())
+        return decoded.view(x.size(0) * x.size(1), decoded.size(1))
+
+    def forward(self, batch):
+        # (batch, len) -> (batch, dim)
+        hidden = self.encode(batch.text)
+        decoded = self.decode(hidden)
+        return decoded
 
 
 def test():

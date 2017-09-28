@@ -19,8 +19,9 @@ parser.add_argument('-epoch', type=int, dest="epoch", default=100)
 parser.add_argument('-batch', type=int, dest="batch", default=64)
 parser.add_argument('-device', type=int, dest="device", default=0)
 parser.add_argument('-seed', type=int, dest="seed", default=-1)
-parser.add_argument('-data', type=str, dest="data", default="train.data")
-parser.add_argument('-word-cut', type=int, dest="word_cut", default=1)
+parser.add_argument('-train-data', type=str, dest="train_data", default="train.data")
+parser.add_argument('-dev-data', type=str, dest="dev_data", default="dev.data")
+parser.add_argument('-word-cut', type=int, dest="word_cut", default=2)
 parser.add_argument('-no-lower', action='store_false', dest='lower')
 
 # Model Option
@@ -123,7 +124,7 @@ def train_epoch():
         wo_word_opt.step()
         word_opt.step()
 
-        epoch_loss += loss.data
+        epoch_loss += loss.data[0]
 
         if args.weight_clip > 0:
             pt4nlp.clip_weight_norm(model, args.weight_clip, except_params=['emb_luts.0'])
@@ -135,4 +136,5 @@ for i in range(args.epoch):
     start = time.time()
     train_loss = train_epoch()
     end = time.time()
+    torch.save(model, open('epoch_%s_%s' % (i, train_loss)))
     print("| %s | %s |" % (end - start, train_loss))
