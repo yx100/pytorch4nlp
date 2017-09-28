@@ -67,11 +67,13 @@ if args.word_vectors != "random":
 
 weight = torch.ones(word_d.size())
 weight[pt4nlp.PAD] = 0
-criterion = nn.CrossEntropyLoss(weight=weight)
 
 if args.device >= 0:
     model.cuda(args.device)
+    weight.cida(args.device)
 
+
+criterion = nn.CrossEntropyLoss(weight=weight)
 param_wo_embedding = []
 param_embedding = []
 
