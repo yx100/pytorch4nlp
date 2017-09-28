@@ -1,9 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # Created by Roger on 2017/9/14
-# !/usr/bin/env python
-# -*- coding: utf-8 -*-
-# Created by Roger on 2017/8/26
 from future.utils import viewitems
 import common
 import codecs
@@ -224,7 +221,8 @@ class EECorpus():
                     if type_name != common.OTHER_NAME:
                         pos_data.append(_data)
                     else:
-                        neg_data.append(_data)
+                        if key not in posi_sent_set:
+                            neg_data.append(_data)
 
         print("Pos: %d, Neg: %d, Load Sentence: %s, Escape: %d, Pos Sent %d." % (len(pos_data), len(neg_data),
                                                                                  sentence_count, escape_count,

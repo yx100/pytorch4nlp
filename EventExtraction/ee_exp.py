@@ -2,9 +2,7 @@
 # -*- coding: utf-8 -*-
 # Created by Roger on 2017/9/14
 from __future__ import absolute_import
-
 import codecs
-
 import common
 import time
 import torch
@@ -16,6 +14,7 @@ from event_corpus import EECorpus
 from argparse import ArgumentParser
 import numpy
 import pt4nlp
+
 
 parser = ArgumentParser(description='DMCNN Event Detector')
 # Train Option
