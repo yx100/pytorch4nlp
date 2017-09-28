@@ -121,7 +121,7 @@ def train_epoch():
         wo_word_opt.step()
         word_opt.step()
 
-        epoch_loss += loss
+        epoch_loss += loss.data
 
         if args.weight_clip > 0:
             pt4nlp.clip_weight_norm(model, args.weight_clip, except_params=['emb_luts.0'])
