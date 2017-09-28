@@ -52,11 +52,11 @@ batch_size = args.batch
 if args.device >= 0:
     usecuda = True
 
-word_d = Corpus.get_word_dictionary_from_file(args.data, lower=args.lower)
+word_d = Corpus.get_word_dictionary_from_file(args.train_data, lower=args.lower)
 word_d.cut_by_count(args.word_cut)
 n_token = len(word_d)
 
-train_data = Corpus(args.data, word_d,
+train_data = Corpus(args.train_data, word_d,
                     batch_size=args.batch, device=args.device,
                     max_length=57,
                     )
