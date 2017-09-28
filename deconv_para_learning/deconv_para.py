@@ -65,12 +65,14 @@ model = TextDeconvolutionAutoEncoer(word_d)
 if args.word_vectors != "random":
     model.embedding.load_pretrained_vectors(args.word_vectors, normalize=args.word_normalize)
 
+
 weight = torch.ones(word_d.size())
 weight[pt4nlp.PAD] = 0
 
+
 if args.device >= 0:
     model.cuda(args.device)
-    weight.cuda(args.device)
+    weight = weight.cuda(args.device)
 
 
 criterion = nn.CrossEntropyLoss(weight=weight)
