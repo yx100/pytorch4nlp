@@ -136,5 +136,5 @@ for i in range(args.epoch):
     start = time.time()
     train_loss = train_epoch()
     end = time.time()
-    torch.save(model, open('epoch_%s_%s' % (i, train_loss)))
+    torch.save(model, open('epoch_%s_%s' % (i, train_loss), 'wb'))
     print("| %s | %s |" % (end - start, train_loss))
