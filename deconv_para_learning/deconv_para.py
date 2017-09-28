@@ -21,7 +21,7 @@ parser.add_argument('-device', type=int, dest="device", default=0)
 parser.add_argument('-seed', type=int, dest="seed", default=-1)
 parser.add_argument('-train-data', type=str, dest="train_data", default="train.data")
 parser.add_argument('-dev-data', type=str, dest="dev_data", default="dev.data")
-parser.add_argument('-word-cut', type=int, dest="word_cut", default=2)
+parser.add_argument('-topk', type=int, dest="topk", default=30000)
 parser.add_argument('-no-lower', action='store_false', dest='lower')
 
 # Model Option
@@ -53,7 +53,7 @@ if args.device >= 0:
     usecuda = True
 
 word_d = Corpus.get_word_dictionary_from_file(args.train_data, lower=args.lower)
-word_d.cut_by_count(args.word_cut)
+word_d.cut_by_top(args.topk)
 n_token = len(word_d)
 
 train_data = Corpus(args.train_data, word_d,
