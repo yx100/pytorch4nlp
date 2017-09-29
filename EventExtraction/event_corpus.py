@@ -221,8 +221,7 @@ class EECorpus():
                     if type_name != common.OTHER_NAME:
                         pos_data.append(_data)
                     else:
-                        if key not in posi_sent_set:
-                            neg_data.append(_data)
+                        neg_data.append(_data)
 
         print("Pos: %d, Neg: %d, Load Sentence: %s, Escape: %d, Pos Sent %d." % (len(pos_data), len(neg_data),
                                                                                  sentence_count, escape_count,
