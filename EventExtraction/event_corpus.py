@@ -196,6 +196,11 @@ class EECorpus():
                 relative_position = [pos_dict.convert_to_index([d], unk_word=Constants.PAD_WORD)[0]
                                      for d in range(-tokenid, sentence_length - tokenid)]
 
+                token_from_ids = token_from_ids[:80]
+                relative_position = relative_position[:80]
+                if tokenid > 80:
+                    tokenid = 80
+
                 # some trigger has multi label
                 for type_name in type_names:
 
