@@ -198,9 +198,6 @@ def train_epoch(epoch_index):
         if args.weight_clip > 0:
             pt4nlp.clip_weight_norm(model, args.weight_clip, except_params=['emb_luts.0'])
 
-        for name, param in model.named_parameters():
-            print name, torch.sum(param.grad ** 2)
-
     return 100. * n_correct / n_total
 
 
