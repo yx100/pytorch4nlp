@@ -8,12 +8,13 @@ import time
 import torch
 import torch.nn as nn
 from builtins import range
-from dmcnn import DynamicMultiPoolingCNN
 import evaluate
 from event_corpus import EECorpus
 from argparse import ArgumentParser
 import numpy
 import pt4nlp
+from ann import ANNEventExtractor
+from dmcnn import DynamicMultiPoolingCNN
 
 
 parser = ArgumentParser(description='DMCNN Event Detector')
@@ -49,6 +50,7 @@ parser.add_argument('-lexi-window', type=int, dest='lexi_window', default=1,
                     help='-1 is no lexi feature, 0 is just centre word')
 parser.add_argument('-no-multi-pooling', action='store_false', dest='multi_pooling')
 parser.add_argument('-no-cnn', action='store_true', dest='no_cnn')
+parser.add_argument('-ann-liu', action='store_true', dest='ann_liu')
 
 # Optimizer Option
 parser.add_argument('-word-normalize', action='store_true', dest="word_normalize")
@@ -56,7 +58,7 @@ parser.add_argument('-optimizer', type=str, dest="optimizer", default="Adadelta"
 parser.add_argument('-lr', type=float, dest="lr", default=0.95)
 parser.add_argument('-word-optimizer', type=str, dest="word_optimizer", default="Adadelta")
 parser.add_argument('-word-lr', type=float, dest="word_lr", default=0.95)
-parser.add_argument('-grad-clip', type=float, default=9.0, dest="grad_clip", help='clip grad by norm')
+parser.add_argument('-grad-clip', type=float, default=-1, dest="grad_clip", help='clip grad by norm')
 parser.add_argument('-weight-clip', type=float, default=9.0, dest="weight_clip", help='clip weight by norm')
 parser.add_argument('-regular', type=float, default=0, dest="regular_weight", help='regular weight')
 
@@ -121,7 +123,12 @@ test_data = EECorpus(get_data_file_names('test')[0],
                      word_d, posit_d, label_d, lexi_window=args.lexi_window, batch_size=1000,
                      device=args.device, neg_ratio=0, random=False)
 
-model = DynamicMultiPoolingCNN(word_d, opt=args, label_num=label_d.size(), position_dict=posit_d)
+if args.ann_liu:
+    args.act = "Sigmoid"
+    model = ANNEventExtractor(word_d, opt=args, label_num=label_d.size())
+else:
+    model = DynamicMultiPoolingCNN(word_d, opt=args, label_num=label_d.size(), position_dict=posit_d)
+
 if args.word_vectors != "random":
     model.embedding.load_pretrained_vectors(args.word_vectors, normalize=args.word_normalize)
 
