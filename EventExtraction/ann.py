@@ -16,6 +16,7 @@ class ANNEventExtractor(nn.Module):
         super(ANNEventExtractor, self).__init__()
         self.word_vec_size = opt.word_vec_size
         self.hidden_size = opt.hidden_size
+        self.lexi_window = opt.lexi_window
 
         self.embedding = Embeddings(word_vec_size=opt.word_vec_size,
                                     dicts=dicts,
@@ -29,10 +30,10 @@ class ANNEventExtractor(nn.Module):
         if opt.bn:
             out_component['bn'] = nn.BatchNorm1d(encoder_output_size)
         out_component['dropout1'] = nn.Dropout(opt.dropout)
-        out_component['linear1'] = nn.Linear(encoder_output_size, self.hidden_siz)
+        out_component['linear1'] = nn.Linear(encoder_output_size, self.hidden_size)
         out_component['act'] = getattr(nn, opt.act)()
         out_component['dropout2'] = nn.Dropout(opt.dropout)
-        out_component['linear2'] = nn.Linear(self.hidden_siz, label_num)
+        out_component['linear2'] = nn.Linear(self.hidden_size, label_num)
 
         self.out = nn.Sequential(out_component)
         self.init_model()
