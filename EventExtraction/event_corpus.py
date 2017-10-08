@@ -1,9 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # Created by Roger on 2017/9/14
-# !/usr/bin/env python
-# -*- coding: utf-8 -*-
-# Created by Roger on 2017/8/26
 from future.utils import viewitems
 import common
 import codecs
@@ -14,7 +11,8 @@ from pt4nlp import Constants, Dictionary
 import random as pyrandom
 
 
-escape_symbol = [',', '.', '?', '!', ';', ':', '-']
+escape_symbol = [',', '.', '?', '!', ';', ':', '(', ')', "'", '"',
+                 u'；', u'。', u'“', u'”', u'：', u'？', u'！']
 
 
 class EECorpus():
@@ -23,7 +21,7 @@ class EECorpus():
                  word_dictionary, pos_dictionary, label_dictionary,
                  volatile=False,
                  batch_size=64,
-                 max_length=200,
+                 max_length=300,
                  device=-1,
                  lexi_window=1,
                  random=True,
@@ -142,7 +140,7 @@ class EECorpus():
     @staticmethod
     def load_data_file(gold_file, ids_file, sents_file,
                        label_dict, word_dict, pos_dict,
-                       min_length=2, max_length=200, lexi_window=1, train=False, neg_from_global=False):
+                       min_length=2, max_length=300, lexi_window=1, train=False, neg_from_global=False):
         pos_data = list()
         neg_data = list()
 
@@ -165,10 +163,10 @@ class EECorpus():
                 if not neg_from_global and key not in posi_sent_set:
                     escape_count += 1
                     continue
-                if sentence_length > max_length:
+                if sentence_length > max_length and key not in posi_sent_set:
                     escape_count += 1
                     continue
-                if sentence_length < min_length:
+                if sentence_length < min_length and key not in posi_sent_set:
                     escape_count += 1
                     continue
 
@@ -186,17 +184,10 @@ class EECorpus():
                 # Lexi Info
                 lexi = (2 * lexi_window + 1) * [Constants.PAD_WORD]
                 for i in range(-lexi_window, lexi_window + 1):
-                    if tokenid + i < 0 or tokenid + i >= sentence_length:
-                        continue
-                    if sentence[tokenid + i] in escape_symbol:
-                        if i < 0:
-                            if tokenid + i - 1< 0:
-                                continue
-                            lexi[i + lexi_window] = sentence[tokenid + i - 1]
-                        elif i > 0:
-                            if tokenid + i + 1 >= sentence_length:
-                                continue
-                            lexi[i + lexi_window] = sentence[tokenid + i + 1]
+                    if tokenid + i < 0:
+                        lexi[i + lexi_window] = sentence[0]
+                    elif tokenid + i >= sentence_length:
+                        lexi[i + lexi_window] = sentence[-1]
                     else:
                         lexi[i + lexi_window] = sentence[tokenid + i]
                 lexi_ids = word_dict.convert_to_index(lexi, unk_word=Constants.UNK_WORD)
@@ -204,6 +195,11 @@ class EECorpus():
                 # Position Info
                 relative_position = [pos_dict.convert_to_index([d], unk_word=Constants.PAD_WORD)[0]
                                      for d in range(-tokenid, sentence_length - tokenid)]
+
+                sent_token_ids = sent_token_ids[:80]
+                relative_position = relative_position[:80]
+                if tokenid > 80:
+                    tokenid = 80
 
                 # some trigger has multi label
                 for type_name in type_names:
@@ -288,6 +284,9 @@ class EECorpus():
         with codecs.open(filename, 'r', 'utf8') as fin:
             for line in fin:
                 att = line.strip().split('\t')
+                if len(att) != 3:
+                    print att
+                    continue
                 sents_data[(att[0], int(att[1]))] = att[2].split(' ')
         return sents_data
 
@@ -355,23 +354,26 @@ class EECorpus():
             position = batch.position[index]
             pred_label = self.label_dictionary.index2word[pred]
             label = self.ids_data[ident]['type']
+            start, length = self.ids_data[ident]['start'], self.ids_data[ident]['length']
             if pred_label not in label:
                 if common.OTHER_NAME in label and output is not None:
-                    output.write("[RAW NEG]" + "%s\t%s\t%s\n" % (docid, sentid, tokenid))
-                    output.write("[RAW NEG]" + ' '.join(self.word_dictionary.convert_to_word(tokens.data.tolist())) + '\n')
-                    output.write("[RAW NEG]" + ' '.join(map(str, self.pos_dictionary.convert_to_word(rela_posi.data.tolist()))) + '\n')
-                    output.write("[RAW NEG]" + ' '.join(self.word_dictionary.convert_to_word(lexi.data.tolist())) + '\n')
-                    output.write("[RAW NEG]" + ' '.join(map(str, position.data.tolist())) + '\n')
-                    output.write("[RAW NEG]" + "Pred: " + pred_label + '\n')
-                    output.write("[RAW NEG]" + "Gold: " + "%s\n" % label)
+                    output.write("[RAW NEG] " + "%s\t%s\t%s\t%s\t%s\n" % (docid, sentid, tokenid, start, length))
+                    output.write("[RAW NEG] " + ' '.join(self.word_dictionary.convert_to_word(tokens.data.tolist())) + '\n')
+                    output.write("[RAW NEG] " + ' '.join(map(str, self.pos_dictionary.convert_to_word(rela_posi.data.tolist()))) + '\n')
+                    output.write("[RAW NEG] " + ' '.join(self.word_dictionary.convert_to_word(lexi.data.tolist())) + '\n')
+                    output.write("[RAW NEG] " + ' '.join(map(str, position.data.tolist())) + '\n')
+                    output.write("[RAW NEG] " + "Pred: " +"%s\n" % pred_label)
+                    output.write("[RAW NEG] " + "Gold: " + "%s\n" % label)
+                    output.write('\n')
                 if common.OTHER_NAME not in label and output is not None:
-                    output.write("[RAW POS]" + "%s\t%s\t%s\n" % (docid, sentid, tokenid))
-                    output.write("[RAW POS]" + ' '.join(self.word_dictionary.convert_to_word(tokens.data.tolist())) + '\n')
-                    output.write("[RAW POS]" + ' '.join(map(str, self.pos_dictionary.convert_to_word(rela_posi.data.tolist()))) + '\n')
-                    output.write("[RAW POS]" + ' '.join(self.word_dictionary.convert_to_word(lexi.data.tolist())) + '\n')
-                    output.write("[RAW POS]" + ' '.join(map(str, position.data.tolist())) + '\n')
-                    output.write("[RAW POS]" + "Pred: " + pred_label + '\n')
-                    output.write("[RAW POS]" + "Gold: " + "%s\n" % label)
+                    output.write("[RAW POS] " + "%s\t%s\t%s\t%s\t%s\n" % (docid, sentid, tokenid, start, length))
+                    output.write("[RAW POS] " + ' '.join(self.word_dictionary.convert_to_word(tokens.data.tolist())) + '\n')
+                    output.write("[RAW POS] " + ' '.join(map(str, self.pos_dictionary.convert_to_word(rela_posi.data.tolist()))) + '\n')
+                    output.write("[RAW POS] " + ' '.join(self.word_dictionary.convert_to_word(lexi.data.tolist())) + '\n')
+                    output.write("[RAW POS] " + ' '.join(map(str, position.data.tolist())) + '\n')
+                    output.write("[RAW POS] " + "Pred: " +"%s\n" % pred_label)
+                    output.write("[RAW POS] " + "Gold: " + "%s\n" % label)
+                    output.write('\n')
 
 
 class Batch(object):

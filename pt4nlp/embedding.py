@@ -40,7 +40,7 @@ class Embeddings(nn.Module):
 
         # emb_sizes
         emb_sizes = [self.word_vec_size]
-        if len(feature_dicts) > 0:
+        if feature_dicts is not None and len(feature_dicts) > 0:
             vocab_sizes.extend(feat_dict.size() for feat_dict in feature_dicts)
             if self.feat_merge == 'concat':
                 # Derive embedding sizes from each feature's vocab size

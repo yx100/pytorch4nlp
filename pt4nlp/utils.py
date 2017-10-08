@@ -113,10 +113,20 @@ def clip_weight_norm(model, max_norm, norm_type=2, except_params=None):
         if except_params is not None:
             for except_param in except_params:
                 if except_param in name:
+                    # print "Pass", name
                     pass
-        else:
-            if len(param.size()) == 2:
+
+        if len(param.size()) == 2:
+
+            if name == 'out.linear.weight':
+                row_norm = torch.norm(param.data, norm_type, 1)
+                desired_norm = torch.clamp(row_norm, 0, np.sqrt(max_norm))
+                scale = desired_norm / (row_norm + 1e-7)
+                param.data = scale[:, None] * param.data
+                # print "Row Norm", torch.norm(param.data, norm_type, 1)
+            else:
                 col_norm = torch.norm(param.data, norm_type, 0)
-                desired_norm = torch.clamp(col_norm, 0, torch.sqrt(max_norm))
+                desired_norm = torch.clamp(col_norm, 0, np.sqrt(max_norm))
                 scale = desired_norm / (col_norm + 1e-7)
                 param.data *= scale
+                # print "Col Norm", torch.norm(param.data, norm_type, 0)

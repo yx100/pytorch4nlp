@@ -4,6 +4,8 @@
 import torch
 import torch.nn as nn
 
+from pt4nlp import Embeddings
+
 
 class Encoder(nn.ModuleList):
     def __init__(self,
@@ -49,9 +51,6 @@ class Decoder(nn.ModuleList):
                  stride_size=(2, 2, 1)
                  ):
         super(Decoder, self).__init__()
-        self.size_de_fc = 12
-        self.size_de_layer2 = 28
-        self.size_de_layer1 = 59
 
         self.de_layer1 = nn.ConvTranspose2d(in_channels=hidden_size[0], out_channels=1,
                                             kernel_size=(window_size[0], output_size),
@@ -72,33 +71,79 @@ class Decoder(nn.ModuleList):
         # (batch, 1, 1, dim) -> (batch, 1, len_c2, dim)
         h1 = self.de_fclayer(x)
 
-        expand_size = self.size_de_fc - h1.size(2)
-        if expand_size > 0:
-            h1 = torch.cat([h1, h1[:, :, -expand_size:, :]], 2)
-
         # (batch, 1, len_c2, hidden) -> (batch, hidden, len_c2, 1)
         x1 = torch.transpose(h1, 1, 3)
         # (batch, hidden, len_c2, 1) -> (batch, 1, len_c1, hidden)
         h2 = self.de_layer2(x1)
 
-        expand_size = self.size_de_layer2 - h2.size(2)
-        if expand_size > 0:
-            h2 = torch.cat([h2, h2[:, :, -expand_size:, :]], 2)
-
         # (batch, 1, len_c1, hidden) -> (batch, hidden, len_c1, 1)
         x2 = torch.transpose(h2, 1, 3)
         # (batch, hidden, len_c1, 1) -> (batch, 1, len, hidden)
         h3 = self.de_layer1(x2)
-        expand_size = self.size_de_layer1 - h3.size(2)
-        if expand_size > 0:
-            h3 = torch.cat([h3, h3[:, :, -expand_size:, :]], 2)
 
         # (batch, 1, len, hidden) -> (batch, len, hidden)
         return h3.squeeze(1)
 
 
-if __name__ == "__main__":
+class DeconvolutionAutoEncoer(nn.Module):
+    def __init__(self,
+                 input_size=300,
+                 hidden_size=(300, 600, 500),
+                 window_size=(5, 5, 12),
+                 stride_size=(2, 2, 1)
+                 ):
+        super(DeconvolutionAutoEncoer, self).__init__()
+        self.encoder = Encoder(input_size=input_size, hidden_size=hidden_size,
+                               window_size=window_size, stride_size=stride_size)
+        self.decoder = Decoder(output_size=input_size, hidden_size=hidden_size,
+                               window_size=window_size, stride_size=stride_size)
+
+    def forward(self, x):
+        hidden = self.encoder.forward(x)
+        return self.decoder.forward(hidden)
+
+
+class TextDeconvolutionAutoEncoer(nn.Module):
+    def __init__(self,
+                 dicts,
+                 word_vec_size=300,
+                 hidden_size=(300, 600, 500),
+                 window_size=(5, 5, 12),
+                 stride_size=(2, 2, 1)
+                 ):
+        super(TextDeconvolutionAutoEncoer, self).__init__()
+        self.embedding = Embeddings(word_vec_size=word_vec_size,
+                                    dicts=dicts,
+                                    )
+        self.auto_encoder = DeconvolutionAutoEncoer(input_size=word_vec_size,
+                                                    hidden_size=hidden_size,
+                                                    window_size=window_size,
+                                                    stride_size=stride_size,
+                                                    )
+
+    def encode(self, text):
+        # (batch, len) -> (batch, len, dim)
+        word_embeddings = self.embedding.forward(text)
+        # (batch, len, dim) -> (batch, len, dim)
+        hidden = self.auto_encoder.forward(word_embeddings)
+        return hidden
+
+    def decode(self, x):
+        # (batch, len, dim) dot (dim, dictionary) -> (batch, len, dictionary)
+        to_decode = x.view(x.size(0) * x.size(1), x.size(2))
+        decoded = torch.mm(to_decode, self.embedding.word_lookup_table.weight.t())
+        return decoded.view(x.size(0) * x.size(1), decoded.size(1))
+
+    def forward(self, batch):
+        # (batch, len) -> (batch, dim)
+        hidden = self.encode(batch.text)
+        decoded = self.decode(hidden)
+        return decoded
+
+
+def test():
     from torch.autograd import Variable
+
     x = torch.FloatTensor(20, 59, 300)
     x.normal_()
     x = Variable(x)
@@ -107,8 +152,8 @@ if __name__ == "__main__":
     loss_function = torch.nn.MSELoss()
     lr = 0.1
     for i in xrange(500):
-        hidden = encoder(x)
-        y = decoder(hidden)
+        hidden = encoder.forward(x)
+        y = decoder.forward(hidden)
         loss = loss_function.forward(y, x)
         print(i, loss)
         loss.backward()
@@ -116,3 +161,7 @@ if __name__ == "__main__":
             para.data.add_(-lr, para.grad.data)
         for para in decoder.parameters():
             para.data.add_(-lr, para.grad.data)
+
+
+if __name__ == "__main__":
+    test()

@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 # Created by Roger on 2017/9/14
 from __future__ import absolute_import
+import codecs
 import common
 import time
 import torch
@@ -14,6 +15,7 @@ import numpy
 import pt4nlp
 from ann import ANNEventExtractor
 from dmcnn import DynamicMultiPoolingCNN
+
 
 parser = ArgumentParser(description='DMCNN Event Detector')
 # Train Option
@@ -36,9 +38,9 @@ parser.add_argument('-neg-sample-seed', type=int, dest="neg_sample_seed", defaul
 # Model Option
 parser.add_argument('-word-vec-size', type=int, dest="word_vec_size", default=100)
 parser.add_argument('-posi-vec-size', type=int, dest="posi_vec_size", default=5)
-parser.add_argument('-hidden-size', type=int, dest="hidden_size", default=200)
+parser.add_argument('-hidden-size', type=int, dest="hidden_size", default=300)
 parser.add_argument('-encoder-dropout', type=float, dest='encoder_dropout', default=0)
-parser.add_argument('-dropout', type=float, dest='dropout', default=0.5)
+parser.add_argument('-dropout', type=float, dest='dropout', default=0)
 parser.add_argument('-bn', action='store_true', dest='bn')
 parser.add_argument('-act', type=str, dest='act', default='Tanh')
 parser.add_argument('-word-vectors', type=str, dest="word_vectors", default='word_word2vec.bin')
@@ -47,6 +49,7 @@ parser.add_argument('-cnn-pooling', type=str, dest='cnn_pooling', default="max",
 parser.add_argument('-lexi-window', type=int, dest='lexi_window', default=1,
                     help='-1 is no lexi feature, 0 is just centre word')
 parser.add_argument('-no-multi-pooling', action='store_false', dest='multi_pooling')
+parser.add_argument('-no-cnn', action='store_true', dest='no_cnn')
 parser.add_argument('-ann-liu', action='store_true', dest='ann_liu')
 
 # Optimizer Option
@@ -211,7 +214,7 @@ for i in range(args.epoch):
     end = time.time()
 
     if args.err_instance_file_name is not None:
-        err_output = open(args.err_instance_file_name + ".%s" % i + '.log', 'w')
+        err_output = codecs.open(args.err_instance_file_name + ".%s" % i + '.log', 'w', 'utf8')
     else:
         err_output = None
 
@@ -236,6 +239,7 @@ for i in range(args.epoch):
 
 
 result = torch.from_numpy(numpy.array(result))
+print(args)
 _, max_index = torch.max(result[:, 0], 0)
 print("Best Untype Iter %d, Dev F1: %s, Test F1: %s" % (max_index[0], result[max_index[0], 0], result[max_index[0], 1]))
 _, max_index = torch.max(result[:, 2], 0)
