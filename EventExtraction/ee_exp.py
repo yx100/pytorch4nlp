@@ -124,6 +124,7 @@ test_data = EECorpus(get_data_file_names('test')[0],
                      device=args.device, neg_ratio=0, random=False)
 
 if args.ann_liu:
+    args.act = "Sigmoid"
     model = ANNEventExtractor(word_d, opt=args, label_num=label_d.size())
 else:
     model = DynamicMultiPoolingCNN(word_d, opt=args, label_num=label_d.size(), position_dict=posit_d)

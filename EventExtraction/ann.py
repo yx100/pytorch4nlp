@@ -27,10 +27,10 @@ class ANNEventExtractor(nn.Module):
         if self.lexi_window >= 0:
             encoder_output_size += (2 * self.lexi_window + 1) * self.word_vec_size
         out_component = OrderedDict()
-        if opt.bn:
-            out_component['bn'] = nn.BatchNorm1d(encoder_output_size)
         out_component['dropout1'] = nn.Dropout(opt.dropout)
         out_component['linear1'] = nn.Linear(encoder_output_size, self.hidden_size)
+        if opt.bn:
+            out_component['bn'] = nn.BatchNorm1d(encoder_output_size)
         out_component['act'] = getattr(nn, opt.act)()
         out_component['dropout2'] = nn.Dropout(opt.dropout)
         out_component['linear2'] = nn.Linear(self.hidden_size, label_num)
