@@ -10,7 +10,6 @@ from torch.autograd import Variable
 from pt4nlp import Constants, Dictionary
 import random as pyrandom
 
-
 escape_symbol = [',', '.', '?', '!', ';', ':', '(', ')', "'", '"',
                  u'；', u'。', u'“', u'”', u'：', u'？', u'！']
 
@@ -24,6 +23,7 @@ class EECorpus():
                  max_length=300,
                  device=-1,
                  lexi_window=1,
+                 trigger_window=-1,
                  random=True,
                  neg_ratio=14,
                  fix_neg=False,
@@ -39,6 +39,7 @@ class EECorpus():
         self.cuda = device >= 0
         self.device = device
         self.lexi_win = max(lexi_window, 0)
+        self.trigger_window = trigger_window
         self.max_length = max_length
         self.train = train
         self.batch_size = batch_size
@@ -56,6 +57,7 @@ class EECorpus():
                                    word_dict=word_dictionary,
                                    pos_dict=pos_dictionary,
                                    lexi_window=self.lexi_win,
+                                   trigger_window=trigger_window,
                                    max_length=self.max_length,
                                    train=self.train,
                                    neg_from_global=self.neg_from_global)
@@ -140,7 +142,8 @@ class EECorpus():
     @staticmethod
     def load_data_file(gold_file, ids_file, sents_file,
                        label_dict, word_dict, pos_dict,
-                       min_length=2, max_length=300, lexi_window=1, train=False, neg_from_global=False):
+                       min_length=2, max_length=300, lexi_window=1, trigger_window=-1, train=False,
+                       neg_from_global=False):
         pos_data = list()
         neg_data = list()
 
@@ -172,7 +175,7 @@ class EECorpus():
 
             sentence_count += 1
 
-            sent_token_ids = word_dict.convert_to_index(sentence, unk_word=Constants.UNK_WORD)
+            raw_sent_token_ids = word_dict.convert_to_index(sentence, unk_word=Constants.UNK_WORD)
             for tokenid, token in enumerate(sentence):
 
                 if token in escape_symbol:
@@ -195,11 +198,14 @@ class EECorpus():
                 # Position Info
                 relative_position = [pos_dict.convert_to_index([d], unk_word=Constants.PAD_WORD)[0]
                                      for d in range(-tokenid, sentence_length - tokenid)]
+                sent_token_ids = raw_sent_token_ids
 
-                sent_token_ids = sent_token_ids[:80]
-                relative_position = relative_position[:80]
-                if tokenid > 80:
-                    tokenid = 80
+                if trigger_window > 0:
+                    safe_start = 0 if tokenid - trigger_window < 0 else tokenid - trigger_window
+                    safe_end = sentence_length if tokenid + trigger_window + 1 >= sentence_length else tokenid + trigger_window + 1
+                    relative_position = relative_position[safe_start:safe_end]
+                    sent_token_ids = raw_sent_token_ids[safe_start:safe_end]
+
 
                 # some trigger has multi label
                 for type_name in type_names:
@@ -358,20 +364,26 @@ class EECorpus():
             if pred_label not in label:
                 if common.OTHER_NAME in label and output is not None:
                     output.write("[RAW NEG] " + "%s\t%s\t%s\t%s\t%s\n" % (docid, sentid, tokenid, start, length))
-                    output.write("[RAW NEG] " + ' '.join(self.word_dictionary.convert_to_word(tokens.data.tolist())) + '\n')
-                    output.write("[RAW NEG] " + ' '.join(map(str, self.pos_dictionary.convert_to_word(rela_posi.data.tolist()))) + '\n')
-                    output.write("[RAW NEG] " + ' '.join(self.word_dictionary.convert_to_word(lexi.data.tolist())) + '\n')
+                    output.write(
+                        "[RAW NEG] " + ' '.join(self.word_dictionary.convert_to_word(tokens.data.tolist())) + '\n')
+                    output.write("[RAW NEG] " + ' '.join(
+                        map(str, self.pos_dictionary.convert_to_word(rela_posi.data.tolist()))) + '\n')
+                    output.write(
+                        "[RAW NEG] " + ' '.join(self.word_dictionary.convert_to_word(lexi.data.tolist())) + '\n')
                     output.write("[RAW NEG] " + ' '.join(map(str, position.data.tolist())) + '\n')
-                    output.write("[RAW NEG] " + "Pred: " +"%s\n" % pred_label)
+                    output.write("[RAW NEG] " + "Pred: " + "%s\n" % pred_label)
                     output.write("[RAW NEG] " + "Gold: " + "%s\n" % label)
                     output.write('\n')
                 if common.OTHER_NAME not in label and output is not None:
                     output.write("[RAW POS] " + "%s\t%s\t%s\t%s\t%s\n" % (docid, sentid, tokenid, start, length))
-                    output.write("[RAW POS] " + ' '.join(self.word_dictionary.convert_to_word(tokens.data.tolist())) + '\n')
-                    output.write("[RAW POS] " + ' '.join(map(str, self.pos_dictionary.convert_to_word(rela_posi.data.tolist()))) + '\n')
-                    output.write("[RAW POS] " + ' '.join(self.word_dictionary.convert_to_word(lexi.data.tolist())) + '\n')
+                    output.write(
+                        "[RAW POS] " + ' '.join(self.word_dictionary.convert_to_word(tokens.data.tolist())) + '\n')
+                    output.write("[RAW POS] " + ' '.join(
+                        map(str, self.pos_dictionary.convert_to_word(rela_posi.data.tolist()))) + '\n')
+                    output.write(
+                        "[RAW POS] " + ' '.join(self.word_dictionary.convert_to_word(lexi.data.tolist())) + '\n')
                     output.write("[RAW POS] " + ' '.join(map(str, position.data.tolist())) + '\n')
-                    output.write("[RAW POS] " + "Pred: " +"%s\n" % pred_label)
+                    output.write("[RAW POS] " + "Pred: " + "%s\n" % pred_label)
                     output.write("[RAW POS] " + "Gold: " + "%s\n" % label)
                     output.write('\n')
 

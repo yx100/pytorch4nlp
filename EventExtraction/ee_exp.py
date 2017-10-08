@@ -48,6 +48,8 @@ parser.add_argument('-cnn-size', nargs='+', dest='cnn_size', default=[3])
 parser.add_argument('-cnn-pooling', type=str, dest='cnn_pooling', default="max", choices=["max", "sum", "mean"])
 parser.add_argument('-lexi-window', type=int, dest='lexi_window', default=1,
                     help='-1 is no lexi feature, 0 is just centre word')
+parser.add_argument('-trigger-window', type=int, dest='trigger_window', default=-1,
+                    help='-1 is no trigger window')
 parser.add_argument('-no-multi-pooling', action='store_false', dest='multi_pooling')
 parser.add_argument('-no-cnn', action='store_true', dest='no_cnn')
 parser.add_argument('-ann-liu', action='store_true', dest='ann_liu')
@@ -105,23 +107,27 @@ train_data = EECorpus(get_data_file_names('train')[0],
                       get_data_file_names('train')[2],
                       word_d, posit_d, label_d, lexi_window=args.lexi_window,
                       batch_size=args.batch, device=args.device, neg_ratio=args.neg_ratio, fix_neg=args.fix_neg,
-                      train=True, neg_from_global=args.neg_from_global, neg_sample_seed=args.neg_sample_seed)
+                      train=True, neg_from_global=args.neg_from_global, neg_sample_seed=args.neg_sample_seed,
+                      trigger_window=args.trigger_window)
 train_eval_data = EECorpus(get_data_file_names('train')[0],
                            get_data_file_names('train')[1],
                            get_data_file_names('train')[2],
                            word_d, posit_d, label_d,
                            lexi_window=args.lexi_window, batch_size=1000,
-                           device=args.device, neg_ratio=0, random=False)
+                           device=args.device, neg_ratio=0, random=False,
+                           trigger_window=args.trigger_window)
 dev_data = EECorpus(get_data_file_names('dev')[0],
                     get_data_file_names('dev')[1],
                     get_data_file_names('dev')[2],
                     word_d, posit_d, label_d, lexi_window=args.lexi_window, batch_size=1000,
-                    device=args.device, neg_ratio=0, random=False)
+                    device=args.device, neg_ratio=0, random=False,
+                    trigger_window=args.trigger_window)
 test_data = EECorpus(get_data_file_names('test')[0],
                      get_data_file_names('test')[1],
                      get_data_file_names('test')[2],
                      word_d, posit_d, label_d, lexi_window=args.lexi_window, batch_size=1000,
-                     device=args.device, neg_ratio=0, random=False)
+                     device=args.device, neg_ratio=0, random=False,
+                     trigger_window=args.trigger_window)
 
 if args.ann_liu:
     args.act = "Sigmoid"
