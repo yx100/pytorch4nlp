@@ -387,7 +387,7 @@ class EECorpus():
                     output.write("[RAW POS] " + ' '.join(map(str, position.data.tolist())) + '\n')
                     output.write("[RAW POS] " + "Pred: " + "%s\n" % pred_label)
                     output.write("[RAW POS] " + "Gold: " + "%s\n" % label)
-                    output.write("[RAW NEG] " + ' '.join(map(str, prob.data.tolist())) + '\n')
+                    output.write("[RAW POS] " + ' '.join(map(str, prob.data.tolist())) + '\n')
                     output.write('\n')
 
 
