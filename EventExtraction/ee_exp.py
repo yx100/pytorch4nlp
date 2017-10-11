@@ -157,6 +157,11 @@ for name, param in model.named_parameters():
         print("%s(%s)\t%s with %s" % (name, param.size(), args.optimizer, args.lr))
         param_wo_embedding.append(param)
 
+for name, param in model.named_parameters():
+    if "bias" in name:
+        print("%s(%s)\t%s with %s" % (name, param.size(), args.word_optimizer, args.word_lr))
+        param_embedding.append(param)
+
 if args.optimizer == 'Adadelta':
     wo_word_opt = getattr(torch.optim, args.optimizer)(param_wo_embedding, rho=args.lr,
                                                        weight_decay=args.regular_weight)
