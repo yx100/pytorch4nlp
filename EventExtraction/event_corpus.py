@@ -359,6 +359,7 @@ class EECorpus():
             lexi = batch.lexi[index]
             position = batch.position[index]
             pred_label = self.label_dictionary.index2word[pred]
+            prob = batch.pred_prob[index]
             label = self.ids_data[ident]['type']
             start, length = self.ids_data[ident]['start'], self.ids_data[ident]['length']
             if pred_label not in label:
@@ -373,6 +374,7 @@ class EECorpus():
                     output.write("[RAW NEG] " + ' '.join(map(str, position.data.tolist())) + '\n')
                     output.write("[RAW NEG] " + "Pred: " + "%s\n" % pred_label)
                     output.write("[RAW NEG] " + "Gold: " + "%s\n" % label)
+                    output.write("[RAW NEG] " + ' '.join(map(str, prob.data.tolist())) + '\n')
                     output.write('\n')
                 if common.OTHER_NAME not in label and output is not None:
                     output.write("[RAW POS] " + "%s\t%s\t%s\t%s\t%s\n" % (docid, sentid, tokenid, start, length))
@@ -385,6 +387,7 @@ class EECorpus():
                     output.write("[RAW POS] " + ' '.join(map(str, position.data.tolist())) + '\n')
                     output.write("[RAW POS] " + "Pred: " + "%s\n" % pred_label)
                     output.write("[RAW POS] " + "Gold: " + "%s\n" % label)
+                    output.write("[RAW NEG] " + ' '.join(map(str, prob.data.tolist())) + '\n')
                     output.write('\n')
 
 

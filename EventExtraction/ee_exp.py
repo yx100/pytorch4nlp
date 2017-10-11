@@ -175,6 +175,7 @@ def eval_epoch(data, log_out=None):
         pred = model(batch)
         pred_label = torch.max(pred, 1)[1].data
         batch.pred = pred_label
+        batch.pred_prob = pred
         batch_pred = data.batch2pred(batch)
         if log_out is not None:
             data.batch2log(batch, log_out)
