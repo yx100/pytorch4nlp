@@ -261,12 +261,12 @@ def result2string(result_iter):
 result = torch.from_numpy(numpy.array(result))
 print(args)
 _, max_index = torch.max(result[:, 2], 0)
-print("Best Dev Span Iter %d, %s" % (max_index[0], result2string(result[max_index, :6])))
+print("Best Dev Span Iter %d, %s" % (max_index[0], result2string(result[max_index[0], :6])))
 _, max_index = torch.max(result[:, 8], 0)
-print("Best Dev Type Iter %d, %s" % (max_index[0], result2string(result[max_index, 6:])))
+print("Best Dev Type Iter %d, %s" % (max_index[0], result2string(result[max_index[0], 6:])))
 
 # Well, Best Test Result
 _, max_index = torch.max(result[:, 5], 0)
-print("Best Test Span Iter %d, %s" % (max_index[0], result2string(result[max_index, :6])))
+print("Best Test Span Iter %d, %s" % (max_index[0], result2string(result[max_index[0], :6])))
 _, max_index = torch.max(result[:, 11], 0)
-print("Best Test Type Iter %d, %s" % (max_index[0], result2string(result[max_index, 6:])))
+print("Best Test Type Iter %d, %s" % (max_index[0], result2string(result[max_index[0], 6:])))
