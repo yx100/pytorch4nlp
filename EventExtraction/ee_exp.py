@@ -32,6 +32,7 @@ parser.add_argument('-dev-test-pre', action='store_true', dest="dev_test_pre")
 parser.add_argument('-just-pos-sent-word', action='store_true', dest="just_pos_sent_word")
 parser.add_argument('-set-eval', action='store_true', dest="set_eval")
 parser.add_argument('-neg-from-global', action='store_true', dest="neg_from_global")
+parser.add_argument('-test-on-pos-sent', action='store_false', dest="test_on_pos_sent")
 parser.add_argument('-log-file', type=str, dest="err_instance_file_name", default=None)
 parser.add_argument('-neg-sample-seed', type=int, dest="neg_sample_seed", default=3435)
 
@@ -115,19 +116,22 @@ train_eval_data = EECorpus(get_data_file_names('train')[0],
                            word_d, posit_d, label_d,
                            lexi_window=args.lexi_window, batch_size=1000,
                            device=args.device, neg_ratio=0, random=False,
-                           trigger_window=args.trigger_window)
+                           trigger_window=args.trigger_window,
+                           neg_from_global=args.test_on_pos_sent)
 dev_data = EECorpus(get_data_file_names('dev')[0],
                     get_data_file_names('dev')[1],
                     get_data_file_names('dev')[2],
                     word_d, posit_d, label_d, lexi_window=args.lexi_window, batch_size=1000,
                     device=args.device, neg_ratio=0, random=False,
-                    trigger_window=args.trigger_window)
+                    trigger_window=args.trigger_window,
+                    neg_from_global=args.test_on_pos_sent)
 test_data = EECorpus(get_data_file_names('test')[0],
                      get_data_file_names('test')[1],
                      get_data_file_names('test')[2],
                      word_d, posit_d, label_d, lexi_window=args.lexi_window, batch_size=1000,
                      device=args.device, neg_ratio=0, random=False,
-                     trigger_window=args.trigger_window)
+                     trigger_window=args.trigger_window,
+                     neg_from_global=args.test_on_pos_sent)
 
 if args.ann_liu:
     args.act = "Sigmoid"
