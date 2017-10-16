@@ -244,7 +244,7 @@ for i in range(args.epoch):
              train_type_p, train_type_r, train_type_f1,
              dev_type_p, dev_type_r, dev_type_f1,
              test_type_p, test_type_r, test_type_f1,))
-    print()
+    print("")
     if err_output is not None:
         err_output.close()
 
