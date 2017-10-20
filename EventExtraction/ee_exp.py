@@ -32,6 +32,7 @@ parser.add_argument('-dev-test-pre', action='store_true', dest="dev_test_pre")
 parser.add_argument('-just-pos-sent-word', action='store_true', dest="just_pos_sent_word")
 parser.add_argument('-set-eval', action='store_true', dest="set_eval")
 parser.add_argument('-neg-from-global', action='store_true', dest="neg_from_global")
+parser.add_argument('-test-on-pos-sent', action='store_false', dest="test_on_pos_sent")
 parser.add_argument('-log-file', type=str, dest="err_instance_file_name", default=None)
 parser.add_argument('-neg-sample-seed', type=int, dest="neg_sample_seed", default=3435)
 
@@ -115,19 +116,22 @@ train_eval_data = EECorpus(get_data_file_names('train')[0],
                            word_d, posit_d, label_d,
                            lexi_window=args.lexi_window, batch_size=1000,
                            device=args.device, neg_ratio=0, random=False,
-                           trigger_window=args.trigger_window)
+                           trigger_window=args.trigger_window,
+                           neg_from_global=args.test_on_pos_sent)
 dev_data = EECorpus(get_data_file_names('dev')[0],
                     get_data_file_names('dev')[1],
                     get_data_file_names('dev')[2],
                     word_d, posit_d, label_d, lexi_window=args.lexi_window, batch_size=1000,
                     device=args.device, neg_ratio=0, random=False,
-                    trigger_window=args.trigger_window)
+                    trigger_window=args.trigger_window,
+                    neg_from_global=args.test_on_pos_sent)
 test_data = EECorpus(get_data_file_names('test')[0],
                      get_data_file_names('test')[1],
                      get_data_file_names('test')[2],
                      word_d, posit_d, label_d, lexi_window=args.lexi_window, batch_size=1000,
                      device=args.device, neg_ratio=0, random=False,
-                     trigger_window=args.trigger_window)
+                     trigger_window=args.trigger_window,
+                     neg_from_global=args.test_on_pos_sent)
 
 if args.ann_liu:
     args.act = "Sigmoid"
@@ -233,7 +237,10 @@ for i in range(args.epoch):
     dev_type_p, dev_type_r, dev_type_f1, dev_span_p, dev_span_r, dev_span_f1 = eval_epoch(dev_data)
     test_type_p, test_type_r, test_type_f1, test_span_p, test_span_r, test_span_f1 = eval_epoch(test_data, err_output)
 
-    result.append((dev_span_f1, test_span_f1, dev_type_f1, test_type_f1))
+    result.append((dev_span_p, dev_span_r, dev_span_f1,
+                   test_span_p, test_span_r, test_span_f1,
+                   dev_type_p, dev_type_r, dev_type_f1,
+                   test_type_p, test_type_r, test_type_f1))
     print("SPAN iter %2d | %6.2f | %6.2f || %6.2f | %6.2f | %6.2f || %6.2f | %6.2f | %6.2f || %6.2f | %6.2f | %6.2f ||"
           % (i, end - start, train_acc,
              train_span_p, train_span_r, train_span_f1,
@@ -249,15 +256,21 @@ for i in range(args.epoch):
         err_output.close()
 
 
+def result2string(result_iter):
+    dev_str = "Dev P: %6.2f, R: %6.2f, F1: %6.2f" % (result_iter[0], result_iter[1], result_iter[2])
+    tst_str = "Tst P: %6.2f, R: %6.2f, F1: %6.2f" % (result_iter[3], result_iter[4], result_iter[5])
+    return dev_str + " | " + tst_str
+
+
 result = torch.from_numpy(numpy.array(result))
 print(args)
-_, max_index = torch.max(result[:, 0], 0)
-print("Best Dev Untype Iter %d, Dev F1: %s, Test F1: %s" % (max_index[0], result[max_index[0], 0], result[max_index[0], 1]))
 _, max_index = torch.max(result[:, 2], 0)
-print("Best Dev Typed  Iter %d, Dev F1: %s, Test F1: %s" % (max_index[0], result[max_index[0], 2], result[max_index[0], 3]))
+print("Best Dev Span Iter %d, %s" % (max_index[0], result2string(result[max_index[0], :6])))
+_, max_index = torch.max(result[:, 8], 0)
+print("Best Dev Type Iter %d, %s" % (max_index[0], result2string(result[max_index[0], 6:])))
 
 # Well, Best Test Result
-_, max_index = torch.max(result[:, 1], 0)
-print("Best Test Untype Iter %d, Dev F1: %s, Test F1: %s" % (max_index[0], result[max_index[0], 0], result[max_index[0], 1]))
-_, max_index = torch.max(result[:, 3], 0)
-print("Best Test Typed  Iter %d, Dev F1: %s, Test F1: %s" % (max_index[0], result[max_index[0], 2], result[max_index[0], 3]))
+_, max_index = torch.max(result[:, 5], 0)
+print("Best Test Span Iter %d, %s" % (max_index[0], result2string(result[max_index[0], :6])))
+_, max_index = torch.max(result[:, 11], 0)
+print("Best Test Type Iter %d, %s" % (max_index[0], result2string(result[max_index[0], 6:])))
