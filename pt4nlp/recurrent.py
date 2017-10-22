@@ -29,7 +29,7 @@ class RNNEncoder(nn.Module):
         elif self.rnn_type == "rnn":
             rnn = nn.RNN
         else:
-            raise NotImplementedError("RNN Tpye: LSTM GRU RNN")
+            raise NotImplementedError("RNN Type: LSTM GRU RNN")
         self.rnn = rnn(input_size=self.input_size, hidden_size=self.hidden_size,
                        num_layers=self.num_layers, dropout=self.dropout,
                        bidirectional=self.bidirectional, batch_first=True)
