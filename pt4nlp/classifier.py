@@ -46,8 +46,7 @@ class SoftmaxClassifier(nn.Module):
         :param x: `(N, L)`
         :return: `(N, L)`
         """
-        prob = self.predict_prob(x)
-        _, pred_label = torch.max(prob, 1)
+        _, pred_label = torch.max(x, 1)
         return pred_label
 
     def predict(self, x, prob=True):
