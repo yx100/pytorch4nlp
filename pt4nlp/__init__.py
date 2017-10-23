@@ -5,7 +5,7 @@ from Constants import *
 from convolution import CNNEncoder, MultiSizeCNNEncoder, MultiPoolingCNNEncoder, MultiSizeMultiPoolingCNNEncoder
 from recurrent import RNNEncoder
 from cbow import CBOW
-from classifier import SoftmaxClassifier
+from classifier import SoftmaxClassifier, CRFClassifier
 from dictionary import Dictionary
 from embedding import Embeddings
 from utils import clip_weight_norm
@@ -16,5 +16,5 @@ __all__ = ["Dictionary",
            "Embeddings",
            "CNNEncoder", "MultiSizeCNNEncoder", "MultiPoolingCNNEncoder", "MultiSizeMultiPoolingCNNEncoder",
            "RNNEncoder",
-           "SoftmaxClassifier",
+           "SoftmaxClassifier", "CRFClassifier",
            "clip_weight_norm"]

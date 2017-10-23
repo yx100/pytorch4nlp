@@ -370,6 +370,56 @@ class CRFClassifier(nn.Module):
         score = score + self.transit_matrix[self.stop_idx, tags[-1]]
         return score
 
+    def v_decode(self, logits, lens):
+        """Borrowed from pytorch tutorial
+        Arguments:
+            logits: [batch_size, seq_len, n_labels] FloatTensor
+            lens: [batch_size] LongTensor
+        """
+        batch_size, seq_len, n_labels = logits.size()
+        vit = logits.data.new(batch_size, self.label_num).fill_(-10000)
+        vit[:, self.start_idx] = 0
+        vit = Variable(vit)
+        c_lens = lens.clone()
+
+        logits_t = logits.transpose(1, 0)
+        pointers = []
+        for logit in logits_t:
+            vit_exp = vit.unsqueeze(1).expand(batch_size, n_labels, n_labels)
+            trn_exp = self.transit_matrix.unsqueeze(0).expand_as(vit_exp)
+            vit_trn_sum = vit_exp + trn_exp
+            vt_max, vt_argmax = vit_trn_sum.max(2)
+
+            vt_max = vt_max.squeeze(-1)
+            vit_nxt = vt_max + logit
+            pointers.append(vt_argmax.squeeze(-1).unsqueeze(0))
+
+            mask = (c_lens > 0).float().unsqueeze(-1).expand_as(vit_nxt)
+            vit = mask * vit_nxt + (1 - mask) * vit
+
+            mask = (c_lens == 1).float().unsqueeze(-1).expand_as(vit_nxt)
+            vit += mask * self.transit_matrix[ self.stop_idx ].unsqueeze(0).expand_as(vit_nxt)
+
+            c_lens = c_lens - 1
+
+        pointers = torch.cat(pointers)
+
+        scores, idx = vit.max(1)
+        idx = idx.squeeze(-1)
+        paths = [idx.unsqueeze(1)]
+
+        for argmax in reversed(pointers):
+            idx_exp = idx.unsqueeze(-1)
+            idx = torch.gather(argmax, 1, idx_exp)
+            idx = idx.squeeze(-1)
+
+            paths.insert(0, idx.unsqueeze(1))
+
+        paths = torch.cat(paths[1:], 1)
+        scores = scores.squeeze(-1)
+
+        return scores, paths
+
 
 def test_score_all_seq():
     # success
@@ -465,6 +515,7 @@ def test_decode():
     torch.nn.init.normal(classifier.transit_matrix)
     x_data = torch.FloatTensor(2, 3, 6)
     x_data.normal_()
+    x_data[1][:2] *= 0
     x_data = Variable(x_data)
     value1, path1 = classifier._viterbi_decode(x_data[0])
     value2, path2 = classifier._viterbi_decode(x_data[1][:2])
@@ -477,6 +528,10 @@ def test_decode():
     print(path_single)
 
     value, path = classifier.viterbi_decode(x_data, lengths=Variable(torch.LongTensor([3, 2])))
+    print(value)
+    print(path.squeeze(-1))
+
+    value, path = classifier.v_decode(x_data, Variable(torch.LongTensor([3, 2])))
     print(value)
     print(path)
 
