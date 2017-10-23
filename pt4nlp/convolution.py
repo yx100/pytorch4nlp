@@ -195,14 +195,15 @@ class MultiPoolingCNNEncoder(CNNEncoder):
                 lengths = lengths - (self.window_size - 1)
 
         split_positions = [p.squeeze(0) for p in position.t().split(1)]
-        zero_start = Variable(inputs.data.new(batch_size).fill_(0))
-        length_end = lengths if lengths is not None else Variable(inputs.data.new(batch_size).fill_(max_length))
+        zero_start = Variable(inputs.data.new(batch_size).fill_(0)).long()
+        length_end = lengths if lengths is not None else Variable(inputs.data.new(batch_size).fill_(max_length)).long()
 
         mask_list = list()
         left_positions = [zero_start] + split_positions
         right_positions = split_positions + [length_end]
         for left, right in zip(left_positions,
                                right_positions):
+            print relative_postition2mask(left, right, max_length)
             mask_list.append(relative_postition2mask(left, right, max_length))
 
         pooling_results = [get_pooling(conv_result, pooling_type=self.pooling_type, mask=mask)

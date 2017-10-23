@@ -9,11 +9,14 @@ def lengths2mask(lengths, max_length):
     # print max_length
     # print torch.max(lengths)[0]
     # assert max_length == torch.max(lengths)[0]
-    range_i = torch.arange(0, max_length).expand(batch_size, max_length)
+    range_i = torch.arange(0, max_length).expand(batch_size, max_length).long()
     if lengths.is_cuda:
         range_i = range_i.cuda(lengths.get_device())
-    range_i = Variable(range_i)
-    return torch.lt(range_i, lengths.float()[:, None]).float()
+    if isinstance(lengths, Variable):
+        range_i = Variable(range_i)
+    lens = lengths.unsqueeze(-1).expand(batch_size, max_length)
+    mask = lens > range_i
+    return mask.float()
 
 
 def relative_postition2mask(start, end, max_length):
