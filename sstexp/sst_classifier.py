@@ -48,6 +48,9 @@ class SSTClassifier(nn.Module):
 
     def forward(self, batch):
         words_embeddings = self.embedding.forward(batch.text)
-        sentence_embedding = self.encoder.forward(words_embeddings, batch.lengths)
+        if isinstance(self.encoder, RNNEncoder):
+            _, sentence_embedding = self.encoder.forward(words_embeddings, batch.lengths)
+        else:
+            sentence_embedding = self.encoder.forward(words_embeddings, batch.lengths)
         scores = self.out(sentence_embedding)
         return scores
