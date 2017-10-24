@@ -3,7 +3,6 @@
 # Created by Roger on 2017/9/19
 import torch
 import torch.nn as nn
-from torch.nn import Parameter
 from pt4nlp.utils import aeq
 
 
@@ -38,16 +37,15 @@ class DotMatcher(Matcher):
 
 class MLPMatcher(Matcher):
 
-    def __init__(self, input_dim1, input_dim2, output_dim, dropout=0):
+    def __init__(self, input_dim1, input_dim2):
         super(MLPMatcher, self).__init__()
-        out_component = OrderedDict()
-        self.linear_layer = nn.Linear(input_dim * 2, 1)
+        self.linear_layer = nn.Linear(input_dim1 + input_dim2, 1)
 
     def score(self, x1, x2):
         """
         Score with Dot
-        :param x1: (batch, dim)
-        :param x2: (batch, dim)
+        :param x1: (batch, dim1)
+        :param x2: (batch, dim2)
         :return: (batch, )
         """
         hidden = torch.cat([x1, x2], 1)
@@ -56,9 +54,21 @@ class MLPMatcher(Matcher):
 
 class BilinearMatcher(Matcher):
 
-    def __init__(self, input_dim1, input_dim2, output_dim):
+    def __init__(self, input_dim1, input_dim2):
         super(BilinearMatcher, self).__init__()
-        self.bilinear = nn.Bilinear(input_dim1, input_dim2, output_dim)
+        self.bilinear = nn.Bilinear(input_dim1, input_dim2, 1)
 
     def score(self, x1, x2):
         return self.bilinear.forward(x1, x2)
+
+
+class TensorMatcher(Matcher):
+
+    def __init__(self, input_dim1, input_dim2, tensor_slice):
+        super(TensorMatcher, self).__init__()
+        self.tensor = nn.Bilinear(input_dim1, input_dim2, tensor_slice)
+        self.out = nn.Linear(tensor_slice, 1, bias=False)
+
+    def score(self, x1, x2):
+        tensor_out = self.tensor.forward(x1, x2)
+        return self.out.forward(tensor_out)
