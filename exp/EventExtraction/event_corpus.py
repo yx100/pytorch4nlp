@@ -1,14 +1,16 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # Created by Roger on 2017/9/14
-from future.utils import viewitems
-import common
 import codecs
 import math
-import torch
-from torch.autograd import Variable
-from pt4nlp import Constants, Dictionary
 import random as pyrandom
+
+import torch
+from future.utils import viewitems
+from torch.autograd import Variable
+
+import common
+from pt4nlp import Constants, Dictionary
 
 escape_symbol = [',', '.', '?', '!', ';', ':', '(', ')', "'", '"',
                  u'；', u'。', u'“', u'”', u'：', u'？', u'！']
