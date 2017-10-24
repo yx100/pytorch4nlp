@@ -35,7 +35,7 @@ class FocalLoss(nn.Module):
                 self.alpha = Variable(alpha)
         self.device = device
         if self.device >= 0:
-            self.alpha.cuda(self.device)
+            self.alpha = self.alpha.cuda(self.device)
         self.gamma = gamma
         self.class_num = class_num
         self.size_average = size_average
