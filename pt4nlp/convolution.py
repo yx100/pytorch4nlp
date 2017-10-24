@@ -203,7 +203,6 @@ class MultiPoolingCNNEncoder(CNNEncoder):
         right_positions = split_positions + [length_end]
         for left, right in zip(left_positions,
                                right_positions):
-            print relative_postition2mask(left, right, max_length)
             mask_list.append(relative_postition2mask(left, right, max_length))
 
         pooling_results = [get_pooling(conv_result, pooling_type=self.pooling_type, mask=mask)
