@@ -190,7 +190,7 @@ class ConcatWordSeqAttention(WordSeqAttentionModel):
         return self.mask_score(score, lengths)
 
 
-class NNWordSeqAttention(WordSeqAttentionModel):
+class MLPWordSeqAttention(WordSeqAttentionModel):
     """
     Neural Machine Translation By Jointly Learning To Align and Translate
     Dzmitry Bahdanau, KyungHyun Cho, and Yoshua Bengio
@@ -198,7 +198,7 @@ class NNWordSeqAttention(WordSeqAttentionModel):
     http://arxiv.org/abs/1409.0473v3
     """
     def __init__(self, input_size, seq_size, hidden_size, activation="Tanh", bias=False):
-        super(NNWordSeqAttention, self).__init__(input_size=input_size, seq_size=seq_size)
+        super(MLPWordSeqAttention, self).__init__(input_size=input_size, seq_size=seq_size)
         self.bias = bias
         self.hidden_size = hidden_size
         component = OrderedDict()
@@ -281,7 +281,7 @@ def test_concat_attention(batch_size=3, input_size=4, seq_size=3, max_len=5):
 def test_nn_attention(batch_size=3, input_size=4, seq_size=3, max_len=5, hidden=6):
     print("NN Attention")
     x, seq, lengths = get_test_val(batch_size, input_size, seq_size, max_len)
-    attention = NNWordSeqAttention(input_size, seq_size, hidden)
+    attention = MLPWordSeqAttention(input_size, seq_size, hidden)
     print(x)
     print(lengths)
     print(attention.score(x, seq, lengths))
