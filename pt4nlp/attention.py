@@ -234,6 +234,47 @@ class MLPWordSeqAttention(WordSeqAttentionModel):
         return self.mask_score(score, lengths)
 
 
+class DotMLPWordSeqAttention(WordSeqAttentionModel):
+    """
+    WebQA: A Chinese Open-Domain Factoid Question Answering Dataset
+    Peng Li, Wei Li, Zhengyan He, Xuguang Wang, Ying Cao, Jie Zhou, and Wei Xu
+    http://arxiv.org/abs/1607.06275
+    """
+    def __init__(self, input_size, seq_size, activation="Tanh", bias=False):
+        super(DotMLPWordSeqAttention, self).__init__(input_size=input_size, seq_size=seq_size)
+        self.bias = bias
+        component = OrderedDict()
+        component['layer1'] = nn.Linear(seq_size, input_size, bias=bias)
+        component['act'] = getattr(nn, activation)()
+        self.layer = nn.Sequential(component)
+
+    def score(self, x, seq, lengths=None):
+        """
+        :param x: (batch, word_dim)
+        :param seq: (batch, length, seq_dim)
+        :param lengths: (batch, )
+        :return: score: (batch, length, )
+        """
+        self.check_size(x, seq)
+
+        # (batch, word_dim) -> (batch * max_len, word_dim)
+        _x = self.expand_x(x, max_len=seq.size(1))
+
+        # (batch, max_len, seq_dim) -> (batch * max_len, seq_dim)
+        _seq = self.pack_seq(seq)
+
+        # (batch * max_len, seq_dim) -> (batch * max_len, word_dim)
+        _seq_output = self.layer(_seq)
+
+        # (batch * max_len, word_dim) * (batch * max_len, word_dim)
+        #   -> (batch * max_len, word_dim)
+        #       -> (batch * max_len, 1)
+        #           -> (batch, max_len)
+        score = torch.sum(_x * _seq_output, 1).view(x.size(0), -1)
+
+        return self.mask_score(score, lengths)
+
+
 def get_test_val(batch_size=3, input_size=4, seq_size=4, max_len=5):
     import random
     from torch.autograd import Variable
@@ -278,10 +319,20 @@ def test_concat_attention(batch_size=3, input_size=4, seq_size=3, max_len=5):
     print(attention.forward(x, seq, lengths))
 
 
-def test_nn_attention(batch_size=3, input_size=4, seq_size=3, max_len=5, hidden=6):
-    print("NN Attention")
+def test_mlp_attention(batch_size=3, input_size=4, seq_size=3, max_len=5, hidden=6):
+    print("MLP Attention")
     x, seq, lengths = get_test_val(batch_size, input_size, seq_size, max_len)
     attention = MLPWordSeqAttention(input_size, seq_size, hidden)
+    print(x)
+    print(lengths)
+    print(attention.score(x, seq, lengths))
+    print(attention.forward(x, seq, lengths))
+
+
+def test_mlp_dot_attention(batch_size=3, input_size=4, seq_size=3, max_len=5):
+    print("DotMLP Attention")
+    x, seq, lengths = get_test_val(batch_size, input_size, seq_size, max_len)
+    attention = DotMLPWordSeqAttention(input_size, seq_size)
     print(x)
     print(lengths)
     print(attention.score(x, seq, lengths))
@@ -292,7 +343,8 @@ def test_all():
     test_dot_attention()
     test_bilinear_attention()
     test_concat_attention()
-    test_nn_attention()
+    test_mlp_attention()
+    test_mlp_dot_attention()
 
 
 if __name__ == "__main__":
