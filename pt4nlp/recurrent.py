@@ -41,6 +41,13 @@ class RNNEncoder(nn.Module):
                 nn.init.xavier_normal(weight)
 
     def forward(self, *args, **kwargs):
+        """
+        :param args:
+        :param kwargs:
+        :return:
+            outputs:     (batch, num_directions * hidden_size)
+            last_hidden: (batch, batch, hidden_size * num_directions)
+        """
         inputs = args[0]
         batch_size = inputs.size()[0]
 
@@ -59,10 +66,14 @@ class RNNEncoder(nn.Module):
         outputs, ht_state = self.rnn(inputs, h0_state)
 
         if self.rnn_type == "lstm":
+            # (num_layers * num_directions, batch, hidden_size), (num_layers * num_directions, batch, hidden_size)
             ht = ht_state[0]
         else:
+            # (num_layers * num_directions, batch, hidden_size)
             ht = ht_state
 
         # (num_layers * num_directions, batch, hidden_size)
         # -> Last Layer (batch, num_directions * hidden_size)
-        return ht[-1] if not self.bidirectional else ht[-2:].transpose(0, 1).contiguous().view(batch_size, -1)
+        last_hidden = ht[-1] if not self.bidirectional else ht[-2:].transpose(0, 1).contiguous().view(batch_size, -1)
+
+        return outputs, last_hidden
