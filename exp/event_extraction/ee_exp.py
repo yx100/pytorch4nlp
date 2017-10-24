@@ -15,6 +15,7 @@ import numpy
 import pt4nlp
 from ann import ANNEventExtractor
 from dmcnn import DynamicMultiPoolingCNN
+from focal_loss import FocalLoss
 
 
 parser = ArgumentParser(description='DMCNN Event Detector')
@@ -54,6 +55,7 @@ parser.add_argument('-trigger-window', type=int, dest='trigger_window', default=
 parser.add_argument('-no-multi-pooling', action='store_false', dest='multi_pooling')
 parser.add_argument('-no-cnn', action='store_true', dest='no_cnn')
 parser.add_argument('-ann-liu', action='store_true', dest='ann_liu')
+parser.add_argument('-focal-loss', action='store_true', dest='focal_loss')
 
 # Optimizer Option
 parser.add_argument('-word-normalize', action='store_true', dest="word_normalize")
@@ -145,7 +147,10 @@ if args.word_vectors != "random":
 if len(model.embedding.emb_luts) > 1:
     torch.nn.init.uniform(model.embedding.emb_luts[-1].weight, -1, 1)
 
-criterion = nn.CrossEntropyLoss()
+if args.focal_loss:
+    criterion = FocalLoss(len(label_d))
+else:
+    criterion = nn.CrossEntropyLoss()
 
 if args.device >= 0:
     model.cuda(args.device)
