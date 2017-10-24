@@ -9,6 +9,7 @@ from classifier import SoftmaxClassifier, CRFClassifier
 from dictionary import Dictionary
 from embedding import Embeddings
 from attention import DotWordSeqAttetnion, BilinearWordSeqAttention, ConcatWordSeqAttention, MLPWordSeqAttention
+from attention import DotMLPWordSeqAttention
 from match import DotMatcher, BilinearMatcher, TensorMatcher, MLPMatcher
 from utils import clip_weight_norm
 
@@ -20,5 +21,6 @@ __all__ = ["Dictionary",
            "RNNEncoder",
            "SoftmaxClassifier", "CRFClassifier",
            "DotWordSeqAttetnion", "BilinearWordSeqAttention", "ConcatWordSeqAttention", "NNWordSeqAttention",
+           "DotMLPWordSeqAttention",
            "DotMatcher", "BilinearMatcher", "TensorMatcher", "MLPMatcher",
            "clip_weight_norm"]
