@@ -148,13 +148,12 @@ if len(model.embedding.emb_luts) > 1:
     torch.nn.init.uniform(model.embedding.emb_luts[-1].weight, -1, 1)
 
 if args.focal_loss:
-    criterion = FocalLoss(len(label_d))
+    criterion = FocalLoss(len(label_d), device=args.device)
 else:
     criterion = nn.CrossEntropyLoss()
 
 if args.device >= 0:
     model.cuda(args.device)
-    criterion.cuda(args.device)
 
 param_wo_embedding = []
 param_embedding = []

@@ -24,7 +24,7 @@ class FocalLoss(nn.Module):
 
 
     """
-    def __init__(self, class_num, alpha=None, gamma=2, size_average=True):
+    def __init__(self, class_num, alpha=None, gamma=2, size_average=True, device=-1):
         super(FocalLoss, self).__init__()
         if alpha is None:
             self.alpha = Variable(torch.ones(class_num, 1))
@@ -33,6 +33,9 @@ class FocalLoss(nn.Module):
                 self.alpha = alpha
             else:
                 self.alpha = Variable(alpha)
+        self.device = device
+        if self.device >= 0:
+            self.alpha.cuda(self.device)
         self.gamma = gamma
         self.class_num = class_num
         self.size_average = size_average
@@ -44,13 +47,12 @@ class FocalLoss(nn.Module):
 
         class_mask = inputs.data.new(N, C).fill_(0)
         class_mask = Variable(class_mask)
+        if self.device >= 0:
+            class_mask.cuda(self.device)
         ids = targets.view(-1, 1)
         class_mask.scatter_(1, ids.data, 1.)
         #print(class_mask)
 
-
-        if inputs.is_cuda and not self.alpha.is_cuda:
-            self.alpha = self.alpha.cuda()
         alpha = self.alpha[ids.data.view(-1)]
 
         probs = (P*class_mask).sum(1).view(-1,1)
