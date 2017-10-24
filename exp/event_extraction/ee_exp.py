@@ -154,6 +154,7 @@ else:
 
 if args.device >= 0:
     model.cuda(args.device)
+    criterion.cuda(args.device)
 
 param_wo_embedding = []
 param_embedding = []
