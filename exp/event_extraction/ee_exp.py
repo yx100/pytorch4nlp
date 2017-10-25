@@ -68,6 +68,8 @@ parser.add_argument('-weight-clip', type=float, default=9.0, dest="weight_clip",
 parser.add_argument('-regular', type=float, default=0, dest="regular_weight", help='regular weight')
 
 args = parser.parse_args()
+print(args)
+
 if args.seed < 0:
     seed = time.time() % 10000
 else:
