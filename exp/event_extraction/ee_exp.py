@@ -31,7 +31,7 @@ parser.add_argument('-word-cut', type=int, dest="word_cut", default=1)
 parser.add_argument('-no-lower', action='store_false', dest='lower')
 parser.add_argument('-dev-test-pre', action='store_true', dest="dev_test_pre")
 parser.add_argument('-just-pos-sent-word', action='store_true', dest="just_pos_sent_word")
-parser.add_argument('-set-eval', action='store_true', dest="set_eval")
+parser.add_argument('-eval', dest="eval", default="jiheng", choices=["set", "jiheng", "hongyu"])
 parser.add_argument('-neg-from-global', action='store_true', dest="neg_from_global")
 parser.add_argument('-test-on-pos-sent', action='store_false', dest="test_on_pos_sent")
 parser.add_argument('-log-file', type=str, dest="err_instance_file_name", default=None)
@@ -75,10 +75,12 @@ else:
 print("Random Seed: %d" % seed)
 torch.manual_seed(int(seed))
 
-if args.set_eval:
+if args.eval == 'set':
     evalute = evaluate.evalute_set
-else:
+elif args.eval == 'hongyu':
     evalute = evaluate.evalute_hongyu
+elif args.eval == 'jiheng':
+    evalute = evaluate.evalute_jiheng
 
 usecuda = False
 batch_size = args.batch

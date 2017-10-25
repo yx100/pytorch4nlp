@@ -83,3 +83,51 @@ def evalute_hongyu(golden_list, pred_list, trigger_type=True):
     print("Pred Right: %s, Pred Num %s, Total Right: %s." % (tp, pred_sum, len(golden_list)))
 
     return prec * 100., reca * 100., f1 * 100.
+
+
+def evalute_jiheng(golden_list, pred_list, trigger_type=True):
+    """
+    :param golden_list: [(docid, start, length, type), ...]
+    :param pred_list: [(docid, start, length, type), ...]
+    :return:
+    """
+    pred_sum = 0.
+    span_tp = 0.
+    type_tp = 0.
+
+    def overlap(g_s, g_e, p_s, p_e):
+        if g_s > p_e or p_s > g_e:
+            return False
+        else:
+            return True
+
+    for docid, start, length, typename in pred_list:
+        if typename == 'other':
+            continue
+        end = start + length - 1
+        pred_sum += 1.
+        for doc, gold_s, gold_len, gold_typename in golden_list:
+            gold_e = gold_s + gold_len - 1
+            if overlap(gold_s, gold_e, start, end):
+                span_tp += 1.
+                if typename == gold_typename:
+                    type_tp += 1.
+
+    if span_tp < 1 or type_tp < 1:
+        return 0, 0, 0
+
+    if trigger_type:
+        tp = type_tp
+    else:
+        tp = span_tp
+
+    prec = tp / pred_sum
+    reca = tp / len(golden_list)
+    f1 =  2 * prec * reca / (prec + reca)
+
+    # print("||tp: %6d | fp: %6d | fn: %6d || %6.2f | %6.2f | %6.2f ||"
+    #       % (tp, fp, fn, prec * 100., reca * 100., f1 * 100.))
+
+    print("Pred Right: %s, Pred Num %s, Total Right: %s." % (tp, pred_sum, len(golden_list)))
+
+    return prec * 100., reca * 100., f1 * 100.
