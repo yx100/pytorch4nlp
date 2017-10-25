@@ -1,5 +1,6 @@
 # -*- coding:utf-8 -*- 
 # Author: Roger
+import math
 import torch
 import torch.nn as nn
 from torch.autograd import Variable
@@ -78,7 +79,13 @@ class CRFClassifier(nn.Module):
         # BOS, label_num, EOS
         # to, from
         self.transit_matrix = Parameter(torch.Tensor(self.label_num, self.label_num))
-        self.transit_matrix.data.fill_(1)
+
+        self.reset_parameters()
+
+    def reset_parameters(self):
+        stdv = 1.0 / math.sqrt(self.label_num)
+        for weight in self.parameters():
+            weight.data.uniform_(-stdv, stdv)
 
     def score_all_seqs(self, x, lengths=None):
         """
@@ -336,6 +343,7 @@ class CRFClassifier(nn.Module):
         """
         score_right = self.score_given_seq(seq_score=x, tag_seq=y, lengths=lengths)
         log_sum_exp_all_score = self.score_all_seqs(x, lengths=lengths)
+        # print(log_sum_exp_all_score.data, score_right.data)
         if size_average:
             return torch.mean(log_sum_exp_all_score - score_right)
         else:
@@ -543,4 +551,6 @@ def test_transition_score_given_seq():
 
 
 if __name__ == "__main__":
-    test_decode()
+    # test_decode()
+    test_score_given_seq_batch()
+    test_score_all_seq()

@@ -2,6 +2,7 @@
 # Author: Roger
 # Created by Roger on 2017/10/24
 import time
+import os
 import torch
 import torch.nn as nn
 import common
@@ -21,6 +22,7 @@ parser.add_argument('-seed', type=int, dest="seed", default=1993)
 parser.add_argument('-train-file', type=str, dest="train_file", default="train.json.head")
 parser.add_argument('-dev-file', type=str, dest="dev_file", default=None)
 parser.add_argument('-test-file', type=str, dest="test_file", default=None)
+parser.add_argument('-model-folder', type=str, dest="model_folder", default="model")
 
 
 # Model Option
@@ -47,6 +49,9 @@ args = parser.parse_args()
 
 corpus = WebQACorpus("training.json.head", batch_size=args.batch, device=args.device)
 
+if not os.path.exists(args.model_folder):
+    os.makedirs(args.model_folder)
+
 model = SeqLabelModel(corpus.word_d, args, corpus.label_d.size())
 
 if args.seed < 0:
@@ -66,7 +71,7 @@ opt = getattr(torch.optim, args.optimizer)(params, lr=args.lr, weight_decay=args
 
 for i in range(100):
     loss_acc = 0
-    num_batch = len(corpus) / 64
+    num_batch = len(corpus) / args.batch
     for batch in corpus.next_batch():
         opt.zero_grad()
 
@@ -80,4 +85,5 @@ for i in range(100):
         opt.step()
 
     print(loss_acc / num_batch)
-    torch.save([corpus.word_d, model], "model.epoch.%s.loss.%.4f.pkl" % (i, (loss_acc / num_batch)[0]))
+    torch.save([corpus.word_d, model], "%s/model.epoch.%s.loss.%.4f.pkl" % (args.model_folder,
+                                                                            i, (loss_acc / num_batch)[0]))
