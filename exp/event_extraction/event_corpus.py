@@ -49,7 +49,7 @@ class EECorpus():
         self.neg_ratio = neg_ratio
         self.fix_neg = fix_neg
         self.neg_from_global = neg_from_global
-        self.neg_sample_seed = neg_sample_seed
+        self.neg_sample_seed = neg_sample_seed if neg_sample_seed > 0 else pyrandom.randint(1, 50000)
         pyrandom.seed(self.neg_sample_seed)
         print("Neg Sample Seed: %s." % (self.neg_sample_seed))
 

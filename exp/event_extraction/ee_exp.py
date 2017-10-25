@@ -35,7 +35,7 @@ parser.add_argument('-eval', dest="eval", default="jiheng", choices=["set", "jih
 parser.add_argument('-neg-from-global', action='store_true', dest="neg_from_global")
 parser.add_argument('-test-on-pos-sent', action='store_false', dest="test_on_pos_sent")
 parser.add_argument('-log-file', type=str, dest="err_instance_file_name", default=None)
-parser.add_argument('-neg-sample-seed', type=int, dest="neg_sample_seed", default=3435)
+parser.add_argument('-neg-sample-seed', type=int, dest="neg_sample_seed", default=-1)
 
 # Model Option
 parser.add_argument('-word-vec-size', type=int, dest="word_vec_size", default=100)
