@@ -69,7 +69,7 @@ parser.add_argument('-regular', type=float, default=0, dest="regular_weight", he
 
 args = parser.parse_args()
 print(args)
-g
+
 if args.seed < 0:
     seed = time.time() % 10000
 else:
