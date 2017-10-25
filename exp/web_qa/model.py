@@ -5,6 +5,7 @@ import torch
 import torch.nn as nn
 from pt4nlp import RNNEncoder, Embeddings
 from pt4nlp import CRFClassifier, DotMLPWordSeqAttention
+from pt4nlp import Dictionary
 
 
 class SeqLabelModel(nn.Module):
@@ -16,11 +17,16 @@ class SeqLabelModel(nn.Module):
         self.embedding = Embeddings(word_vec_size=opt.word_vec_size,
                                     dicts=dicts)
 
-        # TODO
+        ee_dict = Dictionary()
+        qe_dict = Dictionary()
+        ee_dict.add_specials([0, 1], [0, 1])
+        qe_dict.add_specials([0, 1], [0, 1])
+
         self.ee_embedding = Embeddings(word_vec_size=opt.word_vec_size,
-                                       dicts=dicts)
+                                       dicts=ee_dict)
         self.qe_embedding = Embeddings(word_vec_size=opt.word_vec_size,
-                                       dicts=dicts)
+                                       dicts=qe_dict)
+
         self.question_encoder = RNNEncoder(input_size=self.embedding.output_size,
                                            hidden_size=opt.hidden_size,
                                            num_layers=opt.num_layers,
@@ -74,14 +80,14 @@ class SeqLabelModel(nn.Module):
     def loss(self, batch):
         feature = self.get_feature(batch)
 
-        loss = self.classifier.neg_log_loss(feature, batch.label, lengths=batch.q_lens)
+        loss = self.classifier.neg_log_loss(feature, batch.label, lengths=batch.e_lens)
 
         return loss
 
     def predict(self, batch):
         feature = self.get_feature(batch)
 
-        scores, paths = self.classifier.viterbi_decode(feature, lengths=batch.q_lens)
+        scores, paths = self.classifier.viterbi_decode(feature, lengths=batch.e_lens)
 
         return scores, paths
 

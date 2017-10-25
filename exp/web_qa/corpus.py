@@ -14,14 +14,24 @@ from pt4nlp import Dictionary, Constants
 
 class WebQACorpus(object):
 
-    def __init__(self, filename, batch_size=64, device=-1, volatile=False):
-        self.word_d = self.load_word_dictionary(filename)
+    def __init__(self, filename, batch_size=64, device=-1, volatile=False, word_dict=None, test=False):
+        if word_dict is None:
+            self.word_d = self.load_word_dictionary(filename)
+        else:
+            self.word_d = word_dict
         self.label_d = self.load_label_dictionary()
         self.data = self.load_data_file(filename, self.word_d, self.label_d)
         self.batch_size = batch_size
         self.device = device
         self.cuda = self.device >= 0
         self.volatile = volatile
+        self.test = test
+
+    def __sizeof__(self):
+        return len(self.data)
+
+    def __len__(self):
+        return len(self.data)
 
     @staticmethod
     def convert2longtensor(x):
@@ -59,9 +69,12 @@ class WebQACorpus(object):
     def next_batch(self):
         num_batch = int(math.ceil(len(self.data) / float(self.batch_size)))
 
-        data = [self.data[index] for index in torch.randperm(len(self.data))]
-
-        random_indexs = torch.randperm(num_batch)
+        if self.test:
+            data = self.data
+            random_indexs = torch.range(0, num_batch - 1)
+        else:
+            data = [self.data[index] for index in torch.randperm(len(self.data))]
+            random_indexs = torch.randperm(num_batch)
 
         def convert2variable(x):
             if self.cuda:
@@ -102,6 +115,8 @@ class WebQACorpus(object):
                     ee_feature = list()
                     for i in range(len(e_text)):
                         ee = sum([ee_feature_list[j]['e-e.comm_features'][i] for j in range(len(ee_feature_list))])
+                        if ee > 0:
+                            ee = 1
                         ee_feature.append(ee)
                     ee_feature = WebQACorpus.convert2longtensor(ee_feature)
                     d = [len(q_text), len(e_text), q_text_index, e_text_index, label, qe_feature, ee_feature]
