@@ -106,7 +106,9 @@ def evalute_jiheng(golden_list, pred_list, trigger_type=True):
             continue
         end = start + length - 1
         pred_sum += 1.
-        for doc, gold_s, gold_len, gold_typename in golden_list:
+        for g_doc_id, gold_s, gold_len, gold_typename in golden_list:
+            if docid != g_doc_id:
+                continue
             gold_e = gold_s + gold_len - 1
             if overlap(gold_s, gold_e, start, end):
                 span_tp += 1.
