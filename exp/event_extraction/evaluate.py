@@ -112,6 +112,7 @@ def evalute_jiheng(golden_list, pred_list, trigger_type=True):
                 span_tp += 1.
                 if typename == gold_typename:
                     type_tp += 1.
+                break
 
     if span_tp < 1 or type_tp < 1:
         return 0, 0, 0
